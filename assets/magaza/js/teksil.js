@@ -1,0 +1,240 @@
+/* TekstilSite — mağaza etkileşimleri (Faz 1 + Faz 2) */
+(function () {
+    'use strict';
+
+    /* ---------- Toast ---------- */
+    function toast(msg) {
+        var t = document.createElement('div');
+        t.className = 'tk-toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        requestAnimationFrame(function () { t.classList.add('gor'); });
+        setTimeout(function () {
+            t.classList.remove('gor');
+            setTimeout(function () { if (t.parentNode) t.remove(); }, 300);
+        }, 2800);
+    }
+    window.tkToast = toast;
+
+    /* ---------- Header sepet sayacı ---------- */
+    window.tkUpdateCart = function (n) {
+        var el = document.getElementById('cartCount');
+        if (el) { el.textContent = n; el.style.display = n > 0 ? '' : 'none'; }
+    };
+
+    /* AJAX POST yardımcı (CSRF + FormData) */
+    function ajaxPost(url, fd) {
+        if (window.tkCsrf && fd && typeof fd.append === 'function') {
+            fd.append(window.tkCsrf.name, window.tkCsrf.hash);
+        }
+        return fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
+            .then(function (r) { return r.json(); });
+    }
+    window.tkAjaxPost = ajaxPost;
+
+    /* ---------- Katalog: filtre ---------- */
+    function initFiltre() {
+        var form = document.querySelector('.filtre-form');
+        if (form) {
+            form.addEventListener('change', function (e) {
+                if (e.target.matches('input[type=checkbox]')) { form.submit(); }
+            });
+        }
+        var toggle = document.getElementById('filtreToggle');
+        var sarma = document.getElementById('filtreSarma');
+        if (toggle && sarma) {
+            toggle.addEventListener('click', function () {
+                var acik = sarma.classList.toggle('acik');
+                toggle.setAttribute('aria-expanded', acik ? 'true' : 'false');
+            });
+        }
+    }
+
+    /* ---------- Ürün detay ---------- */
+    function initUrunDetay() {
+        var veriEl = document.getElementById('pdVeri');
+        if (!veriEl) { return; }
+        var V = {};
+        try { V = JSON.parse(veriEl.textContent); } catch (e) { return; }
+
+        var ana = document.getElementById('anaGorsel');
+        Array.prototype.forEach.call(document.querySelectorAll('.pd-thumb'), function (th) {
+            th.addEventListener('click', function () {
+                Array.prototype.forEach.call(document.querySelectorAll('.pd-thumb'), function (x) { x.classList.remove('aktif'); });
+                th.classList.add('aktif');
+                if (ana) { ana.src = th.getAttribute('data-src'); }
+            });
+        });
+
+        var secRenk = null, secBeden = null;
+        var renkSecili = document.getElementById('renkSecili');
+        var renkBtns = document.querySelectorAll('.renk-sw');
+        var bedenBtns = document.querySelectorAll('.beden-btn');
+
+        function bedenGuncelle() {
+            if (!bedenBtns.length) { return; }
+            Array.prototype.forEach.call(bedenBtns, function (b) {
+                var beden = b.getAttribute('data-beden');
+                var key = secRenk ? (secRenk + '|' + beden) : null;
+                var varr = key ? V.varyant[key] : null;
+                var uygun = varr && varr.stok > 0;
+                b.classList.toggle('yok', !uygun);
+                b.disabled = !uygun;
+                if (!uygun && b.classList.contains('aktif')) { b.classList.remove('aktif'); secBeden = null; }
+            });
+            if (secRenk && !secBeden) {
+                var ilk = document.querySelector('.beden-btn:not(.yok)');
+                if (ilk) { ilk.classList.add('aktif'); secBeden = ilk.getAttribute('data-beden'); }
+            }
+        }
+
+        Array.prototype.forEach.call(renkBtns, function (sw) {
+            sw.addEventListener('click', function () {
+                Array.prototype.forEach.call(renkBtns, function (x) { x.classList.remove('aktif'); });
+                sw.classList.add('aktif');
+                secRenk = sw.getAttribute('data-renk');
+                secBeden = null;
+                Array.prototype.forEach.call(bedenBtns, function (x) { x.classList.remove('aktif'); });
+                if (renkSecili) { renkSecili.textContent = secRenk; }
+                bedenGuncelle();
+            });
+        });
+        Array.prototype.forEach.call(bedenBtns, function (b) {
+            b.addEventListener('click', function () {
+                if (b.disabled || b.classList.contains('yok')) { return; }
+                Array.prototype.forEach.call(bedenBtns, function (x) { x.classList.remove('aktif'); });
+                b.classList.add('aktif');
+                secBeden = b.getAttribute('data-beden');
+            });
+        });
+
+        var input = document.getElementById('adetInput');
+        var eksi = document.getElementById('adetEksi');
+        var arti = document.getElementById('adetArti');
+        var toplamEl = document.getElementById('toplamTutar');
+        var birimEl = document.getElementById('toplamBirim');
+        var moq = V.moq || 1, adim = V.adim || 1, fiyat = V.fiyat || 0;
+
+        function snap(v) {
+            v = parseInt(v, 10); if (isNaN(v)) { v = moq; }
+            if (v < moq) { return moq; }
+            var k = Math.round((v - moq) / adim);
+            return moq + k * adim;
+        }
+        function birimFiyat(adet) {
+            var yuzde = 0;
+            (V.basamak || []).forEach(function (b) { if (adet >= b.min && b.yuzde > yuzde) { yuzde = b.yuzde; } });
+            return fiyat * (1 - yuzde / 100);
+        }
+        function fmt(n) { return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'; }
+        function guncelle() {
+            var adet = snap(input.value);
+            input.value = adet;
+            var birim = birimFiyat(adet);
+            if (toplamEl) { toplamEl.textContent = fmt(birim * adet); }
+            if (birimEl) { birimEl.textContent = '(' + fmt(birim) + ' / adet)'; }
+        }
+        if (arti) { arti.addEventListener('click', function () { input.value = snap((parseInt(input.value, 10) || moq) + adim); guncelle(); }); }
+        if (eksi) { eksi.addEventListener('click', function () { input.value = snap((parseInt(input.value, 10) || moq) - adim); guncelle(); }); }
+        if (input) { input.addEventListener('change', guncelle); }
+
+        Array.prototype.forEach.call(document.querySelectorAll('.pd-tab'), function (tab) {
+            tab.addEventListener('click', function () {
+                Array.prototype.forEach.call(document.querySelectorAll('.pd-tab'), function (x) { x.classList.remove('aktif'); });
+                Array.prototype.forEach.call(document.querySelectorAll('.pd-tab-panel'), function (x) { x.classList.remove('aktif'); });
+                tab.classList.add('aktif');
+                var p = document.querySelector('.pd-tab-panel[data-panel="' + tab.getAttribute('data-tab') + '"]');
+                if (p) { p.classList.add('aktif'); }
+            });
+        });
+
+        /* Sepete ekle (AJAX) */
+        var sepet = document.getElementById('pdSepet');
+        if (sepet) {
+            sepet.addEventListener('click', function () {
+                var varyantId = 0;
+                if (renkBtns.length || bedenBtns.length) {
+                    if (renkBtns.length && !secRenk) { toast('Lütfen bir renk seçin.'); return; }
+                    if (bedenBtns.length && !secBeden) { toast('Lütfen bir beden seçin.'); return; }
+                    var key = (secRenk || '') + '|' + (secBeden || '');
+                    var varr = V.varyant ? V.varyant[key] : null;
+                    if (varr) { varyantId = varr.id; }
+                }
+                var adet = parseInt(input.value, 10) || moq;
+                var fd = new FormData();
+                fd.append('urun_id', V.id);
+                fd.append('varyant_id', varyantId);
+                fd.append('adet', adet);
+                sepet.disabled = true; sepet.textContent = 'Ekleniyor…';
+                ajaxPost((window.tkBase || '/') + 'sepet/ekle', fd)
+                    .then(function (res) {
+                        sepet.disabled = false; sepet.textContent = 'Sepete Ekle';
+                        if (res && res.ok) {
+                            toast(res.mesaj || 'Sepete eklendi.');
+                            if (typeof res.adet !== 'undefined') { window.tkUpdateCart(res.adet); }
+                        } else {
+                            toast((res && res.mesaj) ? res.mesaj : 'Eklenemedi.');
+                        }
+                    })
+                    .catch(function () { sepet.disabled = false; sepet.textContent = 'Sepete Ekle'; toast('Bağlantı hatası.'); });
+            });
+        }
+
+        if (renkBtns.length) { secRenk = renkBtns[0].getAttribute('data-renk'); }
+        bedenGuncelle();
+        guncelle();
+    }
+
+    /* ---------- Checkout ---------- */
+    function initCheckout() {
+        var form = document.querySelector('.odeme-form');
+        if (!form) { return; }
+
+        // Fatura teslimatla aynı toggle
+        var ayni = document.getElementById('faturaAyni');
+        var farkli = document.getElementById('faturaFarkli');
+        if (ayni && farkli) {
+            function toggleFatura() { farkli.style.display = ayni.checked ? 'none' : 'block'; }
+            ayni.addEventListener('change', toggleFatura); toggleFatura();
+        }
+
+        // Ödeme yöntemine göre tahmini tutar
+        var araEl = form.querySelector('[data-ara]');
+        var ara = parseFloat(form.getAttribute('data-ara')) || 0;
+        var esik = parseFloat(form.getAttribute('data-esik')) || 0;
+        var ozetIslem = document.getElementById('ozetIslem');
+        var ozetIslemSatir = document.getElementById('ozetIslemSatir');
+        var ozetIslemEtiket = document.getElementById('ozetIslemEtiket');
+        var ozetKargo = document.getElementById('ozetKargo');
+        var ozetToplam = document.getElementById('ozetToplam');
+
+        function fmt(n) { return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'; }
+
+        function hesapla() {
+            var secili = form.querySelector('input[name="odeme_yontemi"]:checked');
+            var islem = 0, etiket = 'İşlem ücreti';
+            if (secili) {
+                var tip = secili.getAttribute('data-ek-tip');
+                var ek = parseFloat(secili.getAttribute('data-ek')) || 0;
+                if (ek > 0) {
+                    if (tip === 'yuzde') { islem = Math.round(ara * ek) / 100; etiket = '%' + (ek % 1 === 0 ? ek : ek.toFixed(1)) + ' kart komisyonu'; }
+                    else { islem = ek; etiket = (secili.value === 'kapida' ? 'Kapıda ödeme ücreti' : 'İşlem ücreti'); }
+                }
+            }
+            if (ozetIslemSatir) { ozetIslemSatir.style.display = islem > 0 ? '' : 'none'; }
+            if (ozetIslem) { ozetIslem.textContent = fmt(islem); }
+            if (ozetIslemEtiket) { ozetIslemEtiket.textContent = etiket; }
+
+            var kargo = (ara >= esik) ? 0 : null;
+            if (ozetKargo) { ozetKargo.textContent = (kargo === 0) ? 'Ücretsiz' : 'Hesaplanacak'; }
+
+            if (ozetToplam) { ozetToplam.textContent = fmt(ara + islem + (kargo || 0)); }
+        }
+        Array.prototype.forEach.call(form.querySelectorAll('input[name="odeme_yontemi"]'), function (r) { r.addEventListener('change', hesapla); });
+        hesapla();
+    }
+
+    function init() { initFiltre(); initUrunDetay(); initCheckout(); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
+    else { init(); }
+})();

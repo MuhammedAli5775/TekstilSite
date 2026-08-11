@@ -1,0 +1,138 @@
+/* ==========================================================================
+   TekstilSite YÖNETİM — DESIGN.md (MongoDB görsel sistemi) admin teması
+   Yeşil pill aksiyon · lacivert sidebar · beyaz yüzeyler · hairline tablolar
+   ========================================================================== */
+:root {
+  --brand-green:#00ed64; --primary-pressed:#008c34; --on-primary:#001e2b;
+  --teal-deep:#001e2b; --teal:#003d4f; --teal-mid:#00684a;
+  --canvas:#ffffff; --surface:#f9fbfa; --surface-soft:#f4f7f6; --surface-feature:#e3fcef;
+  --hairline:#e1e5e8; --hairline-strong:#c1ccd6;
+  --ink:#001e2b; --slate:#3d4f5b; --steel:#5c6c7a; --stone:#7c8c9a; --muted:#a8b3bc;
+  --danger:#c0392b; --warning:#b7791f; --success:#1f8a5b; --info:#2c6fb2;
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --r-full:9999px;
+  --s-xs:8px; --s-sm:12px; --s-md:16px; --s-lg:20px; --s-xl:24px; --s-xxl:32px;
+  --font-sans:'Euclid Circular A','Figtree',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --sidebar-w:240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);font-size:14px;line-height:1.5;color:var(--ink);background:var(--surface);}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+ul,ol{list-style:none;}
+h1,h2,h3,h4{font-weight:600;color:var(--ink);}
+img{max-width:100%;display:block;}
+
+/* ----- login ----- */
+.adm-login-sarma{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--teal-deep);padding:20px;}
+.adm-login-sarma::before{content:"";position:fixed;inset:0;background:radial-gradient(700px 500px at 80% 0%,rgba(0,237,100,.12),transparent 60%);pointer-events:none;}
+.adm-login{position:relative;z-index:1;background:var(--canvas);border-radius:var(--r-lg);padding:var(--s-xxl);width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.adm-login-brand{display:flex;align-items:center;justify-content:center;gap:10px;font-size:22px;font-weight:600;margin-bottom:6px;color:var(--ink);}
+.adm-login h1{font-size:20px;text-align:center;margin-bottom:4px;}
+.adm-login .alt{text-align:center;color:var(--steel);font-size:13px;margin-bottom:var(--s-xl);}
+.adm-login-link{text-align:center;margin-top:var(--s-md);font-size:12px;color:var(--steel);}
+
+/* ----- butonlar ----- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;padding:9px 18px;border-radius:var(--r-full);border:1px solid transparent;white-space:nowrap;transition:background .15s,border-color .15s;}
+.btn-primary{background:var(--brand-green);color:var(--on-primary);}
+.btn-primary:active{background:var(--primary-pressed);color:#fff;}
+.btn-secondary{background:var(--canvas);color:var(--ink);border-color:var(--hairline-strong);}
+.btn-ghost{background:transparent;color:var(--slate);padding:7px 12px;border-radius:var(--r-md);}
+.btn-danger{background:#fde6e6;color:var(--danger);}
+.btn-sm{font-size:12px;padding:6px 12px;}
+.btn--block{width:100%;}
+
+/* ----- form ----- */
+.fld{margin-bottom:var(--s-md);}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--slate);margin-bottom:5px;}
+.fld input,.fld select,.fld textarea{width:100%;height:40px;padding:0 12px;border:1px solid var(--hairline-strong);border-radius:var(--r-md);font-size:14px;font-family:inherit;color:var(--ink);background:var(--canvas);}
+.fld textarea{height:auto;padding:9px 12px;resize:vertical;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px var(--surface-feature);}
+.fld small{display:block;font-size:11px;color:var(--stone);margin-top:4px;}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-md);}
+.fld-row .fld{margin-bottom:0;}
+.checkbox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate);}
+.checkbox input{width:16px;height:16px;accent-color:var(--teal-mid);}
+
+/* ----- rozet ----- */
+.rozet{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 9px;border-radius:var(--r-full);line-height:1.4;}
+.rozet-bekle{background:#fff8e0;color:#946f3f;}.rozet-mavi{background:#e3eefc;color:#2c5fa8;}
+.rozet-sari{background:#fff3d6;color:#9a7217;}.rozet-yesil{background:var(--surface-feature);color:var(--teal-mid);}
+.rozet-kirmizi{background:#fde6e6;color:#b3322f;}.rozet-turuncu{background:#fdeee4;color:#b5562a;}
+.rozet-gri{background:var(--surface);color:var(--steel);}
+
+/* ----- layout ----- */
+.adm-shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh;}
+.adm-sidebar{background:var(--teal-deep);color:#a8b3bc;position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);display:flex;flex-direction:column;z-index:40;}
+.adm-sidebar-brand{display:flex;align-items:center;gap:10px;padding:20px 22px;color:#fff;font-size:18px;font-weight:600;border-bottom:1px solid #0c2230;}
+.adm-menu{padding:14px 12px;flex:1;overflow-y:auto;}
+.adm-menu a{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:var(--r-md);font-size:14px;color:#a8b3bc;margin-bottom:2px;}
+.adm-menu a:hover{background:rgba(255,255,255,.06);color:#fff;}
+.adm-menu a.aktif{background:rgba(0,237,100,.12);color:var(--brand-green);}
+.adm-menu-ikon{width:20px;text-align:center;font-size:15px;}
+.adm-sidebar-alt{padding:14px 18px;border-top:1px solid #0c2230;font-size:11px;color:#5c6c7a;}
+.adm-main{grid-column:2;display:flex;flex-direction:column;min-width:0;}
+
+.adm-topbar{position:sticky;top:0;z-index:30;background:var(--canvas);border-bottom:1px solid var(--hairline);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--s-xl);}
+.adm-topbar h1{font-size:17px;font-weight:600;}
+.adm-topbar-sag{display:flex;align-items:center;gap:14px;}
+.adm-kullanici{display:flex;align-items:center;gap:10px;font-size:13px;}
+.adm-avatar{width:34px;height:34px;border-radius:var(--r-full);background:var(--teal-deep);color:var(--brand-green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+.adm-kullanici b{display:block;line-height:1.2;}
+.adm-kullanici small{color:var(--steel);font-size:11px;}
+
+.adm-content{padding:var(--s-xl);flex:1;}
+.adm-content--tight{padding:var(--s-md) var(--s-xl);}
+@media (max-width:900px){.adm-shell{grid-template-columns:1fr;}.adm-sidebar{display:none;}}
+
+/* ----- kart / panel ----- */
+.adm-card{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--s-lg);}
+.adm-card--p0{padding:0;}
+.adm-card-baslik{display:flex;align-items:center;justify-content:space-between;padding:var(--s-md) var(--s-lg);border-bottom:1px solid var(--hairline);}
+.adm-card-baslik h3{font-size:15px;}
+
+/* ----- istatistik kartları ----- */
+.adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-md);margin-bottom:var(--s-xl);}
+@media (max-width:900px){.adm-stats{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:520px){.adm-stats{grid-template-columns:1fr;}}
+.adm-stat{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--s-lg);}
+.adm-stat-etiket{font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.04em;}
+.adm-stat-sayi{font-size:28px;font-weight:600;margin-top:6px;}
+.adm-stat-alt{font-size:12px;color:var(--stone);margin-top:4px;}
+
+/* ----- veri tablosu ----- */
+.adm-tbl-sar{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);overflow:hidden;overflow-x:auto;}
+.adm-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:560px;}
+.adm-tbl thead th{background:var(--surface);text-align:left;padding:11px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);border-bottom:1px solid var(--hairline);}
+.adm-tbl tbody td{padding:11px 14px;border-bottom:1px solid var(--hairline);color:var(--slate);vertical-align:middle;}
+.adm-tbl tbody tr:last-child td{border-bottom:0;}
+.adm-tbl tbody tr:hover td{background:var(--surface);}
+.adm-tbl .sag{text-align:right;}
+.adm-tbl a.b{color:var(--teal-mid);font-weight:600;}
+
+/* ----- yardımcılar ----- */
+.adm-arama{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s-md);}
+.adm-arama input,.adm-arama select{height:38px;padding:0 12px;border:1px solid var(--hairline-strong);border-radius:var(--r-md);font-size:13px;font-family:inherit;color:var(--ink);background:var(--canvas);}
+.adm-uyari{padding:10px 14px;border-radius:var(--r-md);font-size:13px;margin-bottom:var(--s-md);}
+.adm-uyari--ok{background:var(--surface-feature);color:var(--teal-mid);}
+.adm-uyari--hata{background:#fde6e6;color:#b3322f;}
+.adm-uyari--info{background:#e3eefc;color:#2c5fa8;}
+.adm-bosluk{padding:40px;text-align:center;color:var(--steel);}
+.adm-sayfalama{display:flex;gap:6px;justify-content:center;padding:14px;flex-wrap:wrap;}
+.adm-sayfalama a,.adm-sayfalama span{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 10px;border:1px solid var(--hairline);border-radius:var(--r-md);font-size:13px;color:var(--slate);}
+.adm-sayfalama a:hover{border-color:var(--teal-mid);}
+.adm-sayfalama span.aktif{background:var(--ink);color:#fff;border-color:var(--ink);}
+.adm-detay-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-md);}
+@media (max-width:700px){.adm-detay-grid{grid-template-columns:1fr;}}
+.adm-kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:13px;}
+.adm-kv:last-child{border-bottom:0;}
+.adm-kv span{color:var(--steel);}
+.adm-kv b{color:var(--ink);font-weight:500;text-align:right;}
+.sayfa-baslik{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-lg);gap:12px;flex-wrap:wrap;}
+.sayfa-baslik h2{font-size:20px;}
+
+/* ----- dashboard chart'lar ----- */
+.adm-charts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--s-md);margin-bottom:var(--s-md);}
+.adm-chart-full{grid-column:1 / -1;}
+.adm-chart{position:relative;height:300px;margin-top:8px;}
+@media (max-width:1100px){.adm-charts{grid-template-columns:1fr 1fr;}.adm-chart-full{grid-column:1 / -1;}}
+@media (max-width:700px){.adm-charts{grid-template-columns:1fr;}}
