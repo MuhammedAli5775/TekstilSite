@@ -18,6 +18,7 @@ class Cron extends CI_Controller
     public function __construct()
     {
         if (! is_cli()) {
+            http_response_code(403);
             echo "Bu komut yalnizca CLI'dan calisir.\n";
             exit(1);
         }

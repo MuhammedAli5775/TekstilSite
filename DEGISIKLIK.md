@@ -18,6 +18,27 @@
 
 ---
 
+## 2026-08-12 — Cron işleri doğrulama + web guard 403
+
+Cron controller (`php index.php cron calis`) uçtan uca doğrulandı. 3 iş de graceful:
+`terk_sepet` (eski misafir sepeti siler), `pazaryeri_senkron` (aktif hesap yoksa atlar),
+`efatura_durum` (isleniyor fatura yoksa atlar).
+
+**Doğrulama:**
+- `cron calis` + tek tek 3 iş CLI'da hata vermeden çalıştı.
+- `terk_sepet 7` hedefli test: 10 günlük **misafir** sepeti silindi, yeni misafir + 10
+  günlük **bayi** sepeti korundu (yalnızca `bayi_id IS NULL` olanlar silinir — doğru).
+- Web guard (`is_cli()`) web erişimini engelliyor.
+
+**Hardening:** web guard 200 yerine **403** döndürüyor (`http_response_code(403)`). İşlev
+aynı (cron web'ten çalışmaz), yalnızca tarayıcı/bot için doğru HTTP durum kodu.
+
+**[!] Canlıya taşı:** `controllers/Cron.php` FTP. Cron tetikleme (CANLIYA-TASIMA §6):
+`php index.php cron calis` periyodik (Linux crontab / Windows Task Scheduler), web erişimi
+engelli.
+
+---
+
 ## 2026-08-12 — PayTR: callback typo (kritik) + get_token TRY tutar normalizasyonu
 
 PayTR kartlı ödeme akışı doğrulandı; iki gerçek bug bulundu ve düzeltildi (biri
