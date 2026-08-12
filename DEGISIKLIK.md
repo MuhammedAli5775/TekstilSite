@@ -18,6 +18,33 @@
 
 ---
 
+## 2026-08-12 — PayTR: callback typo (kritik) + get_token TRY tutar normalizasyonu
+
+PayTR kartlı ödeme akışı doğrulandı; iki gerçek bug bulundu ve düzeltildi (biri
+kritik — üretimde hiçbir kart ödemesi onaylanamazdı).
+
+**(1) KRİTİK — callback hash typo (`libraries/Paytr_api.php:121`):** `callback_dogrula`
+`$beklenen` tanımlayıp `hash_equals($bekenen, ...)` çağırıyordu ('l' eksik) → tanımsız
+değişken → TypeError → her callback 500. Yani PayTR'dan gelen başarılı ödeme bildirimi
+ASLA doğrulanamıyor, sipariş ASLA "ödendi" işaretlenemiyordu. `$bekenen` → `$beklenen`.
+(Test anahtarlarıyla uçtan uca doğrulandı — öncesinde TypeError.)
+
+**(2) get_token TRY tutar normalizasyonu:** PayTR iFrame TL-only (`currency='TL'`), ama
+`payment_amount = toplam*100` sipariş para birimini (USD) alıyordu → USD sipariş 14.76 TL
+charge edilirdi (gerçek 479.70 TL yerine — ciddi gelir kaybı). `toplam*kur` ve kalem
+`birim_fiyat*kur` (TRY kuruş). TRY siparişler kur=1 (etkilenmez). Aynı multi-currency
+bug sınıfı.
+
+**Doğrulama (test anahtarlarıyla, USD sipariş 14.76 / kur 32.5):** get_token tutarı
+47970 kuruş TRY (eski 1476). Callback: yanlış hash → "bad hash" (red), doğru hash →
+"OK" + `odeme_durumu=odendi` + `durum=onaylandi` + geçmişe "PayTR ödendi" notu,
+idempotent (tekrar → hala tek geçmiş). 12/12 PASS. Lint/FFFD temiz; sunucu logu temiz.
+
+**[!] Canlıya taşı:** `libraries/Paytr_api.php` FTP. **(1) acil** — canlıda PayTR açıksa
+kart ödemeleri onaylanmıyordu.
+
+---
+
 ## 2026-08-12 — E-fatura TRY normalizasyonu (para birimi)
 
 E-fatura/e-arşiv yasal olarak TRY olmalı; ama USD/EUR siparişten o para birimiyle fatura

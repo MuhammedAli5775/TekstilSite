@@ -47,13 +47,14 @@ class Paytr_api
 
         $user_ip        = $this->CI->input->ip_address();
         $merchant_oid   = $s->siparis_no;
+        $kur            = (float) ($s->kur ?: 1.0);   // PayTR TL ile calisir; siparis para birimini TRY'ye normalize et
         $email          = $s->email ?: ('siparis-' . $s->id . '@' . preg_replace('#^https?://#', '', (string) base_url()));
-        $payment_amount = (int) round((float) $s->toplam * 100);   // kuruş
+        $payment_amount = (int) round((float) $s->toplam * $kur * 100);   // kurus (TRY)
 
         // user_basket: [[ad, fiyat(kuruş), adet], ...]
         $basket = array();
         foreach ($s->detaylar as $d) {
-            $basket[] = array($d->urun_adi, (int) round((float) $d->birim_fiyat * 100), (int) $d->adet);
+            $basket[] = array($d->urun_adi, (int) round((float) $d->birim_fiyat * $kur * 100), (int) $d->adet);
         }
         $user_basket = base64_encode(json_encode($basket, JSON_UNESCAPED_UNICODE));
 
@@ -117,7 +118,7 @@ class Paytr_api
         $hash  = (string) ($post['hash'] ?? '');
         if ($oid === '' || $hash === '' || ! $this->hazir()) { return FALSE; }
         $beklenen = base64_encode(hash_hmac('sha256', $oid . $merchant_salt . $stat . $total, $merchant_key, TRUE));
-        return hash_equals($bekenen, $hash);
+        return hash_equals($beklenen, $hash);
     }
 
     private function _http_post($url, $params)
