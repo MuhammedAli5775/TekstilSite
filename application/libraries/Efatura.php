@@ -37,20 +37,21 @@ class Efatura
         $s = $this->CI->siparis_model->mg_admin_getir($siparis_id);
         if (! $s) { return NULL; }
 
-        $ara = (float) $s->ara_toplam;          // ürünler ara toplamı (KDV dahil fiyatlandırma varsayımı)
+        $kur  = (float) ($s->kur ?: 1.0);
+        $ara  = (float) $s->ara_toplam * $kur;          // ürünler ara toplamı (KDV dahil fiyatlandırma varsayımı)
         $matrah = round($ara / 1.20, 2);         // %20 KDV ayrışımı
         $kdv    = round($ara - $matrah, 2);
 
         $kalemler = array();
         foreach ($s->detaylar as $d) {
-            $satir_ara = (float) $d->ara_toplam;
+            $satir_ara = (float) $d->ara_toplam * $kur;
             $satir_matrah = round($satir_ara / 1.20, 2);
             $kalemler[] = array(
                 'ad'          => $d->urun_adi,
                 'stok_kodu'   => $d->stok_kodu ?: '',
                 'varyant'     => $d->varyant_bilgi ?: '',
                 'adet'        => (int) $d->adet,
-                'birim_fiyat' => (float) $d->birim_fiyat,
+                'birim_fiyat' => (float) $d->birim_fiyat * $kur,
                 'kdv_orani'   => (int) $d->kdv,
                 'matrah'      => $satir_matrah,
                 'kdv'         => round($satir_ara - $satir_matrah, 2),
@@ -74,7 +75,7 @@ class Efatura
             ),
             'matrah' => $matrah,
             'kdv'    => $kdv,
-            'toplam' => (float) $s->toplam,      // ödenen (kargo/işlem dahil)
+            'toplam' => (float) $s->toplam * $kur,      // ödenen (kargo/işlem dahil)
             'kalemler' => $kalemler,
         );
     }
@@ -101,7 +102,8 @@ class Efatura
 
         $tip      = ($tip === 'efatura') ? 'efatura' : 'earsiv';
         $payload  = $this->payload($siparis_id);
-        $ara      = (float) $s->ara_toplam;
+        $kur      = (float) ($s->kur ?: 1.0);
+        $ara      = (float) $s->ara_toplam * $kur;
         $matrah   = round($ara / 1.20, 2);
         $fatura_no = 'FT-' . $s->siparis_no;
 
@@ -121,7 +123,8 @@ class Efatura
             'alici_eposta'  => $s->email ?: ($s->bayi_email ?: NULL),
             'matrah'        => $matrah,
             'kdv'           => round($ara - $matrah, 2),
-            'toplam'        => (float) $s->toplam,
+            'toplam'        => (float) $s->toplam * $kur,
+            'para_birimi'   => 'TRY',
         ));
 
         if (! $fatura_id) {

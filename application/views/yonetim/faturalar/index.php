@@ -43,7 +43,7 @@ $durum_map = array(
                     <td><?= e($f->alici_unvan ?: '-') ?><br><small class="mono"><?= e($f->alici_vkn ?: '-') ?></small></td>
                     <td><?= $f->tip === 'efatura' ? 'e-Fatura' : 'e-Arşiv' ?></td>
                     <td><span class="rozet rozet-<?= e($dm[1]) ?>"><?= e($dm[0]) ?></span></td>
-                    <td class="sag"><?= para_formatla($f->toplam, $f->siparis_para_birimi ?: 'TRY') ?></td>
+                    <td class="sag"><?= para_tr($f->toplam) ?></td>
                     <td><small><?= e(date('d.m.Y H:i', strtotime($f->olusturma_zaman))) ?></small></td>
                     <td><a class="btn btn-ghost btn-sm" href="<?= site_url('yonetim/faturalar/detay/' . $f->id) ?>">Detay</a></td>
                 </tr>

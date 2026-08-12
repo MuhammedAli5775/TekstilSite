@@ -18,6 +18,35 @@
 
 ---
 
+## 2026-08-12 — E-fatura TRY normalizasyonu (para birimi)
+
+E-fatura/e-arşiv yasal olarak TRY olmalı; ama USD/EUR siparişten o para birimiyle fatura
+kesilirdi (matrah/KDV/toplam sipariş para biriminde, `para_birimi` yine TRY diye
+etiketliydi — tutarsız). Düzeltme: `Efatura` kütüphanesi tüm tutarları siparişin `kur`'uyla
+TRY'ye normalize ediyor; `faturalar.para_birimi='TRY'` açıksetti.
+
+**Dosyalar:**
+- `libraries/Efatura.php`: `payload()` + `olustur()` — `$kur = $s->kur ?: 1.0`;
+  ara/matrah/KDV/toplam + kalem `birim_fiyat`/`ara`/`matrah`/`KDV`/`tutar` `* $kur`
+  (TRY). `olustur` insert'ine `para_birimi => 'TRY'` eklendi. TRY siparişler kur=1
+  (etkilenmez).
+- `views/yonetim/faturalar/index.php` + `detay.php`: fatura tutarları artık TRY →
+  `para_tr` (₺). `detay` "Sipariş toplamı" satırı yine sipariş para biriminde
+  (`para_formatla($s->toplam, $s->para_birimi)`) — admin TRY fatura + bayinin ödediği
+  para birimini birlikte görür. `$pb` yardımcısı kaldırıldı.
+- `models/Fatura_model.php::liste`: `siparis_para_birimi` alias'ı kaldırıldı (fatura
+  artık TRY, sipariş pb'sine gerek yok).
+
+**Doğrulama:** USD sipariş (toplam 14.76 USD, kur 32.5) → fatura: `para_birimi=TRY`,
+matrah=399,75 ₺, KDV=79,95 ₺, toplam=479,70 ₺ (toplam ≠ 14.76 USD — normalize oldu).
+Fatura detay matrah/toplam ₺, "Sipariş toplamı" 14,76 $. Liste 479,70 ₺. 11/11 PASS.
+4 dosya lint temiz + FFFD=0; sunucu logu temiz.
+
+**[!] Canlıya taşı:** `libraries/Efatura.php` + `models/Fatura_model.php` + 2 fatura
+view FTP.
+
+---
+
 ## 2026-08-12 — Ciro/agregat TRY normalizasyonu (para birimi karışım bug'ı)
 
 Raporlar + dashboard "Ciro"/tutar agregatları farklı para birimli sipariş `toplam`'larını

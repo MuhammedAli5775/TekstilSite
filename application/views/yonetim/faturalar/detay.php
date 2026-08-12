@@ -8,7 +8,6 @@ $durum_map = array(
     'iptal'      => array('İptal', 'gri'),
 );
 $dm = $durum_map[$f->durum] ?? array($f->durum, 'gri');
-$pb = (isset($s) && $s && ! empty($s->para_birimi)) ? $s->para_birimi : 'TRY';
 ?>
 <?php if ($bilgi = $this->session->flashdata('bilgi')): ?><div class="adm-uyari adm-uyari--ok"><?= e($bilgi) ?></div><?php endif; ?>
 <?php if ($hata = $this->session->flashdata('hata')): ?><div class="adm-uyari adm-uyari--hata"><?= e($hata) ?></div><?php endif; ?>
@@ -51,9 +50,9 @@ $pb = (isset($s) && $s && ! empty($s->para_birimi)) ? $s->para_birimi : 'TRY';
     <div>
         <div class="adm-card">
             <div class="adm-card-baslik"><h3>Finansal</h3></div>
-            <div class="adm-kv"><span>Matrah (KDV hariç)</span><b><?= para_formatla($f->matrah, $pb) ?></b></div>
-            <div class="adm-kv"><span>KDV (%20 varsayım)</span><b><?= para_formatla($f->kdv, $pb) ?></b></div>
-            <div class="adm-kv"><span><b>Genel toplam</b></span><b><?= para_formatla($f->toplam, $pb) ?></b></div>
+            <div class="adm-kv"><span>Matrah (KDV hariç)</span><b><?= para_tr($f->matrah) ?></b></div>
+            <div class="adm-kv"><span>KDV (%20 varsayım)</span><b><?= para_tr($f->kdv) ?></b></div>
+            <div class="adm-kv"><span><b>Genel toplam</b></span><b><?= para_tr($f->toplam) ?></b></div>
             <small style="color:var(--stone)">Matrah/KDV, ürün ara toplamından %20 KDV ayrışımıyla hesaplanır (KDV-dahil fiyatlandırma varsayımı). Gerçek entegratör gönderiminde satıcının KDV şeması esas alınır.</small>
         </div>
 
@@ -62,7 +61,7 @@ $pb = (isset($s) && $s && ! empty($s->para_birimi)) ? $s->para_birimi : 'TRY';
             <div class="adm-card-baslik"><h3>Bağlı Sipariş</h3></div>
             <div class="adm-kv"><span>Sipariş no</span><b><a href="<?= site_url('yonetim/siparisler/detay/' . $s->id) ?>"><?= e($s->siparis_no) ?></a></b></div>
             <div class="adm-kv"><span>Ödeme</span><b><?= e($s->odeme_yontemi) ?></b></div>
-            <div class="adm-kv"><span>Sipariş toplamı</span><b><?= para_formatla($s->toplam, $pb) ?></b></div>
+            <div class="adm-kv"><span>Sipariş toplamı</span><b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></div>
         </div>
         <?php endif; ?>
 
