@@ -314,24 +314,48 @@ class Urun_model extends CI_Model
     /** Varyantları değiştir (eski sil + yenileri ekle). */
     public function mg_varyant_kaydet($urun_id, $rows)
     {
-        $this->db->where('urun_id', (int) $urun_id)->delete('urun_varyantlari');
-        if (! is_array($rows)) { return; }
-        $sira = 0;
+        // (renk,beden)'e gore birlestir — degistir-atil DEGIL. Eslesen mevcut varyant
+        // GUNCELLENIR (ID + buna bagli siparis/stok-hareket referanslari korunur),
+        // yeniler eklenir, cikarilanlar silinir. Boylece urun duzenleme (orn. fiyat
+        // degisikligi) siparisi olan varyantlari silip iade stok-geri-yuklemesini
+        // (UPDATE ... WHERE id=varyant_id -> 0 satir -> stok sizintisi) bozmaz.
+        $urun_id = (int) $urun_id;
+        if (! is_array($rows)) { $rows = array(); }
+
+        $mevcut = $this->db->where('urun_id', $urun_id)->get('urun_varyantlari')->result();
+        $idx = array();
+        foreach ($mevcut as $m) { $idx[$this->_vkey($m->renk, $m->beden)] = (int) $m->id; }
+
+        $goruldu = array();
         foreach ($rows as $r) {
-            $renk = trim((string) ($r['renk'] ?? ''));
+            $renk  = trim((string) ($r['renk'] ?? ''));
             $beden = trim((string) ($r['beden'] ?? ''));
             if ($renk === '' && $beden === '') { continue; }
-            $this->db->insert('urun_varyantlari', array(
-                'urun_id' => (int) $urun_id,
-                'renk'    => $renk ?: NULL,
-                'beden'   => $beden ?: NULL,
-                'stok'    => (int) ($r['stok'] ?? 0),
-                'sku'     => trim((string) ($r['sku'] ?? '')) ?: NULL,
-                'durum'   => 1,
-            ));
-            $sira++;
+            $key = $this->_vkey($renk, $beden);
+            $goruldu[$key] = TRUE;
+            $veri = array(
+                'renk'  => $renk ?: NULL,
+                'beden' => $beden ?: NULL,
+                'stok'  => (int) ($r['stok'] ?? 0),
+                'sku'   => trim((string) ($r['sku'] ?? '')) ?: NULL,
+                'durum' => 1,
+            );
+            if (isset($idx[$key])) {
+                $this->db->where('id', $idx[$key])->update('urun_varyantlari', $veri);
+            } else {
+                $veri['urun_id'] = $urun_id;
+                $this->db->insert('urun_varyantlari', $veri);
+                $idx[$key] = (int) $this->db->insert_id();
+            }
+        }
+
+        foreach ($idx as $key => $id) {
+            if (! isset($goruldu[$key])) { $this->db->where('id', $id)->delete('urun_varyantlari'); }
         }
     }
+
+    /** Varyant eslesme anahtari (renk \x1F beden). */
+    private function _vkey($renk, $beden) { return (string) $renk . "\x1F" . (string) $beden; }
 
     /** Fiyat basamaklarını değiştir (ürüne özel: eskileri sil + yenileri ekle). */
     public function mg_basamak_kaydet($urun_id, $rows)

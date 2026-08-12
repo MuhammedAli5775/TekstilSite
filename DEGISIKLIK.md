@@ -18,6 +18,34 @@
 
 ---
 
+## 2026-08-12 — Admin ürün CRUD doğrulama + varyant-ID korunumu (iade stok sızıntısı)
+
+Admin ürün CRUD'u uçtan uca doğrulandı: ekle (slug otomatik + benzersiz, varyant + fiyat
+basamağı), düzenle, durum toggle, soft-delete (`deleted_at`+`durum=0`, admin listesinden
+gizli), validasyon red (adsız), slug benzersizlik (aynı ad → `-2` soneki). 14/14 PASS.
+Slug/endeks/doğrulama mantığında bug yoktu.
+
+**Ama gerçek bir data-integrity bug'ı bulundu ve düzeltildi — varyant-ID değişimi (iade
+stok sızıntısı):** `mg_varyant_kaydet` her ürün düzenlemede tüm varyantları **silip yeniden
+ekliyordu** (ID yenileniyordu). Siparişi olan bir ürün admin düzenlerse (örn. fiyat),
+`siparis_detaylari.varyant_id` + `stok_hareketleri.varyant_id` referansları boşta
+kalıyordu. Kritik sonuç: **iade akışında stok geri-yükleme** (`UPDATE urun_varyantlari SET
+stok=stok+N WHERE id=varyant_id`) 0 satır etkileyip iade edilen stoğu geri eklemiyordu —
+envanter sızıntısı.
+
+**Düzeltme:** `mg_varyant_kaydet` artık **değiştir-atıl yerine birleştir** — (renk,beden)
+eşleşen mevcut varyant GÜNCELLENİR (ID + referanslar korunur), yeniler eklenir, çıkarılanlar
+silinir. Yeni `_vkey()` yardımcısı (renk \x1F beden anahtarı).
+
+**Doğrulama:** (A) korunum — [KM,ML]→[KM-koru,YS]: KM id aynı (stok güncellendi), ML silindi,
+YS eklendi; (B) iade senaryosu — sipariş (stok 100→94) → ürün düzenle (vid korundu) → admin
+iade → stok 94→100 (eski kodda vid silinip sızıntı olurdu); (C) CRUD regression (durum
+toggle + soft-delete). 13/13 PASS. Lint/FFFD temiz; sunucu logu temiz.
+
+**[!] Canlıya taşı:** `models/Urun_model.php` FTP.
+
+---
+
 ## 2026-08-12 — Cron işleri doğrulama + web guard 403
 
 Cron controller (`php index.php cron calis`) uçtan uca doğrulandı. 3 iş de graceful:
