@@ -12,7 +12,7 @@ class Dashboard_model extends CI_Model
         if (! $this->db->table_exists('siparisler')) {
             return array('siparis' => 0, 'bekleyen' => 0, 'bayi' => 0, 'bekleyen_bayi' => 0, 'urun' => 0, 'ciro' => 0.0);
         }
-        $this->db->select('COALESCE(SUM(toplam),0) AS c', FALSE)
+        $this->db->select('COALESCE(SUM(toplam * kur),0) AS c', FALSE)
                  ->where_in('durum', array('onaylandi', 'hazirlaniyor', 'kargolandi', 'teslim_edildi'));
         $this->_aralik($basla, $bitir);
         $ciro = $this->db->get('siparisler')->row();
@@ -44,7 +44,7 @@ class Dashboard_model extends CI_Model
     public function son_siparisler($n = 8, $basla = NULL, $bitir = NULL)
     {
         $this->_aralik($basla, $bitir, 's.olusturma_zaman');
-        return $this->db->select('s.id, s.siparis_no, s.durum, s.toplam, s.olusturma_zaman, b.firma_adi, b.yetkili_ad_soyad')
+        return $this->db->select('s.id, s.siparis_no, s.durum, s.toplam, s.para_birimi, s.olusturma_zaman, b.firma_adi, b.yetkili_ad_soyad')
                         ->from('siparisler s')
                         ->join('bayiler b', 'b.id = s.bayi_id', 'left')
                         ->order_by('s.id', 'DESC')->limit((int) $n)
@@ -85,7 +85,7 @@ class Dashboard_model extends CI_Model
         } else {
             $sel = "DATE(olusturma_zaman) AS birim";
         }
-        $rows = $this->db->select($sel . ", COUNT(*) AS adet, COALESCE(SUM(toplam),0) AS tutar", FALSE)
+        $rows = $this->db->select($sel . ", COUNT(*) AS adet, COALESCE(SUM(toplam * kur),0) AS tutar", FALSE)
                          ->group_by('birim')->order_by('birim', 'ASC')
                          ->get('siparisler')->result();
         foreach ($rows as $r) {

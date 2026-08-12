@@ -49,7 +49,7 @@ $kargo = (float) $s->kargo_ucreti;
                     <thead><tr><th>Ürün</th><th>Varyant</th><th class="sag">Adet</th><th class="sag">Tutar</th></tr></thead>
                     <tbody>
                     <?php foreach ($s->detaylar as $d): ?>
-                        <tr><td><?= e($d->urun_adi) ?><br><small class="mono"><?= e($d->stok_kodu) ?></small></td><td><?= e($d->varyant_bilgi ?: '-') ?></td><td class="sag"><?= (int) $d->adet ?></td><td class="sag"><?= para_tr($d->birim_fiyat * $d->adet) ?></td></tr>
+                        <tr><td><?= e($d->urun_adi) ?><br><small class="mono"><?= e($d->stok_kodu) ?></small></td><td><?= e($d->varyant_bilgi ?: '-') ?></td><td class="sag"><?= (int) $d->adet ?></td><td class="sag"><?= para_formatla($d->birim_fiyat * $d->adet, $s->para_birimi) ?></td></tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -63,10 +63,10 @@ $kargo = (float) $s->kargo_ucreti;
             <div class="adm-kv"><span>Sipariş no</span><b><?= e($s->siparis_no) ?></b></div>
             <div class="adm-kv"><span>Tarih</span><b><?= e(date('d.m.Y H:i', strtotime($s->olusturma_zaman))) ?></b></div>
             <div class="adm-kv"><span>Ödeme</span><b><?= e($s->odeme_yontemi) ?> · <?= e($s->odeme_durumu) ?></b></div>
-            <div class="adm-kv"><span>Ara toplam</span><b><?= para_tr($s->ara_toplam) ?></b></div>
-            <?php if ($islem > 0): ?><div class="adm-kv"><span>İşlem ücreti</span><b><?= para_tr($islem) ?></b></div><?php endif; ?>
-            <div class="adm-kv"><span>Kargo</span><b><?= $kargo > 0 ? para_tr($kargo) : 'Ücretsiz' ?></b></div>
-            <div class="adm-kv"><span><b>Toplam</b></span><b><?= para_tr($s->toplam) ?></b></div>
+            <div class="adm-kv"><span>Ara toplam</span><b><?= para_formatla($s->ara_toplam, $s->para_birimi) ?></b></div>
+            <?php if ($islem > 0): ?><div class="adm-kv"><span>İşlem ücreti</span><b><?= para_formatla($islem, $s->para_birimi) ?></b></div><?php endif; ?>
+            <div class="adm-kv"><span>Kargo</span><b><?= $kargo > 0 ? para_formatla($kargo, $s->para_birimi) : 'Ücretsiz' ?></b></div>
+            <div class="adm-kv"><span><b>Toplam</b></span><b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></div>
             <?php if (! empty($s->kargo_takip_no)): ?><div class="adm-kv"><span>Kargo</span><b><?= e($s->kargo_firma ?: '') ?> · <?= e($s->kargo_takip_no) ?></b></div><?php endif; ?>
         </div>
         <div class="adm-card" style="margin-top:16px">

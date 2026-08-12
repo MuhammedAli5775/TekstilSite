@@ -54,7 +54,7 @@ foreach ($odeme_yontemleri as $oy) { if ($oy->tip === 'havale') { $havale_var = 
         </div>
         <div style="font-weight:600;margin:12px 0 6px">Ödeme Yöntemi <span class="zor">*</span></div>
         <?php foreach ($odeme_yontemleri as $i => $oy): ?>
-            <label class="odeme-yontem"><input type="radio" name="odeme_yontemi" value="<?= e($oy->kod) ?>" <?= set_radio('odeme_yontemi', $oy->kod, $i === 0) ?> required> <b><?= e($oy->ad) ?></b><?php if ((float) $oy->ek_ucret > 0): ?> <small class="text-steel">(<?= $oy->ek_ucret_tip === 'yuzde' ? '%' . $oy->ek_ucret : para_tr($oy->ek_ucret) ?> ek)</small><?php endif; ?></label>
+            <label class="odeme-yontem"><input type="radio" name="odeme_yontemi" value="<?= e($oy->kod) ?>" <?= set_radio('odeme_yontemi', $oy->kod, $i === 0) ?> required> <b><?= e($oy->ad) ?></b><?php if ((float) $oy->ek_ucret > 0): ?> <small class="text-steel">(<?= $oy->ek_ucret_tip === 'yuzde' ? '%' . $oy->ek_ucret : para_goster($oy->ek_ucret, $pb) ?> ek)</small><?php endif; ?></label>
         <?php endforeach; ?>
         <?php if ($havale_var && ! empty($banka_hesaplari)): ?>
             <div style="margin-top:10px;padding:12px;background:var(--surface);border-radius:8px;font-size:13px">
@@ -71,12 +71,12 @@ foreach ($odeme_yontemleri as $oy) { if ($oy->tip === 'havale') { $havale_var = 
         <div class="sepet-ozet">
             <h3 style="margin-bottom:12px">Sipariş Özeti</h3>
             <?php foreach ($satirlar as $r): ?>
-                <div class="sepet-ozet-satr"><span><?= e($r->ad) ?> <small>×<?= (int) $r->adet ?></small></span><span><?= para_tr($r->ara) ?></span></div>
+                <div class="sepet-ozet-satr"><span><?= e($r->ad) ?> <small>×<?= (int) $r->adet ?></small></span><span><?= para_formatla($r->ara_pb, $r->pb) ?></span></div>
             <?php endforeach; ?>
-            <div class="sepet-ozet-toplam"><span>Ara toplam</span><span><?= para_tr($ara_toplam) ?></span></div>
+            <div class="sepet-ozet-toplam"><span>Ara toplam</span><span><?= para_formatla($pb_ara_toplam, $pb) ?></span></div>
 
             <?php if (! empty($kupon_kod) && $kupon_indirim > 0): ?>
-                <div class="sepet-ozet-satr" style="color:var(--teal-mid)"><span>Kupon (<?= e($kupon_kod) ?>)</span><span>-<?= para_tr($kupon_indirim) ?></span></div>
+                <div class="sepet-ozet-satr" style="color:var(--teal-mid)"><span>Kupon (<?= e($kupon_kod) ?>)</span><span>-<?= para_goster($kupon_indirim, $pb) ?></span></div>
                 <form method="post" action="<?= site_url('odeme/kupon_kaldir') ?>" style="margin:6px 0 0"><?= csrf_field() ?><button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger);padding:2px 10px">Kuponu kaldır</button></form>
             <?php else: ?>
                 <form method="post" action="<?= site_url('odeme/kupon_uygula') ?>" style="margin:10px 0"><?= csrf_field() ?>

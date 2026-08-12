@@ -26,15 +26,15 @@ $kargo = (float) $s->kargo_ucreti;
                                 <td><?= e($d->urun_adi) ?><br><small class="mono text-steel"><?= e($d->stok_kodu) ?></small></td>
                                 <td class="text-steel"><?= e($d->varyant_bilgi ?: '-') ?></td>
                                 <td><?= (int) $d->adet ?></td>
-                                <td style="text-align:right"><b><?= para_tr($d->birim_fiyat * $d->adet) ?></b></td>
+                                <td style="text-align:right"><b><?= para_formatla($d->birim_fiyat * $d->adet, $s->para_birimi) ?></b></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
                     </table>
                     <div class="basari-ozet">
-                        <div class="sepet-ozet-satr"><span>Ara toplam</span><span><?= para_tr($s->ara_toplam) ?></span></div>
-                        <?php if ($islem > 0): ?><div class="sepet-ozet-satr"><span>İşlem ücreti</span><span><?= para_tr($islem) ?></span></div><?php endif; ?>
-                        <div class="sepet-ozet-satr"><span>Kargo</span><span><?= $kargo > 0 ? para_tr($kargo) : 'Ücretsiz' ?></span></div>
-                        <div class="sepet-ozet-satr sepet-ozet-toplam"><span>Toplam</span><span><?= para_tr($s->toplam) ?></span></div>
+                        <div class="sepet-ozet-satr"><span>Ara toplam</span><span><?= para_formatla($s->ara_toplam, $s->para_birimi) ?></span></div>
+                        <?php if ($islem > 0): ?><div class="sepet-ozet-satr"><span>İşlem ücreti</span><span><?= para_formatla($islem, $s->para_birimi) ?></span></div><?php endif; ?>
+                        <div class="sepet-ozet-satr"><span>Kargo</span><span><?= $kargo > 0 ? para_formatla($kargo, $s->para_birimi) : 'Ücretsiz' ?></span></div>
+                        <div class="sepet-ozet-satr sepet-ozet-toplam"><span>Toplam</span><span><?= para_formatla($s->toplam, $s->para_birimi) ?></span></div>
                     </div>
                 </div>

@@ -44,7 +44,7 @@ $durum_rozet = array('0' => 'rozet-turuncu', '1' => 'rozet-yesil', '2' => 'rozet
             <div class="adm-tbl-sar">
                 <table class="adm-tbl"><thead><tr><th>Sipariş</th><th>Durum</th><th class="sag">Toplam</th></tr></thead><tbody>
                 <?php foreach ($siparisler as $s): $de = durum_etiket($s->durum); ?>
-                    <tr><td><a class="b" href="<?= site_url('yonetim/siparisler/detay/' . $s->id) ?>"><?= e($s->siparis_no) ?></a><br><small><?= e(date('d.m.Y', strtotime($s->olusturma_zaman))) ?></small></td><td><span class="rozet rozet-<?= e($de[1]) ?>"><?= e($de[0]) ?></span></td><td class="sag"><?= para_tr($s->toplam) ?></td></tr>
+                    <tr><td><a class="b" href="<?= site_url('yonetim/siparisler/detay/' . $s->id) ?>"><?= e($s->siparis_no) ?></a><br><small><?= e(date('d.m.Y', strtotime($s->olusturma_zaman))) ?></small></td><td><span class="rozet rozet-<?= e($de[1]) ?>"><?= e($de[0]) ?></span></td><td class="sag"><?= para_formatla($s->toplam, $s->para_birimi) ?></td></tr>
                 <?php endforeach; ?>
                 </tbody></table>
             </div>

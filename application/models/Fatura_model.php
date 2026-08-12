@@ -9,7 +9,7 @@ class Fatura_model extends CI_Model
     /** Yönetim: faturalar + sipariş/bayi join, filtre (durum, arama). */
     public function liste($f = array())
     {
-        $this->db->select('f.*, s.siparis_no, b.firma_adi')
+        $this->db->select('f.*, s.siparis_no, s.para_birimi AS siparis_para_birimi, b.firma_adi')
                  ->from('faturalar f')
                  ->join('siparisler s', 's.id = f.siparis_id', 'left')
                  ->join('bayiler b', 'b.id = f.bayi_id', 'left');

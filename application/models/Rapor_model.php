@@ -31,7 +31,7 @@ class Rapor_model extends CI_Model
         }
 
         $this->_aralik($bas, $son);
-        $row = $this->db->select('COALESCE(SUM(s.toplam),0) AS ciro, COALESCE(SUM(s.kargo_ucreti),0) AS kargo, COALESCE(SUM(s.indirim),0) AS indirim, COUNT(*) AS n')
+        $row = $this->db->select('COALESCE(SUM(s.toplam * s.kur),0) AS ciro, COALESCE(SUM(s.kargo_ucreti * s.kur),0) AS kargo, COALESCE(SUM(s.indirim * s.kur),0) AS indirim, COUNT(*) AS n', FALSE)
                         ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
                         ->get('siparisler s')->row();
         if ($row) {
@@ -48,7 +48,7 @@ class Rapor_model extends CI_Model
     public function urun_satis($bas, $son)
     {
         $this->_aralik($bas, $son);
-        return $this->db->select('d.urun_adi, SUM(d.adet) AS adet, SUM(d.ara_toplam) AS ciro, COUNT(DISTINCT s.id) AS siparis')
+        return $this->db->select('d.urun_adi, SUM(d.adet) AS adet, SUM(d.ara_toplam * s.kur) AS ciro, COUNT(DISTINCT s.id) AS siparis', FALSE)
                         ->from('siparis_detaylari d')->join('siparisler s', 's.id = d.siparis_id')
                         ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
                         ->group_by(array('d.urun_id', 'd.urun_adi'))->order_by('ciro', 'DESC')
@@ -59,7 +59,7 @@ class Rapor_model extends CI_Model
     public function kategori_satis($bas, $son)
     {
         $this->_aralik($bas, $son);
-        return $this->db->select('COALESCE(k.ad, "Kategorisiz") AS ad, SUM(d.adet) AS adet, SUM(d.ara_toplam) AS ciro')
+        return $this->db->select('COALESCE(k.ad, "Kategorisiz") AS ad, SUM(d.adet) AS adet, SUM(d.ara_toplam * s.kur) AS ciro', FALSE)
                         ->from('siparis_detaylari d')
                         ->join('siparisler s', 's.id = d.siparis_id')
                         ->join('urunler u', 'u.id = d.urun_id', 'left')
@@ -73,7 +73,7 @@ class Rapor_model extends CI_Model
     public function bayi_satis($bas, $son)
     {
         $this->_aralik($bas, $son);
-        return $this->db->select('COALESCE(b.firma_adi, "Misafir") AS bayi, b.email, COUNT(s.id) AS siparis, SUM(s.toplam) AS ciro')
+        return $this->db->select('COALESCE(b.firma_adi, "Misafir") AS bayi, b.email, COUNT(s.id) AS siparis, SUM(s.toplam * s.kur) AS ciro', FALSE)
                         ->from('siparisler s')->join('bayiler b', 'b.id = s.bayi_id', 'left')
                         ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
                         ->group_by('s.bayi_id')->order_by('ciro', 'DESC')
@@ -85,7 +85,7 @@ class Rapor_model extends CI_Model
     {
         $alan = ($alan === 'teslimat_ilce') ? 's.teslimat_ilce' : 's.teslimat_il';
         $this->_aralik($bas, $son);
-        return $this->db->select('COALESCE(' . $alan . ', "Belirtilmemiş") AS bolge, COUNT(*) AS siparis, SUM(s.toplam) AS ciro')
+        return $this->db->select('COALESCE(' . $alan . ', "Belirtilmemiş") AS bolge, COUNT(*) AS siparis, SUM(s.toplam * s.kur) AS ciro', FALSE)
                         ->from('siparisler s')
                         ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
                         ->group_by($alan)->order_by('ciro', 'DESC')
@@ -96,7 +96,7 @@ class Rapor_model extends CI_Model
     public function odeme_satis($bas, $son)
     {
         $this->_aralik($bas, $son);
-        return $this->db->select('COALESCE(s.odeme_yontemi, "Belirtilmemiş") AS yontem, COUNT(*) AS siparis, SUM(s.toplam) AS ciro')
+        return $this->db->select('COALESCE(s.odeme_yontemi, "Belirtilmemiş") AS yontem, COUNT(*) AS siparis, SUM(s.toplam * s.kur) AS ciro', FALSE)
                         ->from('siparisler s')
                         ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
                         ->group_by('s.odeme_yontemi')->order_by('ciro', 'DESC')

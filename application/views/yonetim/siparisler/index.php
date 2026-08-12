@@ -26,7 +26,7 @@ $qs = $_GET; unset($qs['sayfa']);
                 <td><?= e($s->firma_adi ?: ($s->yetkili_ad_soyad ?: 'Misafir')) ?><br><small><?= e($s->bayi_email ?: '') ?></small></td>
                 <td><?= e($s->odeme_yontemi) ?></td>
                 <td><span class="rozet rozet-<?= e($de[1]) ?>"><?= e($de[0]) ?></span></td>
-                <td class="sag"><b><?= para_tr($s->toplam) ?></b></td>
+                <td class="sag"><b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

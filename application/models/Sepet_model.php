@@ -99,7 +99,30 @@ class Sepet_model extends CI_Model
             $ara_toplam += $r->ara;
         }
 
-        return array('satirlar' => $rows, 'ara_toplam' => $ara_toplam);
+        // Gosterim para birimi (giris yapmis bayi; misafir = TRY). mg_olustur ile AYNI
+        // yuvarlama: once birim yuvarlanir, sonra adetle carpilir. Boylece sepet/odeme
+        // gosterimi kaydedilen siparis tutariyla birebir tutarli olur. (para_goster'in
+        // toplu-cevirisi 1-2 kurus saptigi icin ara_icin onu kullanmiyoruz.)
+        $pb  = function_exists('aktif_para_birimi') ? aktif_para_birimi() : 'TRY';
+        $kur = function_exists('kur_getir') ? (float) kur_getir($pb) : 1.0;
+        if ($kur <= 0) { $kur = 1.0; }
+        $pb_ara = 0.0;
+        foreach ($rows as $r) {
+            $r->pb  = $pb;
+            $r->kur = $kur;
+            $birim_pb = ($kur == 1.0) ? round((float) $r->birim, 2) : round((float) $r->birim / $kur, 2);
+            $r->birim_pb = $birim_pb;
+            $r->ara_pb   = round($birim_pb * (int) $r->adet, 2);
+            $pb_ara += $r->ara_pb;
+        }
+
+        return array(
+            'satirlar'      => $rows,
+            'ara_toplam'    => $ara_toplam,    // TRY (kargo esigi / kupon mantigi icin)
+            'pb'            => $pb,
+            'kur'           => $kur,
+            'pb_ara_toplam' => $pb_ara,         // bayi para biriminde (gosterim; siparisle ayni)
+        );
     }
 
     public function guncelle($sepet_id, $adet)

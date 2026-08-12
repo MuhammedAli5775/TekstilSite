@@ -7,7 +7,7 @@
             <p class="kat-alt">Sipariş no: <b>#<?= e($s->siparis_no) ?></b> · Kartlı ödemeniz onaylanıyor.</p>
         <?php else: ?>
             <h1 class="kat-baslik">Kartla Ödeme</h1>
-            <p class="kat-alt">Sipariş no: <b>#<?= e($s->siparis_no) ?></b> · Toplam: <b><?= para_tr($s->toplam) ?></b></p>
+            <p class="kat-alt">Sipariş no: <b>#<?= e($s->siparis_no) ?></b> · Toplam: <b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></p>
         <?php endif; ?>
     </div>
 </section>

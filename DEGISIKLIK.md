@@ -18,6 +18,127 @@
 
 ---
 
+## 2026-08-12 — Ciro/agregat TRY normalizasyonu (para birimi karışım bug'ı)
+
+Raporlar + dashboard "Ciro"/tutar agregatları farklı para birimli sipariş `toplam`'larını
+doğrudan topluyordu (USD 14.76 + TRY 479.40 gibi elma-armut). Düzeltme: her tutarı
+siparişin `kur`'uyla çarpıp TRY'ye normalize edip topluyoruz (TRY siparişler kur=1,
+etkilenmez). View'larda `para_tr` (₺) zaten TRY agregat için doğru — değişiklik
+yalnızca modellerde.
+
+**Dosyalar (3 model):**
+- `models/Rapor_model.php`: `satis_ozet` (ciro/kargo/indirim), `urun_satis` &
+  `kategori_satis` (detay `ara_toplam * kur`), `bayi_satis`/`bolge_satis`/`odeme_satis`
+  (ciro) — hepsi `SUM(x * kur)`, FALSE ile ham SQL. Tarih aralığı + iptal/iade filtresi
+  korundu.
+- `models/Dashboard_model.php`: `ozet.ciro` + `siparis_trendi.tutar` →
+  `SUM(toplam * kur)`.
+- `models/Bayi_model.php::bayi_siparis_ozet`: bayi cirosu `SUM(toplam * kur)`
+  (bayiler/detay "Toplam ciro" ₺ gösterimi artık doğru).
+
+**Doğrulama:** USD bayi siparişi (toplam 14.76 USD, kur 32.5 → 479.70 TRY) onaylandı
+yapıldı. Dashboard Ciro (Tümü) = `SUM(toplam*kur)` 34.374,40 ₺ (yanlış `SUM(toplam)`
+33.909,46 ₺ DEĞİL — sayfada yok); raporlar Brüt Ciro = 43.826,40 ₺; ödeme raporu havale
+ciro = 479,70 ₺ (USD sipariş 14,76 değil 479,70 olarak yansıdı). 6/6 PASS. 3 model lint
+temiz + FFFD=0; sunucu logu temiz.
+
+**Not:** e-fatura yasal TRY sorunu hâlâ açık (USD siparişten USD fatura kesiliyor) —
+Faz 5 e-fatura konusu.
+
+**[!] Canlıya taşı:** 3 model FTP.
+
+---
+
+## 2026-08-12 — Sipariş/fatura view'ları çoklu para birimi (admin + onay sayfaları)
+
+Önceki tur sepet/ödeme'yi düzeltmişti; bu tur kalan tüm sipariş-tutarı gösterimlerini
+siparişin snapshot para birimine çevirdi. (hesabim/* zaten doğruydu; yanlış olan admin
+tarafı + sipariş onay sayfalarıydı.)
+
+**Dosyalar:**
+- `views/magaza/odeme/basarili.php` + `paytr.php`: sipariş tutarları `para_tr` →
+  `para_formatla(..., $s->para_birimi)`.
+- `views/yonetim/siparisler/index.php` + `detay.php`: liste + detay tutarları
+  (kalem/ara/işlem/kargo/toplam) sipariş para biriminde.
+- `views/yonetim/dashboard/index.php` (son siparişler) + `views/yonetim/bayiler/detay.php`
+  (bayi son siparişler): tutar sipariş para biriminde.
+- `views/yonetim/faturalar/index.php` + `detay.php`: fatura tutarları (matrah/KDV/toplam)
+  bağlı siparişin para biriminde (detayda `$pb`, $s yoksa TRY fallback).
+- `models/Dashboard_model.php::son_siparisler` + `models/Fatura_model.php::liste`:
+  sorgulara `s.para_birimi` eklendi (fatura listesinde `s.para_birimi AS
+  siparis_para_birimi` alias — `faturalar.para_birimi` TRY-default ile çakışmasın).
+
+**Doğrulama:** USD bayi siparişi (toplam 14.76 USD) — basarili `14,76 $` (₺ yok), admin
+siparişler liste+detay `14,76 $`, dashboard son siparişler `14,76 $`, bayiler detay
+`14,76 $`, faturalar liste `14,76 $`, fatura detay matrah `12,30 $` + toplam `14,76 $`.
+11/11 PASS. 10 dosya lint temiz + FFFD=0; sunucu logu temiz.
+
+**Kapsam dışı (ayrı konu, not):** Raporlar + dashboard "Ciro" KPI'sı farklı para
+birimli sipariş `toplam`larını TRY ₺ altında topluyor (elma-armut toplamı) — para-birimi
+agregasyon bug'ı, ayrı çözülmeli (ciro TRY'ye normalize edilmeli). Ayrıca e-fatura yasal
+TRY olmalı ama USD siparişten USD tutarla kesiliyor — Faz 5 e-fatura konusu.
+
+**[!] Canlıya taşı:** 8 view + 2 model FTP.
+
+---
+
+## 2026-08-12 — Sepet/ödeme çoklu para birimi gösterimi (bayi pb, siparişle birebir)
+
+Önceki turda bulunan gap kapatıldı: sepet ve ödeme görünümü `para_tr()` ile TRY
+gösteriyordu, ama sipariş bayinin para biriminde kaydediliyordu. Artık giriş yapmış
+bayi için sepet/ödeme bayinin para biriminde (USD/EUR/…) gösterir; TRY/misafir
+aynı (₺). Gösterim tutarı kaydedilen siparişle **birebir aynı**.
+
+**Dosyalar:**
+- `models/Sepet_model.php::liste()`: TRY `birim`/`ara`/`ara_toplam` (esik/kupon
+  mantığı için korundu) yanına bayi para biriminde `birim_pb`/`ara_pb` (her satır) +
+  `pb`/`kur`/`pb_ara_toplam` eklendi. Dönüşüm **`mg_olustur` ile aynı yuvarlama**:
+  `birim_pb = round(birim/kur,2)`, `ara_pb = round(birim_pb*adet,2)` (önce birim
+  yuvarlanır, sonra adetle çarpılır). Neden: `para_goster(ara_try)` toplu çevirir
+  (`round(ara_try/kur,2)`) ve siparişten 1-2 kuruş saptığı için kullanılmadı.
+- `views/magaza/sepet/index.php`: 5 `para_tr` → `para_formatla(...pb)` / kargo-eşiği
+  kalanı için `para_goster(...)`. Kargo eşik **TRY** mantığıyla korundu
+  (`ara_toplam >= esik` TRY karşılaştırması), yalnızca gösterim pb.
+- `views/magaza/odeme/index.php`: 4 `para_tr` → `para_formatla/para_goster`
+  (satır ara, ara toplam, kupon indirimi, ödeme yöntemi ek ücreti).
+
+**Doğrulama:** USD bayi (ürün #1, qty 6) — sepet `2,46 $` birim / `14,76 $` ara+toplam,
+ödeme `14,76 $`; **sipariş DB `USD 14.76` ile birebir aynı**; sepette ₺ sızıntısı yok.
+Misafir/TRY — sepet `79,90 ₺` / `479,40 ₺`, $ sızıntısı yok (regresyon yok). TRY
+sembolü DB'de ₺ (EUR=€, USD=$). 3 dosya lint temiz + FFFD=0; sunucu logu temiz.
+
+**[!] Canlıya taşı:** `models/Sepet_model.php` + `views/magaza/sepet/index.php` +
+`views/magaza/odeme/index.php` FTP.
+
+---
+
+## 2026-08-12 — Çoklu para birimi sipariş E2E (USD kur snapshot) + sepet gösterim açığı
+
+B2B doğrulamasında yalnızca TRY (kur=1) test edilmişti; USD bayi için
+`Siparis_model::mg_olustur`'daki para birimi + kur snapshot/dönüşüm mantığı
+doğrulandı. **15/15 PASS.** Kod değişikliği yok (yalnızca test).
+
+**Doğrulanan (USD bayi, ürün #1 79.90 TRY, qty 6):** sipariş `para_birimi=USD`
+`kur=32.5` ile snapshot'landı; detay `birim_fiyat=2.46 USD` (79.90/32.5),
+`ara_toplam=14.76 USD`; sipariş `ara_toplam`/`toplam` = 14.76 USD (kargo/işlem 0);
+USD değer TRY eşdeğerinden (479.40) küçük; stok düşüşü para biriminden bağımsız.
+Dönüşüm `round(try/kur,2)` birim + `round(birim*adet,2)` ara satır — doğru.
+
+**Gözlem (açık gap, sipariş bug'ı değil):** sepet (`views/magaza/sepet/index.php`)
+ve ödeme görünümü `para_tr(...)` ile **TRY** gösterir, bayi para birimine
+dönüştürmez. Oysa `mg_olustur` siparişi bayinin para biriminde kaydeder. Yani USD
+bayi sepette/ödemede TRY fiyat görür, sipariş USD kaydedilir — CANLIYA-TASIMA §Para
+birimi'nin "sepet/ödeme/sipariş bayi para biriminde" notuyla tutarsız (yalnızca
+sipariş kısmı uygulanmış). `teksil_helper::para_goster($try, $kod)` hazır;
+sepet/ödeme görünümünde `para_goster($x, $bayi->para_birimi)` kullanılırsa kapanır.
+
+**Doğrulama:** test betiği 15/15 PASS; test verisini temizledi + varyant #1 stoğu
+248'e geri. Bağımsız baseline: bayiler 2, varyant #1 stok 248, test artığı 0.
+
+**[!] Canlıya taşı:** kod değişikliği yok.
+
+---
+
 ## 2026-08-12 — Sipariş yaşam döngüsü E2E doğrulama (admin geçişler + iade stok iadesi)
 
 B2B sipariş akışının doğrulanmamış yarısı kapatıldı: sipariş **oluşturma** 53/53

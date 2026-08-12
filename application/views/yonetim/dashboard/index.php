@@ -105,7 +105,7 @@ foreach ((array) $kategori as $r){ $kat_e[] = (string) $r->kategori; $kat_a[] = 
                         <td><a class="b" href="<?= site_url('yonetim/siparisler/detay/' . $s->id) ?>"><?= e($s->siparis_no) ?></a><br><small><?= e(date('d.m.Y', strtotime($s->olusturma_zaman))) ?></small></td>
                         <td><?= e($s->firma_adi ?: ($s->yetkili_ad_soyad ?: 'Misafir')) ?></td>
                         <td><span class="rozet rozet-<?= e($de[1]) ?>"><?= e($de[0]) ?></span></td>
-                        <td class="sag"><?= para_tr($s->toplam) ?></td>
+                        <td class="sag"><?= para_formatla($s->toplam, $s->para_birimi) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

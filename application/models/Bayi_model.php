@@ -145,7 +145,7 @@ class Bayi_model extends CI_Model
 
     public function bayi_siparis_ozet($bayi_id)
     {
-        return $this->db->select('COUNT(*) AS adet, COALESCE(SUM(toplam),0) AS ciro', FALSE)
+        return $this->db->select('COUNT(*) AS adet, COALESCE(SUM(toplam * kur),0) AS ciro', FALSE)
                         ->where('bayi_id', (int) $bayi_id)->get('siparisler')->row();
     }
 }
