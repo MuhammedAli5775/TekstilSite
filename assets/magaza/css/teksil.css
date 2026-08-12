@@ -134,7 +134,8 @@ ul{margin:0;padding:0;list-style:none;}
 .utility-bar a{color:#c8d6df;}
 .utility-bar a:hover{color:#fff;}
 
-.header-main{position:sticky;top:0;z-index:50;background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}
+header{position:sticky;top:0;z-index:50;}
+.header-main{background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}
 .site-header__row{display:flex;align-items:center;gap:24px;height:72px;}
 .brand{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--teal-deep);}
 .brand__leaf{width:30px;height:30px;}
@@ -154,7 +155,7 @@ ul{margin:0;padding:0;list-style:none;}
 .catbar{background:var(--canvas);border-top:1px solid var(--hairline);}
 .catbar .container{display:flex;}
 .catbar nav{width:100%;}
-.mega{display:flex;align-items:center;gap:6px;}
+.mega{display:flex;align-items:center;justify-content:space-evenly;width:100%;}
 .mega > li{position:relative;}
 .mega > li > a{display:inline-flex;align-items:center;gap:4px;padding:14px 16px;font-size:14px;font-weight:600;color:var(--ink);}
 .mega > li:hover > a{color:var(--brand-green);}
@@ -201,6 +202,24 @@ ul{margin:0;padding:0;list-style:none;}
 .cattile__label .t{font-size:17px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.4);}
 .cattile__label .c{font-size:13px;opacity:.92;}
 
+/* --- stats strip (homepage) --- */
+.stats{background:var(--surface-feature);border-top:1px solid #b7e8cc;border-bottom:1px solid #b7e8cc;padding:40px 0;}
+.stats__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
+.stat__num{font-size:38px;font-weight:700;color:var(--teal-deep);letter-spacing:-.02em;line-height:1;}
+.stat__lbl{font-size:14px;color:var(--slate);margin-top:8px;}
+
+/* --- reviews (homepage) --- */
+.reviews__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.review-card{display:flex;flex-direction:column;gap:12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:24px;box-shadow:var(--sh-1);}
+.review-card__stars{color:var(--accent-orange);display:flex;gap:2px;}
+.review-card__text{margin:0;font-size:15px;line-height:1.6;color:var(--slate);}
+.review-card__who{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--hairline);}
+.review-card__ava{width:38px;height:38px;flex:none;border-radius:var(--r-full);background:var(--teal-deep);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+.review-card__name{font-weight:600;font-size:14px;color:var(--ink);}
+.review-card__role{font-size:12px;color:var(--steel);}
+@media (max-width:1100px){.reviews__grid{grid-template-columns:repeat(2,1fr);}.stats__grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:480px){.reviews__grid,.stats__grid{grid-template-columns:1fr;}}
+
 /* --- urun kafesi + kart --- */
 .prodgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .prodcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .18s,border-color .18s,transform .18s;}
@@ -238,9 +257,14 @@ ul{margin:0;padding:0;list-style:none;}
 .filtre-grup{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--hairline);}
 .filtre-grup:last-child{border-bottom:0;margin-bottom:0;}
 .filtre-grup h5{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--steel);margin-bottom:10px;}
-.filtre-etiket{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--slate);padding:5px 0;cursor:pointer;}
-.filtre-etiket input{accent-color:var(--brand-green);width:16px;height:16px;}
-.filtre-etiket span{margin-left:auto;color:var(--muted);font-size:12px;}
+.filtre-check{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--slate);padding:5px 0;cursor:pointer;}
+.filtre-check input{accent-color:var(--brand-green);width:16px;height:16px;flex:none;}
+.filtre-check .filtre-etiket{display:inline;}
+.filtre-check .swatch{width:14px;height:14px;flex:none;border-radius:var(--r-full);border:1px solid var(--hairline-strong);}
+.filtre-check small{color:var(--muted);font-size:12px;margin-left:4px;}
+.odeme-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:14px;color:var(--slate);}
+.odeme-check input{accent-color:var(--brand-green);width:16px;height:16px;margin-top:3px;flex:none;}
+.odeme-check span{color:var(--slate);}
 .filtre-fiyat{display:flex;gap:8px;align-items:center;}
 .filtre-fiyat input{width:90px;padding:8px 10px;border:1px solid var(--hairline);border-radius:var(--r-sm);}
 .filtre-alt-kat a{display:block;padding:6px 0;font-size:14px;color:var(--slate);}
@@ -293,7 +317,7 @@ ul{margin:0;padding:0;list-style:none;}
 
 /* --- hesabim --- */
 .hesabim-grid{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start;}
-.hesabim-aside{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:18px;position:sticky;top:120px;}
+.hesabim-aside{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:18px;position:sticky;top:158px;}
 .hesabim-avatar{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--hairline);margin-bottom:10px;}
 .hesabim-avatar .daire{width:44px;height:44px;border-radius:var(--r-full);background:var(--teal-deep);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;}
 .hesabim-kullanici-ad{font-weight:600;font-size:15px;}
@@ -303,7 +327,7 @@ ul{margin:0;padding:0;list-style:none;}
 .hesabim-cikis{color:var(--danger) !important;}
 
 /* --- bayi auth (giris/kayit) --- */
-.auth-sarma{min-height:calc(100vh - 110px);display:flex;align-items:center;justify-content:center;padding:48px 0;background:var(--surface);}
+.auth-sarma{min-height:calc(100vh - 158px);display:flex;align-items:center;justify-content:center;padding:48px 0;background:var(--surface);}
 .auth-kart{width:100%;max-width:420px;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-xl);padding:32px;box-shadow:var(--sh-2);}
 .auth-kart--dar{max-width:380px;}
 .auth-brand{text-align:center;margin-bottom:20px;font-weight:700;font-size:20px;color:var(--teal-deep);}
@@ -388,7 +412,7 @@ ul{margin:0;padding:0;list-style:none;}
 
 .pd-hero{padding:40px 0 16px;}
 .pd-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start;}
-.pd-gallery{position:sticky;top:120px;}
+.pd-gallery{position:sticky;top:158px;}
 .pd-main img{width:100%;border-radius:var(--r-xl);border:1px solid var(--hairline);aspect-ratio:3/4;object-fit:cover;}
 .pd-thumbs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
 .pd-thumb{padding:0;border:2px solid transparent;border-radius:var(--r-sm);background:none;cursor:pointer;width:64px;height:80px;overflow:hidden;}

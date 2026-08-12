@@ -27,7 +27,6 @@ if (empty($menu)) {
                 <span class="pill">Toptan / B2B</span>
             </div>
             <div class="utility-bar__right">
-                <a href="<?= site_url('favorilerim') ?>">♡ Favoriler</a>
                 <a href="<?= site_url('siparis-takip') ?>">Sipariş Takibi</a>
                 <a href="<?= site_url('yardim') ?>">Yardım</a>
                 <a href="<?= site_url('blog') ?>">Blog</a>
@@ -54,17 +53,16 @@ if (empty($menu)) {
                 </form>
 
                 <div class="header-actions">
+                    <a href="<?= site_url('favorilerim') ?>">♡ Favoriler</a>
                     <?php if (! empty($bayi)): ?>
                         <a href="<?= site_url('hesabim') ?>">👤 <?= e($bayi->yetkili_ad_soyad ? explode(' ', $bayi->yetkili_ad_soyad)[0] : 'Hesabım') ?></a>
                         <a href="<?= site_url('bayi/cikis') ?>">Çıkış</a>
                     <?php else: ?>
-                        <a href="<?= site_url('bayi/kayit') ?>">Bayi Ol</a>
                         <a href="<?= site_url('bayi/giris') ?>">Giriş</a>
                     <?php endif; ?>
                     <a href="<?= site_url('sepet') ?>">Sepet <span class="cart-count" id="cartCount"><?= (int) ($sepet_adet ?? 0) ?></span></a>
                 </div>
             </div>
-        </div>
 
         <div class="catbar">
             <div class="container">
@@ -72,7 +70,7 @@ if (empty($menu)) {
                     <ul class="mega">
                         <?php foreach ($menu as $m): ?>
                             <li>
-                                <a href="<?= e($m['url']) ?>"><?= e($m['baslik']) ?><?php if (!empty($m['altlar'])): ?> ▾<?php endif; ?></a>
+                                <a href="<?= e($m['url']) ?>"><?= e($m['baslik']) ?></a>
                                 <?php if (!empty($m['altlar'])): ?>
                                 <div class="mega__sub">
                                     <?php foreach ($m['altlar'] as $a): ?>
@@ -85,6 +83,7 @@ if (empty($menu)) {
                     </ul>
                 </nav>
             </div>
+        </div>
         </div>
     </div>
 </header>

@@ -47,7 +47,7 @@ class Siparis_model extends CI_Model
         };
 
         // (3) Kargo (TRY): ücretsiz kargo eşiği altında düz ücret (desi hesabı yok).
-        $esik = (float) ayar('ucretsiz_kargo_esig', 2000);
+        $esik = (float) ayar('ucretsiz_kargo_esik', 2000);
         $kargo_try = ($ara_toplam_try >= $esik) ? 0.0 : (float) ayar('varsayilan_kargo_ucreti', 0);
 
         // (4) İşlem ücreti (TRY): ödeme yöntemi ek ücreti.

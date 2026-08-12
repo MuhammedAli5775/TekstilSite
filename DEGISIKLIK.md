@@ -18,6 +18,201 @@
 
 ---
 
+## 2026-08-12 — Sipariş yaşam döngüsü E2E doğrulama (admin geçişler + iade stok iadesi)
+
+B2B sipariş akışının doğrulanmamış yarısı kapatıldı: sipariş **oluşturma** 53/53
+doğrulanmıştı; bu turda **yaşam döngüsü** (sonrası) doğrulandı — admin durum
+geçişleri, iade'de stok geri ekleme ve çift-iade koruması. **25/25 PASS.** Kod
+değişikliği yok (yalnızca test); riskli para/stok mantığının doğru çalıştığı teyit.
+
+**Doğrulanan akış (tek test siparişi, varyant #1 qty 6, stok 248→242→…→248):**
+- **Oluşturma** (real flow: kayıt→sepet→odeme): sipariş oluştu, stok 248→242, ilk
+  durum geçmişi (sistem/onay_bekliyor).
+- **İleri geçişler** (admin `yonetim/siparisler/durum_guncelle/{id}`):
+  onaylandi → hazirlaniyor → kargolandi → teslim_edildi. Her biri: durum güncellendi,
+  `siparis_durum_gecmisi`'ne bir satır eklendi, **stok değişmedi** (iade dışı).
+  `kargolandi`'da `kargo_takip_no` + `kargo_firma_id` yazıldı (takip no zorunlu kuralı).
+- **iade_edildi**: stok **geri eklendi** 242→248 (+6); `stok_hareketleri` tip=iade
+  adet=+6 onceki_stok=242 loglandı.
+- **Çift-iade koruması** (`_stok_iade_et`): iade_edildi → iptal geçişinde eski durum
+  zaten iade'de olduğu için stok **TEKRAR eklenmedi** (248 sabit), yalnızca 1 iade
+  hareketi. Bu, `_stok_iade_et`'in `in_array(yeni) && !in_array(eski)` koşulunun doğru
+  çalıştığını teyit eder (stok iki kez geri eklenmesi = envanter sızıntısı engellendi).
+- Her geçiş `yonetici_loglari`'na audit yazıldı; e-posta/SMS bildirimi graceful
+  (SMTP yoksa atlar, akış bozulmadı).
+
+**Doğrulama:** test betiği 25/25 PASS; kendi test verisini (bayi/sipariş/detay/
+hareket/geçmiş/audit) temizledi + varyant #1 stoğunu 248'e geri yükledi. Bağımsız
+baseline: bayiler 2, varyant #1 stok 248, test artığı satır 0. Sunucu logu tüm test
+boyunca temiz. (Test betiği `AppData/Local/Temp`'te geçici — silindi.)
+
+**[!] Canlıya taşı:** kod değişikliği yok.
+
+---
+
+## 2026-08-12 — Dashboard dönem filtresi (bugün/hafta/ay/yıl/tümü)
+
+`yonetim/dashboard` üstüne dönem seçici eklendi. Sipariş-tabanlı tüm veriler (KPI
+sipariş/bekleyen/ciro, durum dağılımı, trend grafiği, son siparişler) seçili döneme
+göre filtrelenir; "Aktif Bayi/Ürün" anlık durum olarak kalır (etiketi zaten "Aktif").
+
+**Dosyalar:**
+- `controllers/yonetim/Dashboard.php`: `?donem=bugun|hafta|ay|yil|tumu` GET param +
+  `_donem_aralik()` — her dönem için `olusturma_zaman` [basla,bitir] penceresi +
+  trend granüleri (bugün→saatlik, hafta/ay→günlük, yıl/tümü→aylik). Default: ay.
+- `models/Dashboard_model.php`: `ozet/son_siparisler/durum_dagilim` opsiyonel
+  `$basla,$bitir` alır; `_aralik($basla,$bitir,$alan)` yardımcısı where uygular.
+  `siparis_trendi($basla,$bitir,$granul)` yeniden yazıldı — hour/day/month
+  gruplama + hazır `etiket` (grafikte kullanılır).
+- `views/yonetim/dashboard/index.php`: `.adm-donem` seçici (segmented pill links),
+  KPI/trend başlıkları seçili dönemi gösterir, trend `etiket` kullanır, boş-dönemde
+  "Bu dönemde sipariş yok".
+- `assets/yonetim/css/admin.css`: `.adm-donem*` stilleri (ink aktif pill).
+
+**Bug (test sırasında):** `son_siparisler` join'inde (siparisler `s` + bayiler `b`,
+ikisinde de `olusturma_zaman`) tarih filtresi niteliksizdi → "Column
+'olusturma_zaman' is ambiguous" → 500. `_aralik` kolon parametresi alacak şekilde
+genelleştirildi; join'li sorguda `s.olusturma_zaman` verilir.
+
+**Doğrulama:** admin login ile her dönem 200; dashboard sipariş sayısı DB ile birebir
+(bugün 0, ay 14, yıl 18, tümü 18); seçili dönem butonu vurgulu; trend etiketleri doğru
+(Bugün/Bu Ay/Bu Yıl/Tümü), `ay` trendinde günlük `01.08…10.08` verisi. 4 PHP/CSS dosyası
+lint temiz + FFFD=0; render FFFD=0; CI log + sunucu logu temiz (ambiguous giderildi).
+
+**[!] Canlıya taşı:** `controllers/yonetim/Dashboard.php` +
+`models/Dashboard_model.php` + `views/yonetim/dashboard/index.php` +
+`assets/yonetim/css/admin.css` FTP.
+
+---
+
+## 2026-08-12 — Favoriler header'a taşındı + katalog filtre checkbox hizalama bug'ı
+
+İki UI isteği: (1) `utility-bar`'daki Favoriler linki `header-actions`'a taşındı
+("Bayi Ol" yerine); (2) katalog filtresinde checkbox'lar ismin altında duruyordu —
+düzeltildi.
+
+**(1) Favoriler taşınması — `views/magaza/layout/header.php`:**
+- `utility-bar__right`: `♡ Favoriler` linki kaldırıldı.
+- `header-actions`: guest "Bayi Ol" → `♡ Favoriler` ile değiştirildi. Favoriler
+  linki if/else dışına alındı (guest + giriş yapmış bayi her ikisinde de görünür);
+  böylece utility-bar'dan kalkınca favoriler kimse için erişilmez kalmıyor.
+  Guest: Favoriler · Giriş · Sepet. Bayi: Favoriler · Hesabım · Çıkış · Sepet.
+
+**(2) Checkbox hizalama bug'ı — `assets/magaza/css/teksil.css`:**
+- Kök neden: katalog filtresi `<label class="filtre-check">` kullanıyor ama CSS'te
+  `.filtre-check` YOKtu; `.filtre-etiket` kuralı yazılmıştı (label için tasarlanmış)
+  ama view `.filtre-etiket`'i iç `<span>`'a koymuştu. Sonuç: `.filtre-etiket` span'i
+  `display:flex` (block-level) → kendi satırına zorlanıyor, checkbox üstte / isim
+  altta kalıyordu (16 filtre öğesi).
+- Düzeltme: `.filtre-check` flex satır olarak tanımlandı (`display:flex;
+  align-items:center;gap:9px`) → checkbox + isim yan yana. İç `.filtre-etiket` span'i
+  `display:inline` (block-flex'ten kurtarıldı), `<small>` adet sayacı muted, `.swatch`
+  renk noktası 14×14 boyutlandırıldı (önce stilisizdi, renk filtresi görünmüyordu).
+- Ek: `.odeme-check` (kayıt sözleşmesi onay kutusu) de stilisizdi → flex satır
+  (`align-items:flex-start`, çok satırlı sözleşme metnine hizalı) olarak eklendi.
+
+**Doğrulama:** `/` 200; header-actions'ta Favoriler VAR, utility-bar'da YOK; catbar
+site-header kardeş (div dengesi sağlam). Servis edilen `teksil.css`'te `.filtre-
+check{display:flex`, `.odeme-check{display:flex`, `.filtre-check .swatch` VAR.
+`/katalog` filtresinde 16 `.filtre-check` label'ı (checkbox + isim aynı label).
+`header.php` lint temiz + FFFD=0; sunucu logu temiz.
+
+**[!] Canlıya taşı:** `views/magaza/layout/header.php` +
+`assets/magaza/css/teksil.css` FTP.
+
+---
+
+## 2026-08-12 — Anasayfa yeniden tasarım (ürün yok) + sticky header + catbar hizalama
+
+Anasayfa artık ürün VİTRİNİ göstermiyor; site-tanıtım odaklı akış: slider → değer
+önerileri → kategoriler → istatistik → bayi yorumları → CTA. Ayrıca üst bar + ana
+header artık sticky; catbar öğeleri eşit aralıklı + ortalanmış; dropdown ▾ ikonu
+kaldırıldı.
+
+**Dosyalar:**
+- `views/magaza/anasayfa.php`: "Öne çıkan parçalar" ürün bölümü (`.prodgrid` +
+  `urun_karti` partial) kaldırıldı. Yeni bölümler: `.stats` (4 güven ölçütü, yeşil
+  mint zemin) ve `.reviews` (3 bayi yorumu — SVG yıldız + lacivert baş harf avatar).
+  Yorumlar statik dizi (DB'de yorum tablosu yok, Faz 5+).
+- `controllers/Anasayfa.php`: `mg_vitrin` çağrısı + `_demo_vitrin()` kaldırıldı
+  (anasayfada artık ürün yok). `index()` yalnız meta + render.
+- `views/magaza/layout/header.php`: catbar `<a>` içindeki `▾` dropdown ikonu koşulu
+  (`!empty($m['altlar'])`) kaldırıldı; hover alt menü `.mega__sub` korundu.
+- `assets/magaza/css/teksil.css`:
+  - `header{position:sticky;top:0;z-index:50}` — `utility-bar` + `header-main`
+    birlikte sabit (pinned yükseklik ~158px = 38+72+48). `.header-main`'in kendi
+    `position:sticky`'si kaldırıldı (iç-içe sticky önlemi).
+  - `.mega` → `justify-content:space-evenly;width:100%` (öğeler eşit aralıklı +
+    ortalanmış; eski `gap:6px` kalktı).
+  - Yeni: `.stats`/`.stat__*` (4 kolon), `.reviews__grid`/`.review-card*` (3 kolon,
+    turuncu SVG yıldız, lacivert avatar) + responsive (1100px→2 kol, 480px→1 kol).
+  - Sticky ofset güncellemesi (pinned header ~120→158px çıkınca): `.hesabim-aside`,
+    `.pd-gallery` `top:120→158px`; `.auth-sarma` `min-height:calc(100vh-110→158px)`.
+
+**Doğrulama:** `/` 200; vitrin/ürün kartı render YOK; `.stats__grid` + `.review-card`
++ "Bayilerimiz ne diyor?" + "Kategorilere göz atın" VAR; catbar `▾` sayısı 0; servis
+edinin `teksil.css`'inde `header{position:sticky}`, `justify-content:space-evenly`,
+`.reviews__grid`, `.stats__grid`, `top:158px`, `calc(100vh - 158px)` hepsi VAR.
+Render + 4 dokunulan dosya FFFD=0; PHP lint temiz (3 dosya); sunucu logu temiz.
+(Not: `Urun_model::mg_vitrin` model metodu duruyor, yalnızca anasayfada çağrılmıyor;
+admin ürün "vitrin" onay kutusu ayrı bir DB kolonudur, alakasız.)
+
+**[!] Canlıya taşı:** `views/magaza/anasayfa.php` + `controllers/Anasayfa.php` +
+`views/magaza/layout/header.php` + `assets/magaza/css/teksil.css` FTP.
+
+---
+
+## 2026-08-12 — B2B akışı uçtan uca doğrulama + kargo eşiği typo düzeltmesi
+
+B2B toptan akışının tamamı (bayi kayıt → admin onay → sepet → sipariş → fatura)
+gerçek HTTP + DB-yazan testle doğrulandı. Tek PHP test betiği (geçici, proje ağacı
+dışında `AppData/Local/Temp/e2e_b2b.php`) curl ile gerçek rotaları sürdü (CSRF
+cookie-jar'dan okundu, çift oturum: bayi + admin), her adımda mysqli ile DB assert
+etti. **53/53 assertion PASS.**
+
+**Bug düzeltmesi:** `application/models/Siparis_model.php:50` `ucretsiz_kargo_esig`
+yazılıydı (typo) — DB'de ve diğer tüm dosyalarda (Sepet, Odeme, Ayarlar controller/
+view, urun/detay) anahtar `ucretsiz_kargo_esik`. Sonuç: sipariş modeli yapılandırılan
+ücretsiz-kargo eşiğini yok sayıp her zaman default (2000) kullanıyordu. Eşik 2000
+olduğu için maskelendi; ama admin panelde eşiği değiştiren (ör. 5000) biri checkout'ta
+gösterilen kargo ücretiyle siparişe yazılan kargo ücretinin ayrışmasını yaşardı
+(gösterim 5000 eşiği, siparis 2000 default ile). `esig` → `esik` düzeltildi.
+
+**Doğrulanan akış (hepsi PASS):**
+- **Kayıt:** `bayiler` satırı durum=1 (demo auto-onay), grup_id=1, para_birimi=TRY,
+  şifre bcrypt (`$2y$…60`) + password_verify; kayıt sonrası otomatik giriş.
+- **Onay kapısı:** durum=0 girşi VE `/hesabim` erişimini engelliyor; admin UI onayı
+  (`yonetim/bayiler/durum_guncelle/{id}` durum=1) + audit log; onay sonrası giriş açık.
+- **Grup:** admin `grup_guncelle` ile VIP (id=2, %5).
+- **Sepet:** MOQ bump (adet 1 → 6), fiyat basamağı (global ≥50 → %5) + VIP grup
+  (%5) = %10 → birim 79,90×0,90 = 71,91 / ara 3.883,14 render doğru.
+- **Sipariş (transaction):** `SP-YYYY-NNNNNN` no; ara 3883,14 / işlem 50 (kapıda) /
+  kargo 0 (>2000 ücretsiz) / toplam 3933,14; para_birimi TRY kur 1, durum
+  onay_bekliyor; detay birim 71,91 adet 54 varyant "Siyah / S" kdv 20, urun_adi
+  UTF-8 bozulmamış ("Süprem V Yaka Body"); varyant stok 248 → 194; stok_hareketleri
+  tip=satis adet=-54 onceki=248; durum geçmişi taraf=sistem; sepet boşaltıldı.
+- **Fatura:** `Efatura::olustur` entegratörsüz graceful (durum=bekliyor), fatura_no
+  `FT-SP-…`, matrah 3235,95 / kdv 647,19 / toplam 3933,14, uuid 36-karakter; aynı
+  siparişe 2. fatura mükerrer korumasıyla engellendi; detay render 200.
+
+**Ek notlar (koddan değil, test sırasında tespit):**
+- `bayi_grup_fiyatlari` tablosu YOK (workflow.md §6'da anılsa da) — grup indirimi
+  yalnızca `bayi_gruplari.indirim_yuzde`. Test buna göre koşuldu; akış çalışıyor.
+- `varsayilan_kargo_ucreti` ayarlarda yok → eşik altında kargo 0 (default). Demo
+  için sorun değil; istenirse Ayarlar'a alan eklenip seed'lenmeli.
+- `yetkiler` tablosu yok; `Auth_admin::yetki()` şu an tüm giriş yapmış adminlere
+  TRUE dönüyor (rol 1 = süper; Faz 5'te yetki matrisi dolacak).
+
+**Doğrulama:** test betiği 53/53 PASS; betik kendi test verisini (bayi/sepet/sipariş/
+detay/hareket/geçmiş/fatura/audit) temizledi + varyant #1 stoğunu 248'e geri yükledi.
+Bağımsız baseline: `bayiler` yalnız id 1-2, varyant #1 stok 248, test artığı satır 0.
+`Siparis_model.php` lint temiz, FFFD=0; sunucu logu tüm test boyunca temiz.
+
+**[!] Canlıya taşı:** `application/models/Siparis_model.php` (kargo eşiği typo
+düzeltmesi) FTP. (B2B akış doğrulaması kod değişikliği değil — yalnızca test.)
+
+---
+
 ## 2026-08-11 (ek) — teksil.css + DESIGN.md kurtarma (OneDrive hasarı devamı)
 
 08-11 kurtarmasının ardından `assets/` de denetlendi: **`assets/magaza/css/teksil.css`**

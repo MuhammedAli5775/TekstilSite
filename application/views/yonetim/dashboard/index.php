@@ -1,17 +1,25 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <?php if ($bilgi = $this->session->flashdata('bilgi')): ?><div class="adm-uyari adm-uyari--ok"><?= e($bilgi) ?></div><?php endif; ?>
 
+<?php $_donemler = array('bugun' => 'Bugün', 'hafta' => 'Bu Hafta', 'ay' => 'Bu Ay', 'yil' => 'Bu Yıl', 'tumu' => 'Tümü'); ?>
+<div class="adm-donem">
+    <span class="adm-donem__lbl">Dönem</span>
+    <?php foreach ($_donemler as $k => $lbl): ?>
+        <a class="adm-donem__btn<?= isset($donem_kod) && $donem_kod === $k ? ' is-aktif' : '' ?>" href="<?= site_url('yonetim/dashboard?donem=' . $k) ?>"><?= $lbl ?></a>
+    <?php endforeach; ?>
+</div>
+
 <div class="adm-stats">
-    <div class="adm-stat"><div class="adm-stat-etiket">Toplam Sipariş</div><div class="adm-stat-sayi"><?= (int) $ozet['siparis'] ?></div><div class="adm-stat-alt"><?= (int) $ozet['bekleyen'] ?> onay bekliyor</div></div>
-    <div class="adm-stat"><div class="adm-stat-etiket">Aktif Bayi</div><div class="adm-stat-sayi"><?= (int) $ozet['bayi'] ?></div><div class="adm-stat-alt"><?= (int) $ozet['bekleyen_bayi'] ?> onay bekliyor</div></div>
-    <div class="adm-stat"><div class="adm-stat-etiket">Aktif Ürün</div><div class="adm-stat-sayi"><?= (int) $ozet['urun'] ?></div><div class="adm-stat-alt">katalog</div></div>
-    <div class="adm-stat"><div class="adm-stat-etiket">Cirolu Siparişler</div><div class="adm-stat-sayi"><?= para_tr($ozet['ciro']) ?></div><div class="adm-stat-alt">tamamlanan tutar</div></div>
+    <div class="adm-stat"><div class="adm-stat-etiket">Sipariş (<?= e($donem) ?>)</div><div class="adm-stat-sayi"><?= (int) $ozet['siparis'] ?></div><div class="adm-stat-alt"><?= (int) $ozet['bekleyen'] ?> onay bekliyor</div></div>
+    <div class="adm-stat"><div class="adm-stat-etiket">Aktif Bayi</div><div class="adm-stat-sayi"><?= (int) $ozet['bayi'] ?></div><div class="adm-stat-alt"><?= (int) $ozet['bekleyen_bayi'] ?> onay bekliyor · anlık</div></div>
+    <div class="adm-stat"><div class="adm-stat-etiket">Aktif Ürün</div><div class="adm-stat-sayi"><?= (int) $ozet['urun'] ?></div><div class="adm-stat-alt">katalog · anlık</div></div>
+    <div class="adm-stat"><div class="adm-stat-etiket">Ciro (<?= e($donem) ?>)</div><div class="adm-stat-sayi"><?= para_tr($ozet['ciro']) ?></div><div class="adm-stat-alt">tamamlanan tutar</div></div>
 </div>
 
 <?php
 // Chart verilerini PHP'de hazirla (durum_etiket ile Turkce etiketler).
 $trend_e = array(); $trend_a = array(); $trend_t = array();
-foreach ((array) $trend as $r){ $trend_e[] = $r->gun ? substr($r->gun, 5) : ''; $trend_a[] = (int) $r->adet; $trend_t[] = (float) $r->tutar; }
+foreach ((array) $trend as $r){ $trend_e[] = isset($r->etiket) ? $r->etiket : ''; $trend_a[] = (int) $r->adet; $trend_t[] = (float) $r->tutar; }
 $durum_e = array(); $durum_a = array();
 foreach ((array) $durum as $r){ $de = durum_etiket($r->durum); $durum_e[] = $de[0]; $durum_a[] = (int) $r->adet; }
 $satan_e = array(); $satan_a = array();
@@ -23,11 +31,11 @@ foreach ((array) $kategori as $r){ $kat_e[] = (string) $r->kategori; $kat_a[] = 
 
 <div class="adm-charts">
     <div class="adm-card adm-chart-full">
-        <div class="adm-card-baslik"><h3>Sipariş Trendi (son 14 gün)</h3></div>
+        <div class="adm-card-baslik"><h3>Sipariş Trendi (<?= e($donem) ?>)</h3></div>
         <div class="adm-chart"><canvas id="cvTrend"></canvas></div>
     </div>
     <div class="adm-card">
-        <div class="adm-card-baslik"><h3>Sipariş Durumu</h3></div>
+        <div class="adm-card-baslik"><h3>Sipariş Durumu (<?= e($donem) ?>)</h3></div>
         <div class="adm-chart"><canvas id="cvDurum"></canvas></div>
     </div>
     <div class="adm-card">
@@ -86,7 +94,7 @@ foreach ((array) $kategori as $r){ $kat_e[] = (string) $r->kategori; $kat_a[] = 
 
 <div class="adm-detay-grid">
     <div class="adm-card adm-card--p0">
-        <div class="adm-card-baslik"><h3>Son Siparişler</h3><a class="btn btn-ghost btn-sm" href="<?= site_url('yonetim/siparisler') ?>">Tümü →</a></div>
+        <div class="adm-card-baslik"><h3>Son Siparişler (<?= e($donem) ?>)</h3><a class="btn btn-ghost btn-sm" href="<?= site_url('yonetim/siparisler') ?>">Tümü →</a></div>
         <?php if (! empty($son_siparisler)): ?>
         <div class="adm-tbl-sar">
             <table class="adm-tbl">
@@ -103,7 +111,7 @@ foreach ((array) $kategori as $r){ $kat_e[] = (string) $r->kategori; $kat_a[] = 
                 </tbody>
             </table>
         </div>
-        <?php else: ?><div class="adm-bosluk">Henüz sipariş yok</div><?php endif; ?>
+        <?php else: ?><div class="adm-bosluk">Bu dönemde sipariş yok</div><?php endif; ?>
     </div>
 
     <div>

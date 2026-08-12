@@ -113,6 +113,11 @@ img{max-width:100%;display:block;}
 .adm-arama{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s-md);}
 .adm-arama input,.adm-arama select{height:38px;padding:0 12px;border:1px solid var(--hairline-strong);border-radius:var(--r-md);font-size:13px;font-family:inherit;color:var(--ink);background:var(--canvas);}
 .adm-uyari{padding:10px 14px;border-radius:var(--r-md);font-size:13px;margin-bottom:var(--s-md);}
+.adm-donem{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:var(--s-lg);}
+.adm-donem__lbl{font-size:12px;font-weight:600;color:var(--steel);text-transform:uppercase;letter-spacing:.05em;margin-right:4px;}
+.adm-donem__btn{display:inline-flex;align-items:center;padding:6px 13px;border-radius:9999px;border:1px solid var(--hairline);background:var(--canvas);font-size:13px;font-weight:600;color:var(--slate);}
+.adm-donem__btn:hover{border-color:var(--ink);color:var(--ink);}
+.adm-donem__btn.is-aktif{background:var(--ink);color:#fff;border-color:var(--ink);}
 .adm-uyari--ok{background:var(--surface-feature);color:var(--teal-mid);}
 .adm-uyari--hata{background:#fde6e6;color:#b3322f;}
 .adm-uyari--info{background:#e3eefc;color:#2c5fa8;}

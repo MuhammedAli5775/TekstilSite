@@ -6,6 +6,21 @@ $kategoriler = array(
     array('ad' => 'Elbise',       'url' => site_url('katalog/elbise'),     'img' => 'https://picsum.photos/seed/elbise/600/800'),
     array('ad' => 'Dış Giyim',    'url' => site_url('katalog/dis-giyim'),  'img' => 'https://picsum.photos/seed/disgiyim/600/800'),
 );
+// Yıldız SVG'si (ASCII-güvenli; mojibake riski yok)
+$yildiz = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg>';
+// Müşteri / bayi yorumları
+$yorumlar = array(
+    array('metin' => 'Toptan fiyatlar ve kumaş kalitesi beklentimizin üzerinde. Siparişlerimiz her zaman zamanında ulaştı.', 'ad' => 'Ayşe K.',  'rol' => 'Mağaza Sahibi',    'sehir' => 'İstanbul'),
+    array('metin' => 'XML entegrasyonu sayesinde ürünleri kendi sitemize anında çekebiliyoruz. Bayi kaydı çok kolay oldu.',  'ad' => 'Murat T.', 'rol' => 'E-Ticaret Müdürü', 'sehir' => 'İzmir'),
+    array('metin' => 'Minimum adetler esnek, fiyat basamakları toptan alımda ciddi avantaj sağlıyor. Kesinlikle tavsiye ederim.', 'ad' => 'Zeynep A.', 'rol' => 'Boutique Sahibi',  'sehir' => 'Ankara'),
+);
+// Güven / istatistik seridi
+$istatistikler = array(
+    array('sayi' => '15+',    'etiket' => 'Yıllık üretim deneyimi'),
+    array('sayi' => '5.000+', 'etiket' => 'Aktif toptancı bayi'),
+    array('sayi' => '50+',    'etiket' => 'Üretici marka'),
+    array('sayi' => '24s',    'etiket' => 'Hızlı sevkiyat'),
+);
 ?>
 <?php
 // Slider bannerları (bannerlar tablosu)
@@ -104,33 +119,41 @@ $sliderler = $this->db->where('yer', 'anasayfa_slider')->where('durum', 1)->orde
     </div>
 </section>
 
-<section class="section section--tight" style="background:var(--surface)">
+<section class="stats">
+    <div class="container">
+        <div class="stats__grid">
+            <?php foreach ($istatistikler as $i): ?>
+                <div class="stat">
+                    <div class="stat__num"><?= e($i['sayi']) ?></div>
+                    <div class="stat__lbl"><?= e($i['etiket']) ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section class="section">
     <div class="container">
         <div class="section__head">
-            <span class="section__eyebrow">Vitrin</span>
-            <h2 class="section__title">Öne çıkan parçalar</h2>
-            <p class="section__lead">Toptan fiyatlar bayi hesabına giriş yapınca görünür. MOQ bilgisi her üründe.</p>
+            <span class="section__eyebrow">Yorumlar</span>
+            <h2 class="section__title">Bayilerimiz ne diyor?</h2>
+            <p class="section__lead">Binlerce toptancı üretici fiyatı ve hızlı sevkiyatla bizimle çalışıyor.</p>
         </div>
-
-        <?php if (!empty($db_hazir) && !empty($vitrin)): ?>
-            <div class="prodgrid">
-                <?php foreach ($vitrin as $u): ?>
-                    <?php $this->load->view('magaza/partial/urun_karti', array('urun' => $u)); ?>
-                <?php endforeach; ?>
-            </div>
-        <?php else: ?>
-            <?php if (empty($db_hazir)): ?>
-                <p class="notice notice--warn" style="margin-bottom:24px">
-                    ⚠ Veritabanı henüz bağlı değil — bu kartlar tasarım önizlemesidir.
-                    DB şifresi girilip şema içe aktarılınca gerçek ürünler gelecek (workflow.md §8).
-                </p>
-            <?php endif; ?>
-            <div class="prodgrid">
-                <?php foreach ($vitrin as $u): ?>
-                    <?php $this->load->view('magaza/partial/urun_karti', array('urun' => $u)); ?>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+        <div class="reviews__grid">
+            <?php foreach ($yorumlar as $y): ?>
+                <figure class="review-card">
+                    <div class="review-card__stars" role="img" aria-label="5 üzerinden 5 yıldız"><?= str_repeat($yildiz, 5) ?></div>
+                    <blockquote class="review-card__text">&ldquo;<?= e($y['metin']) ?>&rdquo;</blockquote>
+                    <figcaption class="review-card__who">
+                        <span class="review-card__ava"><?= e(mb_substr($y['ad'], 0, 1)) ?></span>
+                        <span>
+                            <span class="review-card__name"><?= e($y['ad']) ?></span><br>
+                            <span class="review-card__role"><?= e($y['rol']) ?> · <?= e($y['sehir']) ?></span>
+                        </span>
+                    </figcaption>
+                </figure>
+            <?php endforeach; ?>
+        </div>
     </div>
 </section>
 
@@ -139,7 +162,7 @@ $sliderler = $this->db->where('yer', 'anasayfa_slider')->where('durum', 1)->orde
         <div class="ctaband">
             <div class="container--inner container" style="max-width:var(--container)">
                 <div>
-                    <h2>Toptancı mısiniz? Hemen başlayın.</h2>
+                    <h2>Toptancı mısınız? Hemen başlayın.</h2>
                     <p>Bayi hesabınızı açın, toptan fiyatları ve XML/API feed'i açalım.</p>
                 </div>
                 <a class="btn btn-primary btn--lg" href="<?= site_url('bayi/kayit') ?>">Bayi Kaydı Oluştur</a>
