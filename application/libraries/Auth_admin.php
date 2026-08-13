@@ -7,6 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Auth_admin
 {
     protected $CI;
+    protected $_yetki_cache = NULL;
 
     public function __construct()
     {
@@ -66,12 +67,34 @@ class Auth_admin
         return (int) $this->CI->session->userdata('rol_id');
     }
 
-    /** Yetki kontrolü. Süper admin (rol 1) her şeyi yapar; diğerleri için şimdilik genel erişim (Faz 5'te matris). */
+    /**
+     * Yetki kontrolü. Süper admin (rol 1) her şeyi yapar. Diğer roller yetkiler
+     * tablosundan (rol_id × modul × {goruntule,duzenle,sil}) kontrol edilir.
+     * İstek başına tek sorgu, önbellekten.
+     */
     public function yetki($modul, $islem = 'goruntule')
     {
         if (! $this->logged_in()) { return FALSE; }
-        if ($this->rol_id() === 1) { return TRUE; }
-        return TRUE; // rol 2 (yönetici): şimdilik genel erişim
+        if ($this->rol_id() === 1) { return TRUE; }            // süper = daima tam
+        if (! in_array($islem, array('goruntule', 'duzenle', 'sil'), TRUE)) { return FALSE; }
+        if ($this->_yetki_cache === NULL) { $this->_yetki_cache = $this->_yukle(); }
+        $satir = $this->_yetki_cache[$modul] ?? NULL;
+        if (! $satir) { return FALSE; }
+        return (int) ($satir[$islem] ?? 0) === 1;
+    }
+
+    /** Mevcut rolün yetkilerini yükle: modul => [goruntule,duzenle,sil]. */
+    private function _yukle()
+    {
+        $rol = $this->rol_id();
+        if (! $rol) { return array(); }
+        if (! $this->CI->db->table_exists('yetkiler')) { return array(); }
+        $rows = $this->CI->db->where('rol_id', $rol)->get('yetkiler')->result();
+        $out = array();
+        foreach ($rows as $r) {
+            $out[$r->modul] = array('goruntule' => $r->goruntule, 'duzenle' => $r->duzenle, 'sil' => $r->sil);
+        }
+        return $out;
     }
 
     public function audit($modul, $islem, $hedef = '', $aciklama = '')

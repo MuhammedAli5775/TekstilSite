@@ -34,7 +34,7 @@ $filtre_data = compact('liste_url', 'alt_kategoriler', 'kategori', 'facet_beden'
 <section class="section section--tight">
     <div class="container katalog-layout">
         <aside class="katalog-sidebar">
-            <button class="filtre-mobil-toggle" id="filtreToggle" type="button" aria-expanded="false">⚙ Filtrele</button>
+            <button class="filtre-mobil-toggle" id="filtreToggle" type="button" aria-expanded="false">⚙ Filtreler</button>
             <div class="filtre-sarma" id="filtreSarma">
                 <?php $this->load->view('magaza/partial/filtre', $filtre_data); ?>
             </div>
@@ -45,7 +45,7 @@ $filtre_data = compact('liste_url', 'alt_kategoriler', 'kategori', 'facet_beden'
                 <div class="urun-sayi"><b><?= (int) $toplam ?></b> ürün</div>
                 <div class="urun-sira">
                     <label for="siraSelect">Sırala</label>
-                    <select id="siraSelect" onchange="window.location.href=this.value">
+                    <select id="siraSelect">
                         <?php foreach ($siralar as $kod => $ad): ?>
                             <option value="<?= e(qs_url(array('sira' => $kod))) ?>" <?= $sira === $kod ? 'selected' : '' ?>><?= e($ad) ?></option>
                         <?php endforeach; ?>

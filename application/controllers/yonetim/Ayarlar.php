@@ -10,8 +10,16 @@ class Ayarlar extends Admin_Controller
         'arama_index', 'ga_id', 'fb_pixel', 'facebook_domain_verification', 'google_site_verification',
         'smtp_sunucu', 'smtp_port', 'smtp_sifrelem', 'smtp_kullanici', 'smtp_sifre', 'gonderen_eposta',
         'sms_aktif', 'sms_kullanici', 'sms_sifre', 'sms_gonderen',
+        'paytr_merchant_id', 'paytr_merchant_key', 'paytr_merchant_salt', 'paytr_test',
+        'efatura_entegrator', 'efatura_api_url', 'efatura_token', 'efatura_firma_vkn', 'efatura_firma_unvan', 'efatura_test',
     );
-    private $TOGGLES = array('arama_index', 'sms_aktif');
+    private $TOGGLES = array('arama_index', 'sms_aktif', 'paytr_test', 'efatura_test');
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->yetki_gerek('ayarlar', 'goruntule');
+    }
 
     public function index()
     {

@@ -75,7 +75,18 @@ $g = function ($k, $def = '') use ($a) { return isset($a[$k]) ? $a[$k] : $def; }
                     <div class="fld"><label>Satıcı VKN</label><input type="text" name="efatura_firma_vkn" value="<?= e($g('efatura_firma_vkn')) ?>"></div>
                     <div class="fld"><label>Satıcı Ünvan</label><input type="text" name="efatura_firma_unvan" value="<?= e($g('efatura_firma_unvan')) ?>"></div>
                 </div>
-                <small style="color:var(--stone)">API URL + token + satıcı VKN girilince siparişten kesilen faturalar entegratöre gönderilir (asenkron durum takibi). Boşsa faturalar “bekliyor” kaydedilir.</small>
+                <small style="color:var(--stone)">API URL + token + satıcı VKN girilince siparişten kesilen faturalar entegratöre gönderilir (asenkron durum takibi). Boşsa faturalar "bekliyor" kaydedilir.</small>
+            </div>
+
+            <div class="adm-card" style="margin-top:16px">
+                <div class="adm-card-baslik"><h3>PayTR (Kartlı Ödeme)</h3></div>
+                <div class="fld-row">
+                    <div class="fld"><label>Mağaza ID</label><input type="text" name="paytr_merchant_id" value="<?= e($g('paytr_merchant_id')) ?>" placeholder="123456"></div>
+                    <div class="fld"><label>Test ortamı</label><label class="checkbox" style="margin-top:6px"><input type="checkbox" name="paytr_test" value="1" <?= $g('paytr_test', '0') === '1' ? 'checked' : '' ?>> Test modu</label></div>
+                </div>
+                <div class="fld"><label>Mağaza Anahtarı (Key)</label><input type="password" name="paytr_merchant_key" value="<?= e($g('paytr_merchant_key')) ?>" autocomplete="new-password"></div>
+                <div class="fld"><label>Mağaza Tuzu (Salt)</label><input type="password" name="paytr_merchant_salt" value="<?= e($g('paytr_merchant_salt')) ?>" autocomplete="new-password"></div>
+                <small style="color:var(--stone)">Mağaza ID + anahtar + tuz girilince kartlı ödeme aktifleşir. Test modu PayTR sandbox'una gider; canlıya geçince işareti kaldırın.</small>
             </div>
         </div>
     </div>

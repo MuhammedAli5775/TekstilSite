@@ -6,6 +6,7 @@ class Kategoriler extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('kategoriler', 'goruntule');
         $this->load->model('kategori_model');
     }
 

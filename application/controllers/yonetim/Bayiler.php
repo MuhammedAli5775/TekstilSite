@@ -8,6 +8,7 @@ class Bayiler extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('bayiler', 'goruntule');
         $this->load->model('bayi_model');
     }
 

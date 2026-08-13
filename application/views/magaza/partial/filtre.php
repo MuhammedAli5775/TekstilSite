@@ -47,7 +47,6 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
             <span>–</span>
             <input type="number" name="max" placeholder="en çok" value="<?= e($this->input->get('max')) ?>" min="0" inputmode="numeric">
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:12px">Filtrele</button>
-        <a class="filtre-temizle" href="<?= e(site_url($liste_url)) ?>">Filtreleri temizle</a>
+        <small class="filtre-canli" style="display:block;margin-top:10px;color:var(--steel);font-size:12px">Seçimler anında uygulanır</small>
     </div>
 </form>

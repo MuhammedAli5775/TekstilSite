@@ -9,6 +9,7 @@ class Sayfalar extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('sayfalar', 'goruntule');
         $this->load->model('sayfa_model');
     }
 

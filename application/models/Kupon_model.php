@@ -47,6 +47,9 @@ class Kupon_model extends CI_Model
         $ind = ($k->tip === 'sabit') ? (float) $k->deger : (float) $ara_toplam_try * (float) $k->deger / 100;
         if ((float) $k->max_indirim > 0 && $ind > (float) $k->max_indirim) { $ind = (float) $k->max_indirim; }
         $ind = max(0.0, round($ind, 2));
+        // Güvenlik: indirim asla sepet ara toplamını aşamaz — yokla yuzde>100 veya
+        // sabit>subtotal kuponu (ör. 200 TL indirim, 150 TL sepet) negatif sipariş toplamı üretir.
+        $ind = min($ind, max(0.0, (float) $ara_toplam_try));
         return array('ok' => TRUE, 'kupon' => $k, 'indirim' => $ind, 'mesaj' => '');
     }
 

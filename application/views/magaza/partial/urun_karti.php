@@ -33,7 +33,12 @@ $tag   = $u['etiket']    ?? null; // ['renk'=>'green','metin'=>'Yeni']
             <?php else: ?>
                 <span class="now"><?= para_tr($fiyat) ?></span>
             <?php endif; ?>
+            <span class="prodcard__adet-etiket">/ adet</span>
         </div>
+        <?php $seriFiyat = (float) ($u['seri_fiyat'] ?? 0); $seriAdet = (int) ($u['seri_adet'] ?? 0); ?>
+        <?php if ($seriFiyat > 0 && $seriFiyat < $fiyat): ?>
+        <div class="prodcard__seri">Seri <b><?= para_tr($seriFiyat) ?></b> <small><?= $seriAdet ?>+ adette</small></div>
+        <?php endif; ?>
         <div class="prodcard__moq">Min. <b><?= $moq ?></b> adet · toptan</div>
     </div>
 </article>

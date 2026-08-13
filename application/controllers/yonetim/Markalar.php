@@ -9,6 +9,7 @@ class Markalar extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('markalar', 'goruntule');
         $this->load->model('marka_model');
     }
 

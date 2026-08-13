@@ -9,6 +9,7 @@ class Kuponlar extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('kuponlar', 'goruntule');
         $this->load->model('kupon_model');
     }
 

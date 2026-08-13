@@ -12,6 +12,7 @@ class Siparisler extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('siparisler', 'goruntule');
         $this->load->model('siparis_model');
     }
 

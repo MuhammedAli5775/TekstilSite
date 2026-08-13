@@ -45,6 +45,7 @@ class Urun_model extends CI_Model
         $rows = $this->db->order_by($sira[0], $sira[1])
                          ->limit((int) $limit, (int) $offset)
                          ->get()->result();
+        $rows = $this->seri_ekle($rows);
         return $this->_normalize($rows);
     }
 
@@ -131,6 +132,34 @@ class Urun_model extends CI_Model
                         ->get('fiyat_basamaklari')->result();
     }
 
+    /**
+     * Liste/arama kartları için en iyi seri (miktar indirimi) fiyatını hazırla.
+     * Her ürün için ürün-özel VEYA global basamaktan en yüksek indirim oranını bulur,
+     * seri_yuzde + seri_adet (o oranın min_adet'i) ekler. _normalize seri_fiyat üretir.
+     */
+    public function seri_ekle(array $rows)
+    {
+        if (! $rows) { return $rows; }
+        $idler = array();
+        foreach ($rows as $r) { if (! empty($r->id)) { $idler[(int) $r->id] = (int) $r->id; } }
+        if (! $idler) { return $rows; }
+        $tiers = $this->db->where('(urun_id IN (' . implode(',', $idler) . ') OR urun_id IS NULL)', NULL, FALSE)
+                          ->order_by('indirim_yuzde', 'DESC')->get('fiyat_basamaklari')->result();
+        $best_own = array(); $best_global = NULL;
+        foreach ($tiers as $t) {
+            if ($t->urun_id === NULL) { if ($best_global === NULL) { $best_global = $t; } }
+            else { $pid = (int) $t->urun_id; if (! isset($best_own[$pid])) { $best_own[$pid] = $t; } }
+        }
+        foreach ($rows as $r) {
+            $pid  = (int) $r->id;
+            $own  = $best_own[$pid] ?? NULL;
+            $pick = ($own && $best_global) ? (($own->indirim_yuzde >= $best_global->indirim_yuzde) ? $own : $best_global)
+                   : ($own ?: $best_global);
+            if ($pick) { $r->seri_yuzde = (float) $pick->indirim_yuzde; $r->seri_adet = (int) $pick->min_adet; }
+        }
+        return $rows;
+    }
+
     // ------------------------------------------------------------------
     // Arama
     // ------------------------------------------------------------------
@@ -144,6 +173,7 @@ class Urun_model extends CI_Model
                          ->order_by('olusturma_zaman', 'DESC')
                          ->limit((int) $limit, (int) $offset)
                          ->get()->result();
+        $rows = $this->seri_ekle($rows);
         return $this->_normalize($rows);
     }
 
@@ -205,6 +235,8 @@ class Urun_model extends CI_Model
                 'eski_fiyat' => (float) (isset($r->eski_fiyat) ? $r->eski_fiyat : 0),
                 'stok_kodu'  => $r->stok_kodu,
                 'moq'        => (int) (isset($r->moq) ? $r->moq : 1),
+                'seri_fiyat' => (isset($r->seri_yuzde) && $r->seri_yuzde > 0) ? round((float) $r->fiyat * (1 - (float) $r->seri_yuzde / 100), 2) : 0.0,
+                'seri_adet'  => isset($r->seri_adet) ? (int) $r->seri_adet : 0,
                 'etiket'     => null,
             );
         }

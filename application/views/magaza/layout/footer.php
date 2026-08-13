@@ -46,5 +46,7 @@ $yil = date('Y');
         </div>
     </div>
 </footer>
+<script>window.tkCsrf = {name: <?= json_encode($this->security->get_csrf_token_name()) ?>, hash: <?= json_encode($this->security->get_csrf_hash()) ?>}};</script>
+<script src="<?= asset('magaza/js/teksil.js') ?>"></script>
 </body>
 </html>

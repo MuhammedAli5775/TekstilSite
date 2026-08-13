@@ -10,6 +10,7 @@ class Faturalar extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('faturalar', 'goruntule');
         $this->load->model('fatura_model');
         $this->load->library('efatura');
     }

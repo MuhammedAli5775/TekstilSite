@@ -34,17 +34,33 @@
 
     /* ---------- Katalog: filtre ---------- */
     function initFiltre() {
+        /* Filtre/sıralama yeniden yüklemesinde kaydırma konumunu koru. */
+        var sy = sessionStorage.getItem('katScrollY');
+        if (sy !== null) { sessionStorage.removeItem('katScrollY'); window.scrollTo(0, parseInt(sy, 10) || 0); }
+
         var form = document.querySelector('.filtre-form');
         if (form) {
+            /* Anında filtre: beden/renk checkbox'ı + fiyat girişi (blur/Enter) formu gönderir. */
             form.addEventListener('change', function (e) {
-                if (e.target.matches('input[type=checkbox]')) { form.submit(); }
+                if (e.target.matches('input[type=checkbox], input[type=number]')) {
+                    sessionStorage.setItem('katScrollY', String(window.scrollY));
+                    form.submit();
+                }
+            });
+        }
+        /* Sırala: konumu koru, sonra yönlendir (inline onchange yerine). */
+        var sira = document.getElementById('siraSelect');
+        if (sira) {
+            sira.addEventListener('change', function () {
+                sessionStorage.setItem('katScrollY', String(window.scrollY));
+                window.location.href = sira.value;
             });
         }
         var toggle = document.getElementById('filtreToggle');
         var sarma = document.getElementById('filtreSarma');
         if (toggle && sarma) {
             toggle.addEventListener('click', function () {
-                var acik = sarma.classList.toggle('acik');
+                var acik = sarma.classList.toggle('is-open');   /* CSS: .filtre-sarma.is-open */
                 toggle.setAttribute('aria-expanded', acik ? 'true' : 'false');
             });
         }

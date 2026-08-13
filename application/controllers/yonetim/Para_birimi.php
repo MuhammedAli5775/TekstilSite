@@ -7,6 +7,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Para_birimi extends Admin_Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->yetki_gerek('ayarlar', 'goruntule');
+    }
+
     public function index()
     {
         $data = array(

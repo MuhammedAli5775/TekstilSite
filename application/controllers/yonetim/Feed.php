@@ -9,6 +9,7 @@ class Feed extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('feed', 'goruntule');
         $this->load->model('api_anahtar_model');
     }
 

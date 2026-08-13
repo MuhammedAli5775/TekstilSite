@@ -6,6 +6,7 @@ class Urunler extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('urunler', 'goruntule');
         $this->load->model(array('urun_model', 'kategori_model'));
     }
 

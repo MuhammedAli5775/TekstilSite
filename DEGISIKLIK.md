@@ -18,6 +18,225 @@
 
 ---
 
+## 2026-08-13 — Mağaza JS'i hiç yüklenmiyordu (teksil.js bağlantısı eksik) + seri fiyatı
+
+**Kritik latent bug:** `views/magaza/layout/head.php` yalnız `teksil.css` yükler, **`teksil.js` hiçbir
+view'da `<script>` ile bağlı değildi** → mağazada TÜM JS sessizce çalışmıyordu (katalog anlık filtre,
+ürün detay varyant/adet/basamak, `sepet/ekle` AJAX, checkout canlı tutar, sepet sayacı). curl tabanlı
+testler JS çalıştıramadığından ve betik hiç inmediğinden bu fark edilmemişti.
+**Düzeltme:** `footer.php`'ye `</body>` öncesi `<script src="<?= asset('magaza/js/teksil.js') ?>"></script>`
+eklendi (`asset()` filemtime ile cache-bust ekler → eski JS önbellek sorunu da çözülür).
+**Doğrulama:** /katalog HTML'sinde `teksil.js?<mtime>` artık render; ürün detayında tüm JS hook'ları
+mevcut (`pdVeri` JSON, `anaGorsel`, 4×`renk-sw`, 4×`beden-btn`, `adetInput`, `pdSepet`, `pd-basamak`);
+`sepet/ekle` AJAX → `{ok:1, adet:6, mesaj:"Ürün sepete eklendi."}` (JS'in beklediği şekil), sepet
+ürünü gösteriyor.
+
+**Seri fiyatı (toptan) ürün kartlarına:** `Urun_model::seri_ekle()` (yeni public metot — ürün-özel VEYA
+global `fiyat_basamaklari`'nin en yüksek indirim oranını bulur) → `mg_liste`/`mg_arama` + `_normalize`
+(`seri_fiyat`=fiyat×(1−yüzde), `seri_adet`); `urun_karti.php` + favorilerim kartı "Seri X ₺ (N+ adette)"
+satırı; `teksil.css` `.prodcard__seri` (yeşil vurgu) + `.prodcard__adet-etiket`. Doğrulama: 12 kartta
+"100+ adette" + seri render (ör. 79.90→71.91 = ×0.90, global %10 @100+); favorilerimde de.
+
+**[!] Canlıya taşı:** `layout/footer.php` (script) + `models/Urun_model.php` + `partial/urun_karti.php` +
+`views/magaza/sayfa/favorilerim.php` + `controllers/Sayfa.php` + `css/teksil.css`. (Seri fiyatı yorumu:
+"seri" = en iyi miktar-indirimi birim fiyatı olarak uygulandı; MOQ toplamı kastedildiyse kolay düzeltim.)
+
+---
+
+## 2026-08-13 — Favoriler ana_gorsel hatası + katalog sidebar anlık filtre/scroll
+
+**Bug:** `favorilerim.php:25` `$u->gorsel` kullanıyordu ama `Sayfa::favorilerim()` ham sorgu çalıştırır,
+görsel sütunu `ana_gorsel` (katalog `_normalize` ile `gorsel` map eder). → "Undefined property
+stdClass::$gorsel" PHP uyarısı. Düzeltme: `ana_gorsel`.
+
+**Katalog sidebar:** "Filtrele" butonu + "Filtreleri temizle" linki kaldırıldı; anlık filtre (checkbox
++ fiyat input `change` → `form.submit()`, sayfa 1'e sıfırlar — `teksil.js initFiltre` genişletildi);
+`.filtre-sarma` özel scroll bölgesi (`max-height`+`overflow`+`overscroll-behavior`+stil scrollbar);
+mobil açıcı sınıf uyumsuzluğu düzeltildi (JS `.acik` ↔ CSS `.is-open`) — mobil filtreler açılmıyordu;
+mobil düğme "⚙ Filtrele" → "⚙ Filtreler". (Not: JS bu sırada hiç yüklenmediği için yukarıdaki script
+düzeltmesine kadar sidebar anlık filtresi tarayıcıda çalışmıyordu.)
+
+**Değişen:** `favorilerim.php`, `partial/filtre.php`, `katalog/index.php`, `js/teksil.js`, `css/teksil.css`.
+Doğrulama: favoriler uyarısı gitti + görsel render; 16/16. UTF-8/curly/lint temiz.
+
+---
+
+## 2026-08-13 — Faz C doğrulaması: Arama + SEO + Markalar/Kategoriler/Sayfalar + Raporlar + Hesap
+
+TAMAMLAMA_PLANI Faz C'nin doğrulanabilir 5 alt sistemi uçtan uca test edildi. **Kod değişikliği
+YOK — hepsi doğruydu.** (C6 pazaryeri cred gerektirir → ertelendi; C7 lansman öncesi regresyon.)
+
+**C1 Arama — 10/10:** boş/ASCII/Türkçe(%-enc) sorgu, no-match boş sonuç, `ad/stok_kodu/aciklama`
+LIKE, noindex meta. (Plan notu düzeltildi: "robots.txt yok" yanlıştı — `Seo::robots()` var + routed.)
+**C4 SEO — 11/11:** `sitemap.xml` well-formed urlset (42 URL: ürün+kategori+katalog), `robots.txt`
+200 (route `robots\.txt => seo/robots`), `arama_index=1` → `/yonetim` engelli + Sitemap referansı.
+**C5 Markalar/Kategoriler/Sayfalar — 29/29:** CRUD + `slug_tr` üretimi + `-2` benzersizlik, ağaç
+(üst/alt kategori, `mg_sil_kontrol` alt'ı/ürünü olanı engeller), HTML içerik korur, validasyon,
+rol-2 gate'leri. (Not: boş kategori adı `show_404` döner — tasarım, hata değil.)
+**C3 Raporlar — 19/20 (1 kozmetik):** 6 rapor render + CSV(UTF-8 BOM,`;`)+PDF(HTML) export, tarih
+swap, fallback; `satis_ozet` ciro == `SUM(toplam*kur)` brut kuralı (43.346,70 ₺; iptal/iade dışlanır,
+18 toplam/17 brut). **kur çarpanı KANITLANDI:** #39 TRY→USD(32.5) → ciro tam 5936.40×31.5=186.996,60
+arttı (toplam*kur, salt toplam değil) → çoklu-para-birimi normalizasyonu çalışıyor; geri yüklendi.
+("ciro gösterimi" assertion'ı kusurluydu: view `Brüt Ciro`+para_tr render ediyor — satır 31.)
+**C2 Hesap (bayi self-servis) — 19/19:** auth gate (no session→bayi/giris), dashboard/siparişler/
+bilgiler/şifre render, **IDOR koruması** (B1 kendi #22→200, başkası #23→404, yok #9999→404 —
+`mg_siparis_getir` sahiplik izolasyonu), bilgiler güncelle+validasyon, şifre değiştir (yanlış eski
+reddi + hash değişmez, doğru eski→yeni hash+yeni şifrele giriş, matches validasyonu). (Test hatası
+düzeltildi: hesabim/* route'ları temiz alias kullanır — `siparis/{id}`, `bilgiler/kaydet`,
+`sifre/kaydet`; controller metod adları DEĞİL — view'ler doğru linkliyor.)
+
+Toplam Faz C: **88/89** (1 kozmetik assertion). Sunucu/CI log temiz; test verisi tam geri alındı.
+
+**[!] Canlıya taşı:** kod değişikliği yok (salt doğrulama).
+
+---
+
+## 2026-08-13 — D0: Ayarlar'a PayTR + e-fatura kimlik alanları (panelden kaydedilemiyordu)
+
+`Ayarlar::kaydet()` yalnızca `$WHITELIST` iterasyonu yapıyordu; whitelist SMTP/SMS'yi içeriyor
+ama **`paytr_*` / `efatura_*` içermiyordu** → admin panelden girdiği PayTR/e-fatura kimlikleri
+**sessizce drop edilip** hiç kaydedilmiyordu (DB'de `paytr_*` "ayar yok" olmasının nedeni bu).
+Ayrıca **PayTR kartı view'da hiç yoktu** (e-fatura kartı vardı ama o da whitelist dışı).
+
+**Değişen:**
+- `controllers/yonetim/Ayarlar.php` — `$WHITELIST`'e eklendi: `paytr_merchant_id`,
+  `paytr_merchant_key`, `paytr_merchant_salt`, `paytr_test`, `efatura_entegrator`,
+  `efatura_api_url`, `efatura_token`, `efatura_firma_vkn`, `efatura_firma_unvan`, `efatura_test`;
+  `$TOGGLES`'a `paytr_test`, `efatura_test`.
+- `views/yonetim/ayarlar/index.php` — yeni **PayTR (Kartlı Ödeme)** kartı (Mağaza ID text,
+  anahtar/tuz `type=password`+`autocomplete=new-password`, test checkbox) e-fatura kartından sonra.
+
+(Pazaryeri hariç: hesaplar ayrı `pazaryeri_hesaplari` tablosunda, Pazaryeri::hesap_kaydet
+ile yönetilir — Ayarlar'a ait değil.)
+
+**Doğrulama (HTTP, 20/20 PASS):** super login → tüm form POST (mevcut değerler + test kimlikleri)
+→ `kaydet` 30x → DB assert: 10 kimlik (4 paytr + 6 efatura) **kalıcı** (toggle'lar `paytr_test`/
+`efatura_test` → '1'); diğer ayarlar **korunuyor** (site_adi/smtp/sms unchanged); GET ayarlar 200
++ PayTR kartı input'ları render + değer doluyor; rol-2 `ayarlar/goruntule=0` → 403 (gate sağlam).
+
+**Yan bulgu 1 (düzeltildi):** view'a eklediğim PayTR kartında `"` tırnaklar Edit transitinde
+**curly (U+201D)** olmuştu — FFFD/UTF-8 valid/Türkçe sağlam, yalnızca `strpos` + tarayıcı
+parse'ı ifşa etti. Byte-level toplu `str_replace(curly→")` ile düzeltildi (55 sağ + 1 sol).
+**Yan bulgu 2 (not, kapsam dışı):** whitelist `meta_title`/`duyuru_2`/`duyuru_3` içeriyor ama
+view bu alanları render etmiyor → her kaydet bunları null'a çeker. Şu an hepsi boş + duyuru_2/3
+okunmuyor, meta_title fallback'li → etkisiz (latent). İleri düzeltme: `kaydet()`'te posted-
+olmayan non-toggle key'leri skip (null yerine koru).
+
+Lint temiz; sunucu/CI log temiz; UTF-8 + curly-quote byte-tarama temiz; test verisi temizlendi.
+
+**[!] Canlıya taşı:** `controllers/yonetim/Ayarlar.php` + `views/yonetim/ayarlar/index.php`.
+
+---
+
+## 2026-08-13 — Stok/Kuponlar/Bannerlar admin akış doğrulaması + kupon negatif-toplam bug fix
+
+Pazaryeri **ertelendi**: 0 hesap yapılandırılmış + senkron metotları `hazir()` ile gerçek
+platform cred'i (Trendyol/Hepsiburada api_key/secret/supplier_id) zorunlu kıldığı için canlı
+senkron yerelde doğrulanamaz (yalnız graceful-skip). Onun yerine **Stok, Kuponlar, Bannerlar**
+admin akışları doğrulandı.
+
+**Bulunan ve düzeltilen bug — kupon negatif sipariş toplamı (money):**
+`Kupon_model::dogrula()` indirimi yalnızca `max(0, …)` ile alttan kapatıyordu (üst sınır yok).
+`Siparis_model` ise `toplam = ara_toplam − indirim + islem + kargo` hesaplıyordu (kapatma yok).
+Sonuç: **sabit kupon subtotal'i aşınca** (ör. "200 TL indirim" 150 TL sepette) VEYA **yuzde>100**
+kuponu → sipariş toplamı **negatif**. CI3 bootstrap + `dogrula()` doğrudan çağrısıyla kanıtlandı:
+sabit 500 / ara_toplam 300 → indirim 500 → **toplam −200**; yuzde 150 / 300 → toplam −150.
+**Düzeltme:** `dogrula()` artık `indirim = min(indirim, ara_toplam)` kapatması yapıyor (3 çağrı
+yeri: Odeme görüntüleme, `kupon_uygula` flash, `Siparis_model._kupon_indirim` + snapshot —
+hepsi güvende). Boş sepette (ara_toplam=0) indirim 0. Kontrol davranışları bozulmadı (8/8).
+
+**Doğrulama (HTTP, 29/29 PASS):**
+- **Stok (9):** liste + `filtre=sifir` + hareketler; transactional `duzelt` (248→258→0→248) —
+  `stok_hareketleri` satırı `tip=duzeltme`, `onceki_stok` doğru, `adet` imzalı fark (+10); negatif
+  `yeni_stok=-5`→0 clamp; `yonetici_loglari` audit; gate (rol-2 duzenle=0→403).
+- **Kuponlar (9):** CRUD + kod sanitize (`'e2e test-1'`→`'E2ETEST-1'`, büyük+geçersiz-karakter
+  silme); boş kod validation red; gate; sil.
+- **Bannerlar (11):** URL görsel CRUD + `yazi_konum` whitelist (`sag`/`orta`/`sol`); görsel
+  zorunlu (boş→redirect, eklenmez); edit (sira/durum); gate; sil (URL görsel→disk temizliği yok).
+
+Lint temiz; sunucu/CI log temiz; UTF-8 temiz; test verisi + varyant stoğu geri yüklendi.
+
+**[!] Canlıya taşı:** `models/Kupon_model.php` (negatif-toplam fix). Stok/Bannerlar kod değişikliği yok.
+
+---
+
+## 2026-08-13 — Faz 5: B2B Feed (API/XML) alt sistemi uçtan uca doğrulama
+
+B2B toptancı katalog feed'i (`/feed/urunler`, makine-makine) + admin anahtar yönetimi
+(`yonetim/feed`) uçtan uca doğrulandı. **Kod değişikliği YOK — alt sistem doğruydu.**
+
+**Kapsam (HTTP, cookie-jar CSRF + direkt API çağrısı):**
+- **Admin CRUD (super):** anahtar üret → plaintext tek sefer gösterilir, DB'de yalnız
+  `sha256(key)` + 8-karakter `onek` saklanır (plaintext sütunu YOK, sızma yok); liste/toggle/sil.
+- **Güvenlik (public auth matrisi):** anahtar yok → **401**, geçersiz/pasif/silinmiş → **403**,
+  hepsinde ürün verisi sızdırılmaz; geçerli anahtar → **200**. `?key=` VE `X-Api-Key` başlığı
+  ikisi de çalışır.
+- **Format:** XML (DOMDocument, 28 `<urun>` well-formed) ve JSON (`?format=json`, 28) aynı
+  veriyi verir; `feed_liste()` gizli/silinmiş ürün sızdırmaz (`durum=1 AND deleted_at IS NULL`).
+- **Kullanım takibi:** her başarılı çağrı `kullanim_sayisi`+1 ve `son_kullanim` yazar (atomik).
+- **Yaşam döngüsü:** disable→403, re-enable→200, delete→403.
+- **Yetki gate'leri (bugün eklenen constructor gate dahil):** rol-2 `feed/goruntule=0`→403;
+  `goruntule=1,duzenle=0`→liste 200 ama `olustur` 403.
+
+**Sonuç:** 33/35 assertion PASS; 2 "fail" test-harness hatasıydı (XML `<urun>` sayımında
+`substr_count('<urun>')` kullanıldı, oysa açılış tag'i nitelikli `<urun id="…">` →
+`preg_match_all('/<urun\b/')`=28 ile JSON sayısı (28) birebir uyuştu; ham çıktı incelenerek
+doğrulandı, uygulama hatası yok). Sunucu/CI log temiz; UTF-8 temiz; test verisi temizlendi.
+
+**[!] Canlıya taşı:** kod değişikliği yok (salt doğrulama).
+
+---
+
+## 2026-08-13 — Faz 5: Rol bazlı yetki matrisi (goruntule/duzenle/sil zorunluluğu)
+
+**Süper admin (rol 1) harici tüm roller** için rol×modul×işlem ({görüntüle,düzenle,sil})
+matrisi devreye alındı. Önceden `Auth_admin::yetki()` rol 2'ye koşulsuz `TRUE` döndürüyordu
+("yönetici her şeyi yapar"); artık `yetkiler` tablosundan kontrol ediliyor.
+
+**Dosyalar:**
+- `libraries/Auth_admin.php` — `yetki()` gerçek matris kontrolü (rol 1 = daima tam; diğerleri
+  `yetkiler` tablosu; istek başına tek sorgu, `$_yetki_cache`; bilinmeyen işlem/eksik tablo →
+  `FALSE`). Yeni `_yukle()`.
+- `core/MY_Controller.php` — `render()` menüyü rol bazlı filtreler: `dashboard` her zaman
+  görünür, `yetkiler` yalnız süperde, diğerleri `yetki(modul,'goruntule')` ile; `para_birimi`
+  → `ayarlar` iznine eşlenir. Yeni menü öğesi "Yetki Matrisi" (⊕).
+- `controllers/yonetim/Yetkiler.php` (yeni) — süper-only matris UI (rol seç + grid kaydet).
+- `models/Yetki_model.php` (yeni) — `::$MODULLER` (14 modül kelime dağarcığı) + `liste()`/`kaydet()`
+  (kapatılan kutuları 0'a yazar; toplu upsert).
+- `views/yonetim/yetkiler/index.php` (yeni) — rol seçici + 14×3 checkbox matrisi.
+- **Zorunluluk (gap fix):** 13 yönetim controller'ının `__construct()`'una `yetki_gerek(modul,
+  'goruntule')` eklendi (Siparisler, Urunler, Kategoriler, Markalar, Bayiler, Faturalar,
+  Pazaryeri, Feed, Bannerlar, Sayfalar, Kuponlar, Ayarlar, Para_birimi). Daha önce yalnızca
+  `duzenle`/`sil` eylemleri ve Stok/Raporlar index'i gatedi; liste+detay sayfaları goruntule=0
+  olsa bile doğrudan URL'den erişilebiliyordu. Constructor gate'i modüldeki tüm rotaları kapatır
+  (UI sözü: "işaretsiz modül/işlem = 403"). `duzenle`/`sil` metodlarındaki mevcut gate'ler
+  katmanlı korunur.
+
+**DB:** `yetkiler` tablosu (id, rol_id→roller, modul, goruntule/duzenle/sil TINYINT;
+`UNIQUE(rol_id,modul)`). Seed: rol 2 "Yönetici" = tam erişim (eski davranışın korunması; süper
+kısıtlayabilir). Süper (rol 1) tabloda yer almaz (kodde sabit tam). Migration:
+`sql/migrate_yetkiler.sql` (INSERT IGNORE, güvenli re-çalıştırma).
+
+**Doğrulama (3 HTTP test paketi, cookie-jar CSRF yöntemi):**
+1. Süper admin matris CRUD — 12/12: giriş→matris render (14 modül × 3 = 42 input)→kaydet
+   (302→?rol=2)→DB assert (siparişler g1d1s0, kategoriler g1d0s0, ürünler tamamen kapandı).
+2. Zorunluluk (rol-2, yalnız siparişler+kategoriler açık) — 18/19: açık modüller 200, **13
+   kapalı modülün tümü 403** (urunler/markalar/stok/bayiler/faturalar/pazaryeri/feed/raporlar/
+   bannerlar/sayfalar/kuponlar/ayarlar/para_birimi), `urunler/duzenle/1`=403, `yetkiler`=403,
+   menü Yetki Matrisi'ni gizler. (1 "fail" = `siparisler/detay/1` non-200 — id=1 siparişi yok,
+   gate değil veri sorunu; gerçek sipariş id ile 200 — paket 3.)
+3. Yetkili akış regresyonu (rol-2 full) — 4/4: `siparisler/detay/22`=200, `urunler/duzenle/1`=200,
+   faturalar/ayarlar index=200 (gate yetkiliyi bozmaz).
+
+Lint 17 dosya temiz; sunucu/CI log temiz (fatal yok); test sonrası rol-2 varsayılana (full)
+geri yüklendi, temp admin silindi; UTF-8 (FFFD) temiz.
+
+**[!] Canlıya taşı:** FTP → 13 controller + `MY_Controller.php` + `Auth_admin.php` + 3 yeni dosya
+(Yetkiler.php, Yetki_model.php, views/yonetim/yetkiler/index.php). DB → `sql/migrate_yetkiler.sql`
+çalıştır (tablo yoksa oluşturur + rol-2 seed; varsa INSERT IGNORE no-op).
+
+---
+
 ## 2026-08-12 — Admin ürün CRUD doğrulama + varyant-ID korunumu (iade stok sızıntısı)
 
 Admin ürün CRUD'u uçtan uca doğrulandı: ekle (slug otomatik + benzersiz, varyant + fiyat

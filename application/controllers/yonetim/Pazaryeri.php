@@ -11,6 +11,7 @@ class Pazaryeri extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->yetki_gerek('pazaryeri', 'goruntule');
         $this->load->model('pazaryeri_model');
         $this->load->library('pazaryeri_api');
     }

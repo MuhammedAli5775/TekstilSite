@@ -33,6 +33,8 @@ class Sayfa extends Magaza_Controller
         $urunler = array();
         if ($ids) {
             $urunler = $this->db->where_in('id', $ids)->where('durum', 1)->order_by('FIELD(id,' . implode(',', $ids) . ')', '', FALSE)->get('urunler')->result();
+            $this->load->model('urun_model');
+            $urunler = $this->urun_model->seri_ekle($urunler);
         }
         $data = array('urunler' => $urunler);
         $this->v['meta_title']     = 'Favorilerim — ' . ayar('site_adi', 'TekstilSite');

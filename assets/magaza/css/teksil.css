@@ -233,6 +233,9 @@ header{position:sticky;top:0;z-index:50;}
 .prodcard__sku{font-family:var(--ff-mono);font-size:12px;color:var(--muted);}
 .prodcard__price{display:flex;align-items:baseline;gap:8px;margin-top:4px;}
 .prodcard__price .now{font-size:18px;font-weight:700;color:var(--ink);}
+.prodcard__adet-etiket{font-size:12px;color:var(--steel);font-weight:500;}
+.prodcard__seri{font-size:13px;color:var(--teal-mid);font-weight:600;background:var(--surface-feature);border:1px solid var(--hairline);border-radius:6px;padding:3px 8px;margin-top:2px;align-self:flex-start;}
+.prodcard__seri small{font-weight:400;color:var(--steel);font-size:11px;}
 .prodcard__moq{font-size:12px;color:var(--steel);margin-top:auto;padding-top:6px;border-top:1px solid var(--hairline);}
 
 /* --- CTA banner (lacivert) --- */
@@ -253,7 +256,12 @@ header{position:sticky;top:0;z-index:50;}
 .katalog-layout{display:grid;grid-template-columns:268px 1fr;gap:32px;align-items:start;}
 .katalog-sidebar{position:sticky;top:160px;}
 .filtre-mobil-toggle{display:none;}
-.filtre-sarma{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:18px;}
+.filtre-sarma{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:18px;max-height:calc(100vh - 190px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--hairline-strong) transparent;}
+/* özel sidebar scrollbar (WebKit) */
+.filtre-sarma::-webkit-scrollbar{width:6px;}
+.filtre-sarma::-webkit-scrollbar-track{background:transparent;}
+.filtre-sarma::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:99px;}
+.filtre-sarma::-webkit-scrollbar-thumb:hover{background:var(--steel);}
 .filtre-grup{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--hairline);}
 .filtre-grup:last-child{border-bottom:0;margin-bottom:0;}
 .filtre-grup h5{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--steel);margin-bottom:10px;}

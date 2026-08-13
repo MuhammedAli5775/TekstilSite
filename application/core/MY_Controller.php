@@ -153,7 +153,23 @@ class Admin_Controller extends MY_Controller
             array('key' => 'kuponlar',    'baslik' => 'Kuponlar',    'url' => site_url('yonetim/kuponlar'),    'ikon' => '✦'),
             array('key' => 'para_birimi', 'baslik' => 'Para Birimi', 'url' => site_url('yonetim/para_birimi'), 'ikon' => '¤'),
             array('key' => 'ayarlar',     'baslik' => 'Ayarlar',     'url' => site_url('yonetim/ayarlar'),     'ikon' => '⚙'),
+            array('key' => 'yetkiler',    'baslik' => 'Yetki Matrisi', 'url' => site_url('yonetim/yetkiler'),  'ikon' => '⊕'),
         );
+        // Rol bazlı menü filtreleme: süper (rol 1) tüm menüyü görür; dashboard her zaman
+        // görünür; 'yetkiler' yalnız süperde; diğerleri yetki(modul,'goruntule') ile.
+        if (isset($this->auth_admin) && $this->auth_admin->logged_in()) {
+            $super = ($this->auth_admin->rol_id() === 1);
+            $filtre = array();
+            foreach ($data['menu'] as $m) {
+                $key = $m['key'];
+                if ($key === 'yetkiler')  { if ($super) { $filtre[] = $m; } continue; }   // süper only
+                if ($key === 'dashboard') { $filtre[] = $m; continue; }                   // her zaman görünür
+                if ($super)               { $filtre[] = $m; continue; }
+                $modul = ($key === 'para_birimi') ? 'ayarlar' : $key;                     // para_birimi -> ayarlar izni
+                if ($this->auth_admin->yetki($modul, 'goruntule')) { $filtre[] = $m; }
+            }
+            $data['menu'] = $filtre;
+        }
         $this->load->view('yonetim/layout/head', $data);
         $this->load->view('yonetim/layout/sidebar', $data);
         $this->load->view('yonetim/layout/header', $data);
