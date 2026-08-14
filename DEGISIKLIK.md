@@ -18,6 +18,38 @@
 
 ---
 
+## 2026-08-14 (IV) — Faz E kapanışı: E3 log izleme + E4 hukuki sayfa taslakları
+
+**E4 — hukuki sayfalar (taslak).** Dört sayfa 26-91 karakterlik stub'dı (checkout
+onay kutusu 91 karakterlik sayfaya link veriyordu). **`sql/seed_hukuki_sayfalar.sql`**
+(yeni, uygulandı): mesafeli-satis (2872 kr — 6502 + Mesafeli Sözleşmeler Yönetmeliği
++ B2B/tacir mahiyet beyanı), iade-degisim (1774 — hasar/ayıp bildirim süreleri,
+muafiyetler, PayTR iade kanalı), gizlilik (1921 — KVKK 6698: veriler/amaçlar/
+aktarım/payTR-kargo-entegratör, VUK saklama, m.11 hakları), cerez (922 — yalnızca
+zorunlu teksil_sess/teksil_csrf çerezleri gerçeğe uygun; analytics açılırsa onay
+mekanizması gerektiği notu). **Yer tutucular:** [FİRMA ÜNVANI]/[ADRES]/[VKN]/
+[E-POSTA]/[TARİH] + [POLİTİKA:...] (iade süreleri, teslim süresi, hijyen kategorileri)
+— işletme dolduracak; dosya başında AVUKAT ONAYI zorunluluk uyarısı. Doğrulama:
+dört sayfa 200 + FFFD=0 + içerik render; DB uzunlukları 922-2872. Sayfalar durum=1
+(site canlı değil; canlı öncesi gözden geçirme DEPLOY.md checklist'e eklendi).
+
+**E3 — log izleme.** **`scripts/log_kontrol.sh`** (yeni, POSIX sh): günlük CI3 log'undan
+ERROR sayısı + mesaj bazlı gruplu son 10 hata; sıfır hatada tek OK satırı (cron
+yakalar). Fonksiyonel test: geçersiz yol → uyarı; boş gün → OK; 3 ERROR'lu simüle
+gün → doğru sayım + gruplama (2×bir, 1×iki); test logu silindi. DEPLOY.md **7b**:
+cron satırı (07:35) + uptime izleme dışarıdan (UptimeRobot tipi: anasayfa 200 +
+/feed/urunler 401 beklenen — API canlılık göstergesi); checklist'e uptime + hukuki
+sayfa gözden geçirme maddeleri eklendi.
+
+**Durum:** Faz E'nin dev-tarafı kapandı (E1-E4); E4'ün kalanı iş kararı (yer tutucu
+doldurma + hukuk onayı). B3 kurulum sırasına `seed_hukuki_sayfalar.sql` eklendi
+(seed.sql'den sonra, adım 3).
+
+**[!] Canlıya taşı:** `sql/seed_hukuki_sayfalar.sql` (prod DB'de seed sonrası),
+`scripts/log_kontrol.sh`, `DEPLOY.md` güncel haliyle.
+
+---
+
 ## 2026-08-14 (III) — Faz A açılışı: panel kimlik girişi E2E + sessiz veri kaybı fix + durum şeridi + işletme rehberi
 
 Faz A "kod yok" sahipliği İş'te — ama açılışta dev tarafının gerçekten hazır

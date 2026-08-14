@@ -74,6 +74,7 @@ mysql -u teksil_app -p teksilsite < sql/migrate_yetkiler.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_feed_rate_limit.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_perf_index.sql
 mysql -u teksil_app -p teksilsite < sql/seed.sql
+mysql -u teksil_app -p teksilsite < sql/seed_hukuki_sayfalar.sql   # hukuki taslaklar (yer tutucu doldur, adım 8)
 ```
 
 **seed.sql EN SONDA** (truncate içerir; sıra karışırsa veri ezilir). `bayiler.son_giris`
@@ -155,6 +156,19 @@ CI3 kendi log rotasyonunu yapmaz; log temizliği için (isteğe bağlı):
 25 4 * * * find /home/KULLANICI/public_html/application/logs -name 'log-*.php' -mtime +30 -delete
 ```
 
+### 7b. Hata log izleme (E3)
+
+`scripts/log_kontrol.sh` repodan gelir — günlük ERROR özeti (mesaj bazlı gruplu):
+
+```cron
+35 7 * * * /home/KULLANICI/scripts/log_kontrol.sh >> /home/KULLANICI/teksil-cron.log 2>&1
+```
+
+**Uptime izleme dışarıdan** (ücretsiz bir servis yeterli — örn. UptimeRobot/Better Stack):
+canlı domain açılıp ayarlandıktan sonra 2 monitör ekle: `https://alanadin.com/` (HTTP 200,
+5 dk aralık) ve `https://alanadin.com/feed/urunler` (401 beklenir — 200/500 değil; API'nin
+yaşadığını gösterir). Bildirim e-postası: işletme adresi.
+
 ## 8. İlk kurulum doğrulama kontrol listesi
 
 - [ ] `https://alanadin.com/` 200; HTTP → HTTPS yönlendirmesi çalışıyor
@@ -169,6 +183,10 @@ CI3 kendi log rotasyonunu yapmaz; log temizliği için (isteğe bağlı):
       gerçek ödeme + e-posta düşmesi
 - [ ] `application/logs/` içinde `log-YYYY-AA-GG.php` birikmiyor (hata yok)
 - [ ] Cron logu işliyor; `yedekler/` altında ilk döküm var
+- [ ] Uptime monitörleri (anasayfa + feed) kurulmuş, bildirim e-postası test edilmiş
+- [ ] Hukuki sayfalar (Mesafeli Satış / İade / KVKK / Çerez) gözden geçirilmiş:
+      `sql/seed_hukuki_sayfalar.sql` TASLAKTIR — [YER TUTUCU] kalmadığından ve
+      [POLİTİKA:...] maddelerinin işletme kararıyla doldurulduğundan emin ol
 - [ ] `https://alanadin.com/system/...` ve `/application/...` → 403
 - [ ] `https://alanadin.com/uploads/` → dizin listesi kapalı (403/boş)
 

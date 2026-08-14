@@ -72,7 +72,8 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   `schema.sql` → `migrate_faz2` → `migrate_faz4` → `migrate_faz5_fatura` → `migrate_faz5_feed` →
   `migrate_faz5_pazaryeri` → `migrate_kuponlar` → `migrate_para_birimi` → `migrate_2026_08_09` →
   **`migrate_yetkiler`** → **`migrate_feed_rate_limit`** → **`migrate_perf_index`** →
-  `seed.sql` (seed SONDA — truncate içerir, sıralamayı DEPLOY.md adım 3'te takip et). (Ops·M)
+  `seed.sql` → **`seed_hukuki_sayfalar.sql`** (seed SONDA — truncate içerir; hukuki
+  sayfalar seed'den sonra, durum=1 taslak yazılır). (Ops·M)
 - **B4.** PHP: `ENVIRONMENT=production` (`CI_ENV` ile), `base_url`=gerçek domain, hata görüntüleme kapalı. (Ops·S)
 - **B5.** `sess_save_path`'i production dizinine çevir (lokalde `C:/xampp/tmp`). (Ops·S)
 - **B6.** `uploads/` + `application/logs/` oluştur, web sunucusuna **yazma izni**; log rotasyonu. (Ops·S)
@@ -124,8 +125,15 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   olusturma_zaman), urunler(durum, fiyat), siparisler(olusturma_zaman)) uygulandı; filesort
   kalktı, sıralamalar covering index'ten. Opcache: prod PHP'de doğrulanacak (B4 ile).
 - **E3. İzleme:** hata log izleme + uptime. — S
+  **✓ 2026-08-14:** `scripts/log_kontrol.sh` (günlük ERROR özeti, mesaj bazlı gruplu —
+  fonksiyonel test edildi); DEPLOY.md 7b: cron satırı + uptime monitör önerisi
+  (anasayfa + feed 401). Kurulum DEPLOY ile canlıda yapılır.
 - **E4. Hukuki/içerik:** KVKK aydınlatma + üyelik/mesafeli satış sözleşmesi + iade koşulları
   sayfaları (Sayfalar CMS'inde; checkout'ta sözleşme onayı ✓). — İş·M
+  **✓ 2026-08-14 (taslak):** `sql/seed_hukuki_sayfalar.sql` — dört sayfa (mesafeli-satis,
+  iade-degisim, gizlilik, cerez) B2B-nüanslı tam taslak metinle DB'ye işlendi ve
+  render doğrulandı. **Kalan (İş):** [FİRMA/ADRES/VKN] yer tutucularını doldur,
+  [POLİTİKA:...] maddelerini kararlaştır, hukuk müşaviri onayı ver.
 
 ---
 
