@@ -54,8 +54,22 @@ class Feed extends CI_Controller
 
         $this->load->model('api_anahtar_model');
         if ($ham === '') { $this->_hata(401, 'API anahtarı gerekli (?key=... veya X-Api-Key başlığı).'); return NULL; }
+
+        // IP tabanlı brute-force koruması: yalnızca YANLIŞ anahtar denemeleri
+        // sayılır; bloklu IP için hash sorgusu bile yapılmaz (429).
+        $ip = (string) $this->input->ip_address();
+        if ($this->api_anahtar_model->bloklu_mu($ip)) {
+            $this->_hata(429, 'Çok fazla başarısız anahtar denemesi. Lütfen 15 dakika sonra tekrar deneyin.');
+            return NULL;
+        }
+
         $row = $this->api_anahtar_model->dogrula($ham);
-        if (! $row) { $this->_hata(403, 'Geçersiz veya pasif API anahtarı.'); return NULL; }
+        if (! $row) {
+            $this->api_anahtar_model->deneme_kaydet($ip);
+            $this->_hata(403, 'Geçersiz veya pasif API anahtarı.');
+            return NULL;
+        }
+        $this->api_anahtar_model->deneme_temizle($ip);   // doğru anahtar → sayaç sıfır
         return $row;
     }
 

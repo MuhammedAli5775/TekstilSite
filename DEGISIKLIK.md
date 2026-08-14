@@ -18,6 +18,68 @@
 
 ---
 
+## 2026-08-14 — Faz E sertleştirme: Feed API rate-limit + SQLi/XSS taraması + perf index'leri + repo hijyeni
+
+**E1 — SQLi taraması (SONUÇ: temiz, kod değişikliği yok).** Tüm Query-Builder-dışı
+dizinler tarandı: `->query()` **0** adet; `where(...,NULL,FALSE)` raw ifadeleri 27 adet —
+hepsi ya sabit SQL parçası (`deleted_at IS NULL` vb.) ya da güvenli kaynaklı:
+`Sayfa.php:32` `$ids` = `array_map('intval', ...)`; `Urun_model.php:144` `$idler` =
+`(int)` cast; `Rapor_model.php:86` `$alan` iki sabit literale whitelist'li;
+`Dashboard_model.php:81-87` `$sel` üç sabit literalden seçili. `order_by` interpolasyonları
+ya sabit ya `(int)` cast'li.
+
+**E1 — Feed API rate-limit (yeni).** `/feed/urunler` makine-makine ucunda IP tabanlı
+brute-force koruması yoktu (256-bit random + sha256 anahtar brute-force'a pratikte
+dayanıklı; katman savunma-derinliği + DB şişirme koruması). Session kullanılamaz (CI_Controller,
+cookie'siz istek) → `feed_denemeler` tablosu: pencere içinde 20 başarısız deneme → 15 dk blok,
+429 + hash sorgusu bile yapılmaz; doğru anahtar sayacı sıfırlar (NAT arkası meşru tüketici
+etkilenmez — yalnız yanlış deneme sayılır). Dosyalar:
+**`sql/migrate_feed_rate_limit.sql`** (yeni tablo, uygulandı),
+**`application/models/Api_anahtar_model.php`** (`bloklu_mi`/`deneme_kaydet`/`deneme_temizle`
++ `DENEME_ESIK`/`PENCERE` sabitleri), **`application/controllers/api/Feed.php`** (`_anahtar()`
+içine 429 yolu). Doğrulama (canlı, localhost:8000): anahtarsız → 401 (sayaçsız);
+21 yanlış key → 20×403 + 21.'si **429**; `feed_denemeler` = (::1, 20); blokliyken doğru
+key bile 429; sayaç temizlenince doğru key → 200 + `kullanim_sayisi=2`; 1 yanlış + doğru →
+sayaç silindi. Test anahtarı (id=8) silindi. `php -l` temiz ×2, mojibake byte-grep temiz.
+
+**E1 — XSS + upload taraması (SONUÇ: 2 küçük sertleştirme).** 791 `<?=` çıktısının
+tümü `e()`/helper/`(int)` cast; raw `echo $` yalnız sistem `errors/` view'larında;
+textarea'larda kaçırılmış çıktı yok; CMS `icerik` bilinçli-tasarım admin-HTML (view'da
+belgeli). Sertleştirmeler: (1) **`application/views/magaza/urun/detay.php`** — `pdVeri`
+JSON'una `JSON_HEX_TAG` eklendi (`</script>` kırılımını kapatır; admin girişli ürün
+adı/renk dizesi mağaza tarafında script bloğuna gömülüyor). Doğrulama: `/urun/suprem-v-yaka-body`
+200, JSON sağlam. (2) **`uploads/.htaccess`** (yeni, takipli) — yüklenen dosyalarda PHP/
+CGI çalıştırmayı Apache düzeyinde yasaklar (polyglot görsel savunması; Nginx'te eşdeğeri
+B2'de elle verilecek). Bannerlar `_gorsel_yukle()` mevcut doğrulama sağlam: is_uploaded_file +
+katı uzantı whitelist + getimagesize + 4MB + random dosya adı.
+
+**E2 — EXPLAIN + perf index'leri (yeni).** EXPLAIN boşlukları: (1) katalog varsayılan
+sıralama `durum=1 ORDER BY olusturma_zaman DESC` → `type=ALL` + `Using filesort`;
+(2) fiyat sıralaması aynı durumda; (3) rapor/trend tarih aralığı (`olusturma_zaman`)
+index'siz `type=ALL`. **`sql/migrate_perf_index.sql`** (uygulandı): `urunler(durum,
+olusturma_zaman)`, `urunler(durum, fiyat)`, `siparisler(olusturma_zaman)`. Sonrası EXPLAIN:
+yeni/fiyat sıralaması `ref` + covering + **filesort yok** (Backward index scan);
+siparisler `FORCE INDEX` ile `range` + `Using index condition` kanıtlandı (18 satırda
+optimizer tam taramayı seçiyor — veri büyüyünce otomatik range'e döner). Katalog
+sayfaları 200 (sırasız/filtreli). Beden/renk facet ve filtreli sayım sorguları zaten
+index'li join — dokunulmadı.
+
+**Repo hijyeni.** (a) Depoda **`.gitignore` hiç yoktu** → eklendi: `application/logs/*.php`,
+`uploads/*` (`.htaccess` muaf), curl cookie-jar artıkları (`teksil_csrf*`), OS çöpü.
+(b) Kökte yanlışlıkla oluşmuş **2 curl cookie-jar dosyası** (dosya ADINDA admin e-posta +
+şifre, İÇİNDE aktif session cookie) git takibindeydi VE **origin/main'e (GitHub) itilmişti**
+→ `git rm` + diskten silindi + ignore edildi; `application/logs/log-2026-08-1[23].php`
+untrack edildi (B9 ✓). Not: GitHub tarafındaki tarihçe bu yüzden şifre içeriyor —
+repo özel olsa da öneri: admin şifresini lansman öncesi değiştir / istenirse tarihçe
+filter-branch ile yeniden yazılır (kullanıcı kararı).
+
+**[!] Canlıya taşı:** `sql/migrate_feed_rate_limit.sql` + `sql/migrate_perf_index.sql`
+production DB'de çalıştırılmalı; PHP: `application/controllers/api/Feed.php`,
+`application/models/Api_anahtar_model.php`, `application/views/magaza/urun/detay.php`;
+repo kökü: `.gitignore`, `uploads/.htaccess`.
+
+---
+
 ## 2026-08-13 — Mağaza JS'i hiç yüklenmiyordu (teksil.js bağlantısı eksik) + seri fiyatı
 
 **Kritik latent bug:** `views/magaza/layout/head.php` yalnız `teksil.css` yükler, **`teksil.js` hiçbir

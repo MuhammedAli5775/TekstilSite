@@ -166,4 +166,4 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
     'moq'      => $moq,
     'adim'     => $adim,
     'basamak'  => array_map(function ($x) { return array('min' => (int) $x->min_adet, 'yuzde' => (float) $x->indirim_yuzde); }, $basamaklar),
-), JSON_UNESCAPED_UNICODE) ?></script>
+), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>

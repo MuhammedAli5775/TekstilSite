@@ -1,0 +1,15 @@
+# Çalışma zamanı artefaktları
+application/logs/*.php
+
+# Kullanıcı yüklemeleri (prod'da elle oluşturulur, repoya girmez;
+# yalnızca PHP-yasak .htaccess guard takip edilir)
+uploads/*
+!uploads/.htaccess
+
+# HTTP test artıkları: curl cookie-jar'ları yanlış dosya adıyla kalabilir
+teksil_csrf*
+teksil_sess*
+
+# OS çöpü
+.DS_Store
+Thumbs.db

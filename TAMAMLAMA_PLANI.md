@@ -57,13 +57,16 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **B3.** Production **DB**: ayrı kullanıcı (min. yetki) + sert parola. Kurulum sırası:
   `schema.sql` → `migrate_faz2` → `migrate_faz4` → `migrate_faz5_fatura` → `migrate_faz5_feed` →
   `migrate_faz5_pazaryeri` → `migrate_kuponlar` → `migrate_para_birimi` → `migrate_2026_08_09` →
-  **`migrate_yetkiler`** → `seed.sql` (seed ilk; truncate içerir — sıralamayı dikkatli kur). (Ops·M)
+  **`migrate_yetkiler`** → **`migrate_feed_rate_limit`** → **`migrate_perf_index`** →
+  `seed.sql` (seed ilk; truncate içerir — sıralamayı dikkatli kur). (Ops·M)
 - **B4.** PHP: `ENVIRONMENT=production` (`CI_ENV` ile), `base_url`=gerçek domain, hata görüntüleme kapalı. (Ops·S)
 - **B5.** `sess_save_path`'i production dizinine çevir (lokalde `C:/xampp/tmp`). (Ops·S)
 - **B6.** `uploads/` + `application/logs/` oluştur, web sunucusuna **yazma izni**; log rotasyonu. (Ops·S)
 - **B7.** **Cron**: `php index.php cron calis` (terk sepet / pazaryeri senkron / e-fatura durum) — örn. 15 dk. (Ops·S)
 - **B8.** Yedekleme: DB dump + `uploads/` otomatiği. (Ops·S)
 - **B9.** `application/logs/*.php` → `.gitignore` (şu an untracked birikiyor). (Dev·S)
+  **✓ 2026-08-14:** `.gitignore` oluşturuldu (logs + uploads + cookie-jar artıkları);
+  birikmiş loglar untrack edildi.
 
 ---
 
@@ -98,7 +101,14 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   XSS (`e()` helper yaygın — textarea/raw çıktı tara); CSRF (aktif ✓); dosya yükleme (banner native
   validation ✓ — tekrar gözden geçir); **Feed API rate-limit/brute-force yok** (key deneme koruması
   opsiyonel ekle). — M
+  **✓ 2026-08-14:** SQLi taraması temiz (0 raw query; 27 raw-FALSE hepsi sabit/int-cast/whitelist'li);
+  XSS taraması temiz (791 `<?=` hepsi e()/helper/cast) + `detay.php` pdVeri JSON'a `JSON_HEX_TAG`;
+  upload doğrulaması sağlam + `uploads/.htaccess` PHP-yasak guard'ı; Feed API'ye IP-tabanlı
+  rate-limit (20 yanlış/15 dk → 429) eklendi ve canlı doğrulandı. Ayrıntı: DEGISIKLIK.md 2026-08-14.
 - **E2. Performans:** 89 index mevcut; ana sorgulara `EXPLAIN`; opcache açık. — S/M
+  **✓ 2026-08-14:** EXPLAIN 3 boşluk buldu → `migrate_perf_index.sql` (urunler(durum,
+  olusturma_zaman), urunler(durum, fiyat), siparisler(olusturma_zaman)) uygulandı; filesort
+  kalktı, sıralamalar covering index'ten. Opcache: prod PHP'de doğrulanacak (B4 ile).
 - **E3. İzleme:** hata log izleme + uptime. — S
 - **E4. Hukuki/içerik:** KVKK aydınlatma + üyelik/mesafeli satış sözleşmesi + iade koşulları
   sayfaları (Sayfalar CMS'inde; checkout'ta sözleşme onayı ✓). — İş·M
