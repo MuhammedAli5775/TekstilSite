@@ -18,6 +18,56 @@
 
 ---
 
+## 2026-08-14 (II) — Faz B hazırlığı: production config seti + DEPLOY.md + yedek scripti
+
+Amaç: hosting alındığı gün yapılacak işi yarıya indirmek — kod tarafı hazır,
+kalan adımlar mekanik checklist'e insin.
+
+**CI3 ENVIRONMENT override mekanizması (kaynaktan doğrulandı + empirik test edildi).**
+Önemli asimetri: `get_config()` (system/core/common.php:253) önce TEMEL
+config.php'i yükler, sonra `config/production/config.php` VARSA ÜZERİNE bindirir →
+production config'i parçalı olabilir. Ama `DB()` (system/database/DB.php:58)
+environment database.php VARSA temel database.php'yi HİÇ yüklemez → production
+database.php EKSİKSİZ $db tanımı içermek zorunda. Her iki dosya bu asimetriye göre
+yazıldı.
+
+**Yeni dosyalar:**
+- **`application/config/production/config.php`** — yalnızca prod farkları:
+  `base_url` (alan adı yer tutucusu), `sess_save_path = APPPATH.'sessions'`
+  (Linux yolu; dev'deki C:/xampp/tmp değil), `cookie_secure=TRUE` +
+  `cookie_httponly=TRUE` (JS CSRF'i `window.tkCsrf` + gizli input'tan alıyor,
+  cookie'den değil — teksil.js:27 doğrulandı → httponly güvenli), `compress_output`
+  açıklaması (mod_deflate var, çifte gzip yok), `proxy_ips` notu.
+- **`application/config/production/database.php`** — eksiksiz tanım + ayrıcalıklı
+  kullanıcı şablonu (CREATE USER teksil_app + tek-DB GRANT; root yok) + `stricton=TRUE`.
+- **`DEPLOY.md`** — Faz B'nin (B1–B8) komut-level runbook'u: kod taşıma, config
+  doldurma, DB kullanıcı + 12 migration'lı kurulum sırası (seed SON), dizin izinleri,
+  `SetEnv CI_ENV production` (cPanel/vhost/Plesk), cron satırı (CI_ENV öneki şart,
+  PHP CLI env'leri okur), yedek cron'u, ilk-kurulum doğrulama listesi (9 madde),
+  rollback. NOT: cron/CLI'daki CI_ENV davranışı Linux'ta ilk koşuda teyit edilecek
+  (Windows cli-server SAPI'de env'in $_SERVER'a düşmediği görüldü — web testi
+  front-controller zorlamasıyla yapıldı; Apache SetEnv yolu aynı mekanizma).
+- **`scripts/yedek.sh`** — mysqldump --single-transaction + uploads tar + 14 gün
+  rotasyon; POSIX sh; uzak kopya rsync örneği yorumda. `sh -n` temiz.
+- **`.gitignore`** += `application/sessions/`.
+
+**Empirik doğrulama (2026-08-14):** production config gerçek (local) değerlerle
+geçici dolduruldu → `CI_ENV=production` önekiyle sunucu ayağa kaldırıldı. Bulgular:
+(1) Windows php -S'te env değişkeni $_SERVER'a DÜŞMÜYOR → ENVIRONMENT development
+kaldı, form action'ları :8000'den geldi (ilk deneme); (2) `$_SERVER['CI_ENV']`
+zorlamalı geçici front-controller ile: anasayfa 200, form action `:8001`den
+(production base_url override'ının kanıtı), `teksil_sess` cookie'de `secure;
+HttpOnly` (önceki denemede bu bayraklar yoktu — yan not: session HttpOnly CI3'ün
+satır-179 sabidiymiş, Secure config'e bağlı). Test sonrası config'ler yer tutucuya
+geri çevrildi, geçici dosya silindi, `php -l` ×2 + mojibake byte-grep temiz.
+
+**[!] Canlıya taşı:** repodaki 5 dosya (2 production config şablonu — sunucuda
+doldurulacak, DEPLOY.md, scripts/yedek.sh, .gitignore) bir sonraki push'la gitmiş
+olur; hosting'de DEPLOY.md sırayla uygulanır.
+
+---
+
+
 ## 2026-08-14 — Faz E sertleştirme: Feed API rate-limit + SQLi/XSS taraması + perf index'leri + repo hijyeni
 
 **E1 — SQLi taraması (SONUÇ: temiz, kod değişikliği yok).** Tüm Query-Builder-dışı

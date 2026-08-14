@@ -1,5 +1,6 @@
 # Çalışma zamanı artefaktları
 application/logs/*.php
+application/sessions/
 
 # Kullanıcı yüklemeleri (prod'da elle oluşturulur, repoya girmez;
 # yalnızca PHP-yasak .htaccess guard takip edilir)

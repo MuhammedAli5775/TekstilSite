@@ -51,6 +51,13 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 
 ## Faz B — Production ortam & deploy  (Sahip: **Ops/DevOps**)
 
+> **Hazırlık ✓ 2026-08-14:** kod tarafı hazır — `application/config/production/`
+> (config + database şablonları; CI3 ENVIRONMENT override kaynaktan doğrulandı ve
+> empirik test edildi), **`DEPLOY.md`** (B1–B8'in komut-level runbook'u: migration
+> sırası, izinler, SetEnv, cron, doğrulama listesi, rollback), `scripts/yedek.sh`
+> (B8 yedek + rotasyon). **Kalan: B1 satın alma + DEPLOY.md'in fiilen uygulanması**
+> (geri kalanı artık mekanik adım).
+
 - **B1.** Hosting + alan adı + **SSL/HTTPS** (ödeme formu var → zorunlu). (Ops·M)
 - **B2.** Web sunucu: **Apache + `.htaccess` hazır** (rewrite, `system|application|sql|tests` erişim
   engeli, gzip, expires). Nginx ise eşdeğer kuralları elle çevir. (Ops·M)
@@ -58,7 +65,7 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   `schema.sql` → `migrate_faz2` → `migrate_faz4` → `migrate_faz5_fatura` → `migrate_faz5_feed` →
   `migrate_faz5_pazaryeri` → `migrate_kuponlar` → `migrate_para_birimi` → `migrate_2026_08_09` →
   **`migrate_yetkiler`** → **`migrate_feed_rate_limit`** → **`migrate_perf_index`** →
-  `seed.sql` (seed ilk; truncate içerir — sıralamayı dikkatli kur). (Ops·M)
+  `seed.sql` (seed SONDA — truncate içerir, sıralamayı DEPLOY.md adım 3'te takip et). (Ops·M)
 - **B4.** PHP: `ENVIRONMENT=production` (`CI_ENV` ile), `base_url`=gerçek domain, hata görüntüleme kapalı. (Ops·S)
 - **B5.** `sess_save_path`'i production dizinine çevir (lokalde `C:/xampp/tmp`). (Ops·S)
 - **B6.** `uploads/` + `application/logs/` oluştur, web sunucusuna **yazma izni**; log rotasyonu. (Ops·S)
