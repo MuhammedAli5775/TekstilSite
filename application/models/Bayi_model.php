@@ -26,7 +26,7 @@ class Bayi_model extends CI_Model
                         ->where('b.id', (int) $id)->limit(1)->get()->row();
     }
 
-    /** Kayıt oluşturma. Demo: durum=1 (otomatik onay). Faz 4 admin onay kapısı ekler. */
+    /** Kayıt oluşturma. durum=0: onay admin panelinden (Bayiler > durum) verilir. */
     public function kayit($d)
     {
         if (! $this->db->table_exists('bayiler')) { return array('ok' => FALSE, 'mesaj' => 'Veritabanı hazır değil.'); }
@@ -42,7 +42,7 @@ class Bayi_model extends CI_Model
             'vergi_dairesi'    => $d['vergi_dairesi'] ?? NULL,
             'sifre'            => password_hash($d['sifre'], PASSWORD_BCRYPT),
             'para_birimi'      => 'TRY',
-            'durum'            => 1, // demo: otomatik onay
+            'durum'            => 0, // onay bekliyor — admin onaylayana kadar giriş kapalı
         );
         $this->db->insert('bayiler', $ins);
         return array('ok' => TRUE, 'id' => $this->db->insert_id());

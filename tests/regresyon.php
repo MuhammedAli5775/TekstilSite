@@ -128,12 +128,18 @@ list($c, ) = post('bayi', '/bayi/kayit_kaydet', array(
 ));
 check('bayi-kayit-redirect', is_redir($c));
 $bayiId = (int) q1("SELECT id FROM bayiler WHERE email='" . esc($E) . "'");
-// MEVCUT DAVRANIŞ: kayıt otomatik onaylı (Bayi_model::kayit durum=1 — "demo" notu).
-// Belge vaadi (iletişim sayfası/FAZ_A_REHBERI) "admin onayı sonrası" diyor — tutarsızlık
-// (tutarsizlik notu: bkz. DEGISIKLIK 2026-08-14 (IV) - bayi otomatik onay vs belge vaadi)
-// davranışı sabitler:
-check('bayi-kayit-db-otomatik-onay', $bayiId > 0 && (int) q1("SELECT durum FROM bayiler WHERE id=$bayiId") === 1);
+// Kayit akisi: durum=0 (onay bekler) - admin onayi sonrasi giris acilir.
+check('bayi-kayit-db-onay-bekliyor', $bayiId > 0 && (int) q1("SELECT durum FROM bayiler WHERE id=$bayiId") === 0);
 
+// Onaysiz giris denemesi: redirect + oturum acilmaz (hesabim'a erisilemez).
+list($c, ) = post('bayi', '/bayi/giris_yap', array('email' => $E, 'sifre' => 'Reg2026x'));
+check('bayi-onaysiz-giris-red', is_redir($c));
+list($c, ) = get('bayi', '/hesabim');
+check('bayi-onaysiz-hesabim-kapali', is_redir($c));
+
+// Admin onayi (Bayiler paneli durum toggle'inin DB etkisi; panel HTTP akisi
+// onceki oturumlarda testli).
+q("UPDATE bayiler SET durum=1 WHERE id=$bayiId");
 list($c, ) = post('bayi', '/bayi/giris_yap', array('email' => $E, 'sifre' => 'Reg2026x'));
 check('bayi-giris-redirect', is_redir($c));
 list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);

@@ -45,12 +45,10 @@ class Bayi extends Magaza_Controller
             return;
         }
 
-        // Demo: otomatik onay (durum=1) → otomatik giriş + sepeti taşı
-        $b = $this->bayi_model->get($res['id']);
-        $this->bayi_giris_yap($b);
-        $this->sepet_model->transfer_to_bayi($b->id);
-        $this->session->set_flashdata('bilgi', 'Bayi hesabınız oluşturuldu. Hoş geldiniz, ' . e($b->yetkili_ad_soyad) . '!');
-        redirect('hesabim');
+        // Kayıt alındı — durum=0, admin onayı beklenir (Bayiler panelinden).
+        // Otomatik giriş YOK: onaylanmamış hesap kapıyı aşamaz (girişte durum kontrolü).
+        $this->session->set_flashdata('bilgi', 'Kaydınız alındı. Hesabınız onaylandıktan sonra e-posta ve şifrenizle giriş yapabilirsiniz.');
+        redirect('bayi/giris');
     }
 
     public function giris()

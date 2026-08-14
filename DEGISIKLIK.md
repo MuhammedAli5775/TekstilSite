@@ -18,7 +18,34 @@
 
 ---
 
-## 2026-08-14 (V) — C7 regresyon paketi kalıcılaştı: tests/regresyon.php 72/72 + bayi-onay bulgusu
+## 2026-08-14 (VI) — Bayi onay kapısı açıldı (otomatik onay kapatıldı) — (V)'teki bulgu karara bağlandı
+
+**(V)'teki bulgu kapatıldı: kayıt → admin onayı akışı gerçekten devreye alındı**
+(kod yorumu + tüm belgeler bunun hedeflendiğini yazıyordu; "demo: otomatik onay"
+etiketi unutulmuştu — canlıda onaysız bayi giriş yapabilirdi).
+
+**Değişiklik:**
+- **`application/models/Bayi_model.php`** — `kayit()` insert `durum: 1 → 0`
+  (onay bekliyor; admin Bayiler panelinden durum toggle'ı ile açılır).
+- **`application/controllers/Bayi.php`** — `kayit_kaydet()` artık otomatik giriş
+  yapmıyor (eski akış durum kontrolünü bypass eden session açıyordu + sepet taşıyordu);
+  yerine "Kaydınız alındı, onay sonrası giriş yapabilirsiniz" flash'ı + `bayi/giris`
+  yönlendirmesi. Giriş tarafı değişmedi — `durum!==1` "henüz onaylanmamış" reddi
+  zaten vardı (Bayi.php:94), şimdi anlamlı hâle geldi.
+- **`tests/regresyon.php`** — akış yeniden sabitlendi: kayıt durum=0 assert +
+  **onaysız giriş reddi** + **onay öncesi hesabim kapalı** + admin onayı + giriş
+  → 74 assert oldu.
+
+**Doğrulama:** tam regresyon **74/74 PASS** (bayi akışı onay kapısıyla uçtan uca;
+sepet/checkout/fatura/yetki/feed/rate-limit etkilenmedi). `php -l` ×3 temiz,
+mojibake byte-grep ×3 temiz. İletişim sayfası + FAZ_A_REHBERI + DoD metinleri artık
+davranışla tutarlı (metin değişikliği gerekmedi).
+
+**[!] Canlıya taşı:** `application/models/Bayi_model.php`,
+`application/controllers/Bayi.php`, `tests/regresyon.php`.
+
+---
+
 
 **C7 (lokal) ✓ — `tests/regresyon.php` (yeni, kalıcı).** Daha önceki E2E'ler tek kullanımlık
 script'lerdi; C7 artık repo içinde, lansman günü canlıya karşı `--force` ile aynı paket
