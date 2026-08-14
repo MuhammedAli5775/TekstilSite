@@ -18,6 +18,50 @@
 
 ---
 
+## 2026-08-14 (V) — C7 regresyon paketi kalıcılaştı: tests/regresyon.php 72/72 + bayi-onay bulgusu
+
+**C7 (lokal) ✓ — `tests/regresyon.php` (yeni, kalıcı).** Daha önceki E2E'ler tek kullanımlık
+script'lerdi; C7 artık repo içinde, lansman günü canlıya karşı `--force` ile aynı paket
+koşacak. Kapsam (72 assert): yayın sayfaları + sıralama/filtre + arama + 7 CMS sayfası
+(hukuki taslak içeriği dahil) + 404 + robots/sitemap + feed 401 + anonim yönetim formu;
+bayi kayıt→giriş→sepet(MOQ)→checkout(havale)→sipariş DB→sepet boşalması→başarılı sayfası;
+admin 16 sayfa smoke + sipariş detay + durum güncelle + e-fatura "bekliyor"; yetki
+matrisi (rol-2 giriş: siparişler 200 / yetkiler **403**); feed geçerli anahtar 200 +
+kullanım sayacı + rate-limit 20×403→429 + blok sonrası temizlik; graceful log denetimi
+(Eposta/Sms/Efatura atlamaları + testin kendi 404'ü filtreli, kalan hata = FAIL);
+temizlik (sipariş+fatura+detay+sepet+bayi+rol2 yönetici+API anahtarı+feed_denemeler+stok
+restore, kalan-satır=0 assert). **Sonuç: 72/72 PASS.** Reçete dersleri uygulandı:
+CSRF cookie havuzundan, bayi 2-segment/admin 3-segment, redirect 303 kabul, Windows
+php -S'te curl jar yok → oturumlar in-memory cookie havuzlarında (4 oturum paralel:
+guest/bayi/admin/admin2). Test verisi ASCII + benzersiz e-posta; koşu sonrası DB
+eski haline döner (stok dahil). NOT: script içindeki DB kimliği dev lokal kök —
+canlı koşuda (C7 lansman günü) prod kimliğine uyarlanır / read-only yeterli değildir
+(kayıt yapan akışlar var) — idealde canlıda test bayisi + test kartı ile koşulur.
+
+**BULGU (ürün kararı bekler) — bayi kaydı otomatik onaylı, belgeler aksini vaat ediyor.**
+`Bayi_model::kayit()` satır 45: `'durum' => 1, // demo: otomatik onay` → kayıt olur olmaz
+bayi giriş yapabilir. Oysa iletişim sayfası ("onay sonrası hesabınız açılır"),
+FAZ_A_REHBERI ve DoD akışı "kayıt → **admin onayı**" diyor. Altyapı hazır
+(Bayiler admin'de durum toggle var) — eksik yalnızca default. **Karar (İş):** (a) manuel
+onay: kayıt `durum=0` yazar, admin onaylar — spam/uygunsuz bayi riskine karşı standart
+B2B yaklaşım; ya da (b) otomatik onay: metinler buna göre düzeltilir. Regresyon suite'i
+MEVCUT davranışı (otomatik onay) sabitledi; karar verilince assertion + kod/metin
+birlikte güncellenir.
+
+**CSS sınıf-uyumsuzluk düzeltmeleri (beden/ödeme/hesabım vurguları).** JS ve PHP
+tutarlı biçimde `aktif` sınıfı kullanırken CSS `is-active` kuralları yazılmıştı →
+seçili beden butonu / hesabım sekmesi vurguları hiç görünmüyordu, ödeme yöntemi
+vurgusunu ekleyen de yoktu. Kullanıcı `beden-btn` kuralını elle düzeltti (is-active→
+aktif); aynı hatanın iki yoldaşı kapatıldı: `hesabim-menu a.is-active → a.aktif`
+(PHP `aktif` basıyor) ve `odeme-yontem.is-active → :has(input:checked)` (ölü kuralı
+radio işaretine bağlandı). Dosya: `assets/magaza/css/teksil.css` (3 kural).
+
+**[!] Canlıya taşı:** `tests/regresyon.php` repoya girer; canlı koşusu lansman günü
+`php tests/regresyon.php https://alanadi --force` (DB kimliği uyarlanarak); CSS
+dosyası FTP.
+
+---
+
 ## 2026-08-14 (IV) — Faz E kapanışı: E3 log izleme + E4 hukuki sayfa taslakları
 
 **E4 — hukuki sayfalar (taslak).** Dört sayfa 26-91 karakterlik stub'dı (checkout

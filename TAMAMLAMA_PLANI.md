@@ -94,6 +94,11 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **C5.** Kalan admin CRUD (Markalar / Kategoriler / Sayfalar) — kuponlar/bannerlar pattern'iyle — S/M
 - **C6.** Pazaryeri **canlı** test (Trendyol cred gelince): hesap CRUD + eşleştirme + senkron — L (dışa bağlı)
 - **C7.** Lansman öncesi **regresyon**: tüm E2E paketlerini (yetki/feed/stok/kupon/banner/B2B 53) tek seferde koş.
+  **✓ 2026-08-14 (lokal):** `tests/regresyon.php` — kalıcı, tek komutla tam paket
+  (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
+  **72/72 PASS**. Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
+  **Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
+  "admin onayı" vaat ediyor — (a) durum=0 başlat ya da (b) metinleri düzelt.
 
 ---
 

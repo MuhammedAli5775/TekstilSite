@@ -288,7 +288,7 @@ header{position:sticky;top:0;z-index:50;}
 /* --- varyant secici (urun detay) --- */
 .beden-btn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:42px;padding:0 14px;margin:4px 4px 0 0;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--canvas);font-size:14px;font-weight:600;color:var(--ink);}
 .beden-btn:hover{border-color:var(--ink);}
-.beden-btn.is-active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.beden-btn.aktif{background:var(--ink);color:#fff;border-color:var(--ink);}
 .beden-btn[disabled]{opacity:.4;text-decoration:line-through;cursor:not-allowed;}
 
 /* --- sayfalama --- */
@@ -321,7 +321,7 @@ header{position:sticky;top:0;z-index:50;}
 .odeme-alan input:focus,.odeme-alan select:focus,.odeme-alan textarea:focus{outline:none;border-color:var(--brand-green);box-shadow:0 0 0 3px rgba(0,237,100,.15);}
 .odeme-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .odeme-yontem{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--hairline);border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;}
-.odeme-yontem.is-active{border-color:var(--brand-green);background:rgba(0,237,100,.05);}
+.odeme-yontem:has(input:checked){border-color:var(--brand-green);background:rgba(0,237,100,.05);}
 
 /* --- hesabim --- */
 .hesabim-grid{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start;}
@@ -330,7 +330,7 @@ header{position:sticky;top:0;z-index:50;}
 .hesabim-avatar .daire{width:44px;height:44px;border-radius:var(--r-full);background:var(--teal-deep);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;}
 .hesabim-kullanici-ad{font-weight:600;font-size:15px;}
 .hesabim-menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);font-size:14px;color:var(--slate);}
-.hesabim-menu a:hover,.hesabim-menu a.is-active{background:var(--surface-soft);color:var(--ink);}
+.hesabim-menu a:hover,.hesabim-menu a.aktif{background:var(--surface-soft);color:var(--ink);}
 .hesabim-grup{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:20px;}
 .hesabim-cikis{color:var(--danger) !important;}
 

@@ -1,0 +1,250 @@
+<?php
+/**
+ * tests/regresyon.php — TekstilSite uçtan uca regresyon paketi (C7).
+ *
+ * Kapsam: yayın sayfaları, hukuki sayfalar, SEO, bayi kayıt→giriş→sepet→sipariş,
+ * admin panel smoke + sipariş durum + e-fatura (bekliyor), yetki matrisi (rol-2),
+ * feed anahtar doğrulama + IP rate-limit, graceful hata-log denetimi, temizlik.
+ *
+ * Kullanım:
+ *   php tests/regresyon.php                    # http://localhost:8000
+ *   php tests/regresyon.php https://alanadi    # canlı (C7 lansman günü)
+ *
+ * Kurallar (ci3-http-test-recipe): CSRF cookie'den (regenerate=FALSE), bayi
+ * formları 2-segment, admin 3-segment, redirect 303 kabul (30x aralığı),
+ * oturumlar ayrı cookie havuzlarında. Test verisi ASCII + benzersiz e-posta;
+ * koşu sonunda ürettiği tüm satırları ve stok değişimini geri alır.
+ *
+ * Çıkış: 0 = tam PASS; 1 = en az bir FAIL (özet + FAIL listesi basılır).
+ */
+if (PHP_SAPI !== 'cli') { exit("CLI only\n"); }
+
+$BASE = isset($argv[1]) ? rtrim($argv[1], '/') : 'http://localhost:8000';
+if (strpos($BASE, 'localhost') === FALSE && in_array('--force', $argv, TRUE) === FALSE) {
+    exit("GUARD: hedef localhost değil ($BASE). Canlıya karşı koşmak için --force ekle.\n");
+}
+
+/* ---- altyapı ------------------------------------------------------------- */
+$db = new mysqli('127.0.0.1', 'root', 'mysql1234', 'teksilsite');
+if ($db->connect_errno) { exit("DB bağlanamadı: (canlı koşuda config'i uyarla) " . $db->connect_error . "\n"); }
+$db->set_charset('utf8mb4');
+
+$SES = array();          // oturum adı => cookie havuzu (guest/bayi/admin/admin2)
+$PASS = 0; $FAIL = 0; $FAILED = array();
+
+function q($sql) { global $db; $r = $db->query($sql); if ($r === FALSE) { die("SQL hatası: $sql\n"); } return $r; }
+function q1($sql) { $r = q($sql)->fetch_row(); return $r ? $r[0] : NULL; }
+function esc($s) { global $db; return $db->real_escape_string($s); }
+
+function hh($ses, $url, $post = NULL) {
+    global $BASE, $SES;
+    if (! isset($SES[$ses])) { $SES[$ses] = array(); }
+    $ch = curl_init();
+    $opt = array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_HEADER => TRUE,
+        CURLOPT_FOLLOWLOCATION => FALSE,
+        CURLOPT_TIMEOUT => 20,
+    );
+    if ($SES[$ses]) {
+        $p = array();
+        foreach ($SES[$ses] as $k => $v) { $p[] = "$k=$v"; }
+        $opt[CURLOPT_COOKIE] = implode('; ', $p);
+    }
+    if ($post !== NULL) {
+        $opt[CURLOPT_POST] = TRUE;
+        $opt[CURLOPT_POSTFIELDS] = http_build_query($post);
+    }
+    curl_setopt_array($ch, $opt);
+    $r = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    if ($r === FALSE) { die("CURL hatası ($url): $err\n"); }
+    if (preg_match_all('/^Set-Cookie:\s*([^=]+)=([^;]*)/mi', $r, $m, PREG_SET_ORDER)) {
+        foreach ($m as $c) { $SES[$ses][trim($c[1])] = $c[2]; }
+    }
+    return array($code, $r);
+}
+function get($ses, $path) { global $BASE; return hh($ses, $BASE . $path); }
+function post($ses, $path, $data) {
+    global $BASE, $SES;
+    if (empty($SES[$ses]['teksil_csrf_cookie'])) { get($ses, '/'); }   // csrf cookie garanti
+    $data['teksil_csrf'] = $SES[$ses]['teksil_csrf_cookie'];
+    return hh($ses, $BASE . $path, $data);
+}
+function check($ad, $kosul) {
+    global $PASS, $FAIL, $FAILED;
+    if ($kosul) { $PASS++; echo "PASS $ad\n"; }
+    else { $FAIL++; $FAILED[] = $ad; echo "FAIL $ad\n"; }
+}
+function is_redir($code) { return $code >= 300 && $code < 400; }
+
+/* ---- hazırlık: benzersiz veri + önceki durum kayıtları -------------------- */
+$T   = date('YmdHis');
+$E   = "regresyon$T@test.local";
+$logFile = 'application/logs/log-' . date('Y-m-d') . '.php';
+$logOnce = is_file($logFile) ? (int) substr_count(file_get_contents($logFile), "\n") : 0;
+$vStokOnce = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1");
+q("DELETE FROM feed_denemeler");
+echo "hedef: $BASE | test e-posta: $E\n---\n";
+
+/* ---- A) yayın sayfaları (guest) ------------------------------------------- */
+list($c, $r) = get('guest', '/');            check('anasayfa-200', $c === 200);
+check('anasayfa-css', strpos($r, 'teksil.css') !== FALSE);
+list($c, $r) = get('guest', '/katalog');     check('katalog-200', $c === 200);
+check('katalog-urun-karti', strpos($r, 'urun/') !== FALSE);
+list($c, ) = get('guest', '/katalog?sira=fiyat_asc'); check('katalog-fiyat-siralama-200', $c === 200);
+list($c, ) = get('guest', '/katalog?sira=yeni');      check('katalog-yeni-siralama-200', $c === 200);
+list($c, ) = get('guest', '/katalog?bedenler[]=S');   check('katalog-beden-filtre-200', $c === 200);
+list($c, $r) = get('guest', '/urun/suprem-v-yaka-body');
+check('urun-detay-200', $c === 200);
+check('urun-detay-pdVeri', strpos($r, 'pdVeri') !== FALSE);
+list($c, $r) = get('guest', '/arama?q=suprem'); check('arama-200', $c === 200);
+
+foreach (array('mesafeli-satis','iade-degisim','gizlilik','cerez','hakkimizda','iletisim','toptan-sartlari') as $slug) {
+    list($c, ) = get('guest', "/sayfa/$slug");
+    check("sayfa-$slug-200", $c === 200);
+}
+list($c, $r) = get('guest', '/sayfa/mesafeli-satis');
+check('mesafeli-taslak-icerik', strpos($r, 'Taraflar') !== FALSE);   // E4 seed'i işlendi
+list($c, ) = get('guest', '/sayfa/yok-boyle-sayfa-xyz'); check('cms-404', $c === 404);
+list($c, ) = get('guest', '/yardim');        check('yardim-200', $c === 200);
+list($c, ) = get('guest', '/siparis-takip'); check('siparis-takip-200', $c === 200);
+list($c, ) = get('guest', '/favorilerim');   check('favorilerim-200', $c === 200);
+list($c, $r) = get('guest', '/robots.txt');  check('robots-200', $c === 200);
+check('robots-sitemap', strpos($r, 'Sitemap') !== FALSE);
+list($c, $r) = get('guest', '/sitemap.xml'); check('sitemap-200', $c === 200);
+check('sitemap-urlset', strpos($r, 'urlset') !== FALSE);
+list($c, ) = get('guest', '/feed/urunler');  check('feed-anahtarsiz-401', $c === 401);
+list($c, $r) = get('guest', '/yonetim');      check('anon-yonetim-login-formu', $c === 200 && strpos($r, 'yonetim/giris') !== FALSE);
+
+/* ---- B) bayi akışı -------------------------------------------------------- */
+list($c, ) = post('bayi', '/bayi/kayit_kaydet', array(
+    'yetkili_ad_soyad' => 'Regresyon Test', 'firma_adi' => 'Regresyon Test Ltd',
+    'email' => $E, 'telefon' => '5551112233', 'vergi_no' => '1234567890',
+    'vergi_dairesi' => 'Test', 'sifre' => 'Reg2026x', 'sifre2' => 'Reg2026x', 'sozlesme' => '1',
+));
+check('bayi-kayit-redirect', is_redir($c));
+$bayiId = (int) q1("SELECT id FROM bayiler WHERE email='" . esc($E) . "'");
+// MEVCUT DAVRANIŞ: kayıt otomatik onaylı (Bayi_model::kayit durum=1 — "demo" notu).
+// Belge vaadi (iletişim sayfası/FAZ_A_REHBERI) "admin onayı sonrası" diyor — tutarsızlık
+// (tutarsizlik notu: bkz. DEGISIKLIK 2026-08-14 (IV) - bayi otomatik onay vs belge vaadi)
+// davranışı sabitler:
+check('bayi-kayit-db-otomatik-onay', $bayiId > 0 && (int) q1("SELECT durum FROM bayiler WHERE id=$bayiId") === 1);
+
+list($c, ) = post('bayi', '/bayi/giris_yap', array('email' => $E, 'sifre' => 'Reg2026x'));
+check('bayi-giris-redirect', is_redir($c));
+list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);
+
+list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6)); // moq=6
+$jr = json_decode(trim(strstr($r, '{"'), "\r\n"), TRUE);   // header'lı gövdeden JSON çekilemezse strstr sonrası satır
+if ($jr === NULL && preg_match('/\{.*\}/s', $r, $m)) { $jr = json_decode($m[0], TRUE); }
+check('sepet-ekle-json-ok', is_array($jr) && ! empty($jr['ok']));
+list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
+list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
+
+list($c, ) = post('bayi', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Regresyon Test', 'teslimat_adres' => 'Test mahalle cadde no 1',
+    'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112233',
+    'email' => $E, 'fatura_ayni' => '1', 'odeme_yontemi' => 'havale', 'kargo_firma_id' => 1,
+    'sozlesme' => '1',
+));
+check('odeme-tamamla-redirect', is_redir($c));
+$siparisId = (int) q1("SELECT id FROM siparisler WHERE email='" . esc($E) . "' ORDER BY id DESC LIMIT 1");
+check('siparis-db-olustu', $siparisId > 0);
+$siparisNo = q1("SELECT siparis_no FROM siparisler WHERE id=$siparisId");
+check('sepet-bosaldi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId") === 0);
+list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 200);
+
+/* ---- C) admin smoke + sipariş/fatura -------------------------------------- */
+list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@teksilsite.test', 'sifre' => 'Tekstil2026!'));
+check('admin-giris-redirect', is_redir($c));
+foreach (array('dashboard','urunler','kategoriler','markalar','siparisler','bayiler','stok',
+               'kuponlar','bannerlar','sayfalar','faturalar','raporlar','feed','ayarlar','yetkiler','pazaryeri') as $m) {
+    list($c, ) = get('admin', "/yonetim/$m");
+    check("admin-$m-200", $c === 200);
+}
+list($c, $r) = get('admin', "/yonetim/siparisler/detay/$siparisId");
+check('admin-siparis-detay-200', $c === 200 && strpos($r, $siparisNo) !== FALSE);
+
+list($c, ) = post('admin', "/yonetim/siparisler/durum_guncelle/$siparisId", array('durum' => 'hazirlaniyor', 'notu' => 'regresyon'));
+check('admin-durum-guncelle-redirect', is_redir($c));
+check('siparis-durum-db', q1("SELECT durum FROM siparisler WHERE id=$siparisId") === 'hazirlaniyor');
+
+list($c, ) = post('admin', "/yonetim/faturalar/olustur/$siparisId", array('tip' => 'earsiv'));
+check('admin-fatura-olustur-redirect', is_redir($c));
+$faturaId = (int) q1("SELECT id FROM faturalar WHERE siparis_id=$siparisId ORDER BY id DESC LIMIT 1");
+check('fatura-db-bekliyor', $faturaId > 0 && q1("SELECT durum FROM faturalar WHERE id=$faturaId") === 'bekliyor');
+
+/* ---- D) yetki matrisi (rol-2) ---------------------------------------------- */
+q("INSERT INTO yoneticiler (rol_id, ad_soyad, email, sifre, durum) VALUES (2, 'Reg Rol2', 'reg2$T@test.local', '"
+  . esc(password_hash('Reg2026x', PASSWORD_BCRYPT)) . "', 1)");
+list($c, ) = post('admin2', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026x'));
+check('rol2-giris-redirect', is_redir($c));
+list($c, ) = get('admin2', '/yonetim/siparisler'); check('rol2-siparisler-200', $c === 200);   // seed: tam erişim
+list($c, ) = get('admin2', '/yonetim/yetkiler');   check('rol2-yetkiler-403', $c === 403);      // süper-only
+
+/* ---- E) feed tam yol + rate-limit ------------------------------------------ */
+$anahtar = 'regtest_' . bin2hex(random_bytes(16));
+q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"
+  . esc(hash('sha256', $anahtar)) . "', 1)");
+$anahtarId = (int) $db->insert_id;
+list($c, $r) = get('guest', "/feed/urunler?key=" . urlencode($anahtar));
+check('feed-gecerli-200', $c === 200 && strpos($r, 'katalog') !== FALSE);   // XML root = <katalog>
+check('feed-kullanim-sayaci', (int) q1("SELECT kullanim_sayisi FROM api_anahtarlari WHERE id=$anahtarId") === 1);
+
+$kodlar = array();
+for ($i = 1; $i <= 21; $i++) {
+    list($c, ) = get('guest', '/feed/urunler?key=yanlis_' . $i);
+    $kodlar[] = $c;
+}
+check('feed-ratelimit-20x403', substr_count(implode(',', $kodlar), '403') === 20);
+check('feed-ratelimit-429', end($kodlar) === 429);
+q("DELETE FROM feed_denemeler");
+list($c, ) = get('guest', "/feed/urunler?key=" . urlencode($anahtar));
+check('feed-blok-sonrasi-temiz-200', $c === 200);
+
+/* ---- F) graceful log denetimi ------------------------------------------------ */
+$yeni = array();
+if (is_file($logFile)) {
+    $satirlar = explode("\n", file_get_contents($logFile));
+    for ($i = $logOnce; $i < count($satirlar); $i++) {
+        $l = trim($satirlar[$i]);
+        if ($l === '' || strpos($l, 'ERROR -') === FALSE) { continue; }
+        // Beklenen/önbilinen: kimliksiz ortamda graceful atlamalar + testin kendi 404'ü.
+        if (strpos($l, 'Eposta:') !== FALSE || strpos($l, 'Sms') !== FALSE
+            || strpos($l, 'Efatura:') !== FALSE || strpos($l, '404 Page Not Found') !== FALSE) { continue; }
+        $yeni[] = $l;
+    }
+}
+check('log-beklenmeyen-hata-yok', empty($yeni));
+foreach ($yeni as $l) { echo "  LOG: $l\n"; }
+
+/* ---- temizlik ---------------------------------------------------------------- */
+q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
+q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");
+q("DELETE FROM siparisler WHERE id=$siparisId");
+q("DELETE FROM sepet WHERE bayi_id=$bayiId");
+q("DELETE FROM bayiler WHERE id=$bayiId");
+q("DELETE FROM yoneticiler WHERE email='reg2$T@test.local'");
+q("DELETE FROM api_anahtarlari WHERE id=$anahtarId");
+q("DELETE FROM feed_denemeler");
+q("UPDATE urun_varyantlari SET stok=$vStokOnce WHERE id=1");
+if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
+    && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
+    q("DELETE FROM stok_hareketleri WHERE siparis_id=$siparisId");
+}
+$kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "')
+                 + (SELECT COUNT(*) FROM bayiler WHERE email='" . esc($E) . "')
+                 + (SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local')
+                 + (SELECT COUNT(*) FROM api_anahtarlari WHERE id=$anahtarId)
+                 + (SELECT COUNT(*) FROM feed_denemeler)");
+check('temizlik-tamam', $kalan === 0);
+check('stok-geri-yuklendi', (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1") === $vStokOnce);
+
+/* ---- özet -------------------------------------------------------------------- */
+echo "---\n$PASS PASS / $FAIL FAIL\n";
+if ($FAILED) { echo "FAIL listesi:\n - " . implode("\n - ", $FAILED) . "\n"; }
+exit($FAIL ? 1 : 0);
