@@ -27,6 +27,10 @@ class Ayarlar extends Admin_Controller
         $data['sayfa_basligi'] = 'Ayarlar';
         $data['menu_aktif']    = 'ayarlar';
         $data['ayarlar']       = $this->ayar_model->tum();
+        // Pazaryeri kimlikleri ayarlarda değil, hesap tablosunda (Faz A / A5).
+        $data['pazaryeri_hesap'] = $this->db->table_exists('pazaryeri_hesaplari')
+            ? (int) $this->db->where('durum', 1)->count_all_results('pazaryeri_hesaplari')
+            : 0;
         $this->render('yonetim/ayarlar/index', $data);
     }
 
@@ -37,6 +41,12 @@ class Ayarlar extends Admin_Controller
         foreach ($this->WHITELIST as $k) {
             if (in_array($k, $this->TOGGLES, TRUE)) {
                 $v = $this->input->post($k) ? '1' : '0';
+            } elseif ($this->input->post($k) === NULL) {
+                // POST'ta hiç gelmeyen alan (formda olmayan ya da kısmi gönderim):
+                // mevcut değeri KORU — ezme. Boşaltmak isteyen boş string gönderir.
+                // (Bug fix 2026-08-14: whitelist'te olup ayarlar formunda yer almayan
+                // meta_title/duyuru_2/duyuru_3 her kayıtta NULL ile eziliyordu.)
+                continue;
             } else {
                 $v = $this->input->post($k);
             }

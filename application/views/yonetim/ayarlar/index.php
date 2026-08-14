@@ -4,6 +4,28 @@ $g = function ($k, $def = '') use ($a) { return isset($a[$k]) ? $a[$k] : $def; }
 ?>
 <?php if ($bilgi = $this->session->flashdata('bilgi')): ?><div class="adm-uyari adm-uyari--ok"><?= e($bilgi) ?></div><?php endif; ?>
 
+<?php
+// Faz A entegrasyon durum şeridi — doluluk kütüphanelerin hazir() koşullarıyla paralel.
+$ent_durum = array(
+    array('E-posta (SMTP)',  $g('smtp_sunucu') && $g('smtp_kullanici') && $g('smtp_sifre'), ''),
+    array('SMS (Netgsm)',    $g('sms_aktif', '0') === '1' && $g('sms_kullanici') && $g('sms_sifre'), ''),
+    array('Ödeme (PayTR)',   $g('paytr_merchant_id') && $g('paytr_merchant_key') && $g('paytr_merchant_salt'),
+        $g('paytr_merchant_id') && $g('paytr_test', '0') === '1' ? 'TEST modu — canlıda paytr_test=0 yapın' : ''),
+    array('E-Fatura',        $g('efatura_api_url') && $g('efatura_token') && $g('efatura_firma_vkn'),
+        $g('efatura_api_url') && $g('efatura_test', '0') === '1' ? 'TEST modu' : ''),
+    array('Pazaryeri (Trendyol)', (int) ($pazaryeri_hesap ?? 0) > 0, 'Panel: Pazaryeri > Hesaplar'),
+);
+?>
+<div class="adm-card" style="margin-bottom:16px">
+    <div class="adm-card-baslik"><h3>Entegrasyon Durumu</h3></div>
+    <?php foreach ($ent_durum as $ed): list($ad, $dolu, $not) = $ed; ?>
+        <div class="adm-kv">
+            <span><?= e($ad) ?></span>
+            <b style="color:<?= $dolu ? '#15803d' : '#9ca3af' ?>"><?= $dolu ? '✓ yapılandırıldı' : '○ girilmedi' ?><?= $not ? ' <small>' . e($not) . '</small>' : '' ?></b>
+        </div>
+    <?php endforeach; ?>
+</div>
+
 <form action="<?= site_url('yonetim/ayarlar/kaydet') ?>" method="post">
     <?= csrf_field() ?>
 

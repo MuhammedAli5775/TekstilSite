@@ -33,6 +33,13 @@
 
 ## Faz A — İş kimlik bilgileri  (ENGELLEYİCİ · Sahip: **İş** · kod YOK)
 
+> **Açılış ✓ 2026-08-14:** dev tarafı hazır ve kanıtlı — panelden giriş E2E
+> (29/29 PASS; yol üzerinde Ayarlar kaydının formda-olmayan alanları sildiği bug
+> düzeltildi), boş kimlikle dört yolun graceful-beklediği doğrulandı, Ayarlar'a
+> **Entegrasyon Durumu** şeridi eklendi. İşletme rehberi: **`FAZ_A_REHBERI.md`**
+> (başvuru → toplancak alan → panel kartı → test sırası). **Kalan: başvuruların
+> yapılıp kimliklerin girilmesi (İş).**
+
 Hepsi "graceful" tasarımda; kimlik girilince otomatik aktifleşir. **D0'dan sonra** Ayarlar'dan girilebilir;
 o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için **hepsi şart**.
 

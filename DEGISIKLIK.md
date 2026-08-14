@@ -18,6 +18,60 @@
 
 ---
 
+## 2026-08-14 (III) — Faz A açılışı: panel kimlik girişi E2E + sessiz veri kaybı fix + durum şeridi + işletme rehberi
+
+Faz A "kod yok" sahipliği İş'te — ama açılışta dev tarafının gerçekten hazır
+olması için dört şey yapıldı: panelden giriş uçtan uca kanıtlandı, yol üzerinde
+bir veri-kaybı bug'ı düzeltildi, Ayarlar'a durum göstergesi eklendi, işletme
+rehberi yazıldı.
+
+**Bug fix — Ayarlar kaydı formda olmayan alanları siliyordu.** `Ayarlar::kaydet()`
+whitelist'in TAMAMINI her POST'ta upsert ediyordu; whitelist'te olup ayarlar
+formunda alanı bulunmayan `meta_title`, `duyuru_2`, `duyuru_3` her kayıtta NULL ile
+eziliyordu (sessiz veri kaybı — içerik girildikten sonra lansmanda patlayacaktı).
+**Düzeltme:** POST'ta hiç gelmeyen non-toggle anahtar atlanır (`input->post() ===
+NULL → continue`); toggle davranışı korunur (checkbox yok = 0), bilinçli boşaltma
+(boş string) çalışmaya devam eder. Dosya:
+`application/controllers/yonetim/Ayarlar.php`. Doğrulama: E2E'de yalnızca Faz A
+alanlarını POST'larken `site_adi`/`meta_title`/`duyuru_1` değişmedi (3 assert PASS).
+
+**E2E — panel kimlik girişi (29/29 PASS).** Test (in-memory cookie PHP script,
+sunucu localhost:8000): admin girişi → Ayarlar'dan 20 Faz A alanı (SMTP 6, SMS 4,
+PayTR 4, e-fatura 6; 4'ü toggle) test değerleriyle kaydet → 3xx + hepsi DB'de
+kalıcı (20 assert) → formda-olmayan-alan koruması (3 assert) → temizlik POST'u →
+dolu kimlik kalmadı. Not: CI3 `redirect()` bu projede **303** dönüyor (302 değil) —
+E2E assert'leri 3xx aralığına yazıldı; Windows php -S'te curl cookie-jar yazmıyor
+(jar yerine in-memory cookie yönetimi — ci3-http-test-recipe'ye ek ders).
+Test scripti koşulduktan sonra silindi.
+
+**Boş kimlik davranışı doğrulaması (kod okuması — hepsi graceful):**
+- Eposta: `hazir()` FALSE → error-log + atla; çağıranlar `@` ile bastırıyor;
+  sipariş akışı bozulmuyor (`Odeme.php:96-102`).
+- Sms: `hazir()` FALSE → atla (Sms.php:44).
+- PayTR: sipariş ÖNCE oluşur (`mg_olustur`), `hazir()` değilse `odeme/basarili`'ye
+  düşer — müşteri mahsur kalmaz (`Odeme.php:107-114`); token sayfası NULL token +
+  hata gösterir (Paytr.php:26).
+- E-fatura: `hazir()` değilse fatura **"bekliyor"** kalır, kimlik girilince cron
+  gönderir (Efatura.php:134-135); admin fatura detayında "yapılandırılmadı" uyarısı
+  görünür.
+
+**Yeni — Ayarlar'da "Entegrasyon Durumu" şeridi.** Ayarlar sayfası üstünde 5 satır
+(E-posta/SMS/PayTR/E-Fatura/Pazaryeri): doluluk kütüphanelerin `hazir()` koşullarıyla
+paralel; PayTR/e-fatura test modundayken uyarı rozeti; pazaryeri satırı aktif hesap
+sayısından okur (`Ayarlar::index()` sayacı + view şeridi). Doğrulama: boşken 5×
+"girilmedi", PayTR doluyken ✓ + "TEST modu" rozeti (canlı curl), test verisi temizlendi.
+
+**Yeni — `FAZ_A_REHBERI.md`** (repo kökü): işletme tarafına A1-A5 başvuru rehberi —
+her kimlik için nereden alınır, hangi alanlar toplanır, panele hangi karttan girilir,
+giriş sonrası birlikte ne test edilecek; sıra önerisi + dikkatler (PayTR callback
+canlı domain ister, SMS başlık onay süresi, e-fatura VKN/ünvan birebirliği, SPF).
+
+**[!] Canlıya taşı:** `application/controllers/yonetim/Ayarlar.php`,
+`application/views/yonetim/ayarlar/index.php`, `FAZ_A_REHBERI.md` — sonraki push'la.
+
+---
+
+
 ## 2026-08-14 (II) — Faz B hazırlığı: production config seti + DEPLOY.md + yedek scripti
 
 Amaç: hosting alındığı gün yapılacak işi yarıya indirmek — kod tarafı hazır,
