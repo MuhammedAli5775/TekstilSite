@@ -46,6 +46,9 @@ $yil = date('Y');
         </div>
     </div>
 </footer>
+<button type="button" id="yukariBtn" class="yukari-btn" aria-label="Sayfanın başına dön" title="Yukarı çık">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+</button>
 <script>window.tkCsrf = {name: <?= json_encode($this->security->get_csrf_token_name()) ?>, hash: <?= json_encode($this->security->get_csrf_hash()) ?>}};</script>
 <script src="<?= asset('magaza/js/teksil.js') ?>"></script>
 </body>

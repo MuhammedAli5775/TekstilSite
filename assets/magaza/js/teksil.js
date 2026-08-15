@@ -250,7 +250,24 @@
         hesapla();
     }
 
-    function init() { initFiltre(); initUrunDetay(); initCheckout(); }
+    /* ---------- Yukarı çık butonu ---------- */
+    /* Sayfa dibine gelince belirir; tıklamada yumuşak kaydırmayla en üste döner. */
+    function initYukariBtn() {
+        var btn = document.getElementById('yukariBtn');
+        if (!btn) { return; }
+        var guncelle = function () {
+            var dibde = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40;
+            btn.classList.toggle('gorunur', dibde);
+        };
+        window.addEventListener('scroll', guncelle, { passive: true });
+        window.addEventListener('resize', guncelle);
+        guncelle();
+        btn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    function init() { initFiltre(); initUrunDetay(); initCheckout(); initYukariBtn(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
     else { init(); }
 })();

@@ -90,6 +90,7 @@ function is_redir($code) { return $code >= 300 && $code < 400; }
 /* ---- hazırlık: benzersiz veri + önceki durum kayıtları -------------------- */
 $T   = date('YmdHis');
 $E   = "regresyon$T@test.local";
+$EK  = "kul$T@test.local";       // kullanıcı (B2C) akışı için ayrı e-posta
 $logFile = 'application/logs/log-' . date('Y-m-d') . '.php';
 $logOnce = is_file($logFile) ? (int) substr_count(file_get_contents($logFile), "\n") : 0;
 $vStokOnce = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1");
@@ -198,6 +199,29 @@ check('rol2-giris-redirect', is_redir($c));
 list($c, ) = get('admin2', '/yonetim/siparisler'); check('rol2-siparisler-200', $c === 200);   // seed: tam erişim
 list($c, ) = get('admin2', '/yonetim/yetkiler');   check('rol2-yetkiler-403', $c === 403);      // süper-only
 
+/* ---- D2) kullanıcı (B2C) akışı — bayi girişinin yanı sıra kullanıcı girişi ---- */
+list($c, ) = get('guest', '/kullanici/kayit');    check('kullanici-kayit-200', $c === 200);
+list($c, ) = post('guest', '/kullanici/kayit_kaydet', array(
+    'ad_soyad' => 'Reg Kullanici', 'email' => $EK, 'telefon' => '5551112233',
+    'sifre' => 'Kul2026x', 'sifre2' => 'Kul2026x', 'sozlesme' => '1',
+));
+check('kullanici-kayit-redirect', is_redir($c));
+check('kullanici-db-durum1', (int) q1("SELECT durum FROM kullanicilar WHERE email='" . esc($EK) . "'") === 1);
+list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'yanlis'));
+check('kullanici-yanlis-sifre-reddi', is_redir($c));
+list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026x'));
+check('kullanici-giris-redirect', is_redir($c));
+list($c, $r) = get('kullanici', '/hesabim');
+check('kullanici-hesabim-200', $c === 200 && strpos($r, 'Reg Kullanici') !== FALSE);
+check('kullanici-navbar-cikis', strpos($r, 'kullanici/cikis') !== FALSE);
+list($c, ) = get('kullanici', '/kullanici/cikis');
+check('kullanici-cikis-redirect', is_redir($c));
+list($c, ) = get('kullanici', '/hesabim');
+check('kullanici-sonrasi-hesabim-kapali', is_redir($c));
+// navbar çıkışta kullanıcı girişine döner (bayi değil)
+list($c, $r) = get('guest', '/');
+check('navbar-kullanici-girisi', $c === 200 && strpos($r, 'kullanici/giris') !== FALSE);
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"
@@ -241,6 +265,7 @@ q("DELETE FROM siparisler WHERE id=$siparisId");
 q("DELETE FROM sepet WHERE bayi_id=$bayiId");
 q("DELETE FROM bayiler WHERE id=$bayiId");
 q("DELETE FROM yoneticiler WHERE email='reg2$T@test.local'");
+q("DELETE FROM kullanicilar WHERE email='" . esc($EK) . "'");
 q("DELETE FROM api_anahtarlari WHERE id=$anahtarId");
 q("DELETE FROM feed_denemeler");
 q("UPDATE urun_varyantlari SET stok=$vStokOnce WHERE id=1");
@@ -251,6 +276,7 @@ if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
 $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "')
                  + (SELECT COUNT(*) FROM bayiler WHERE email='" . esc($E) . "')
                  + (SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local')
+                 + (SELECT COUNT(*) FROM kullanicilar WHERE email='" . esc($EK) . "')
                  + (SELECT COUNT(*) FROM api_anahtarlari WHERE id=$anahtarId)
                  + (SELECT COUNT(*) FROM feed_denemeler)");
 check('temizlik-tamam', $kalan === 0);

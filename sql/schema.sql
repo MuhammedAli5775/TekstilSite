@@ -214,6 +214,20 @@ CREATE TABLE IF NOT EXISTS bayiler (
   CONSTRAINT fk_bayi_grup FOREIGN KEY (grup_id) REFERENCES bayi_gruplari (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Kullanıcı (B2C) hesapları — bayiden ayrı sade kimlik (kayıt anında aktif).
+CREATE TABLE IF NOT EXISTS kullanicilar (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ad_soyad   VARCHAR(120) NOT NULL,
+  email      VARCHAR(150) NOT NULL,
+  telefon    VARCHAR(30),
+  sifre      VARCHAR(255) NOT NULL,
+  durum      TINYINT NOT NULL DEFAULT 1,
+  son_giris  DATETIME,
+  olusturma_zaman DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_kullanici_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS bayi_adresleri (
   id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
   bayi_id   INT UNSIGNED NOT NULL,

@@ -73,6 +73,41 @@ class Magaza_Controller extends MY_Controller
         $this->bayi_cache = FALSE;
     }
 
+    /* ---------------- Kullanıcı (B2C) oturum yardımları ---------------- */
+    /** @var object|false|null giriş yapmış kullanıcı (önbellek) */
+    protected $kullanici_cache = NULL;
+
+    /** Giriş yapmış kullanıcı_id veya null. */
+    public function kullanici_id()
+    {
+        $id = $this->session->userdata('kullanici_id');
+        return $id ? (int) $id : NULL;
+    }
+
+    /** Giriş yapmış kullanıcı nesnesi (önbellekli) veya null. */
+    public function kullanici()
+    {
+        $id = $this->kullanici_id();
+        if (! $id) { return NULL; }
+        if ($this->kullanici_cache === NULL) {
+            $this->load->model('kullanici_model');
+            $this->kullanici_cache = $this->kullanici_model->get($id) ?: FALSE;
+        }
+        return $this->kullanici_cache ?: NULL;
+    }
+
+    public function kullanici_giris_yap($kullanici)
+    {
+        $this->session->set_userdata('kullanici_id', (int) $kullanici->id);
+        $this->kullanici_cache = $kullanici;
+    }
+
+    public function kullanici_cikis()
+    {
+        $this->session->unset_userdata('kullanici_id');
+        $this->kullanici_cache = FALSE;
+    }
+
     /** Mağaza çapında ortak veriyi hazırlar (menü, başlık, sepet sayısı, bayi, durum). */
     protected function _ortak_veri()
     {
@@ -85,6 +120,7 @@ class Magaza_Controller extends MY_Controller
         $this->v['sepet_adet']  = $this->db_hazir() ? $this->sepet_model->sayi() : 0;
         $this->v['bayi']        = $this->db_hazir() ? $this->bayi() : NULL;
         $this->v['bayi_indirim']= $this->v['bayi'] ? bayi_indirim() : 0.0;
+        $this->v['kullanici']   = $this->db_hazir() ? $this->kullanici() : NULL;
         $this->v['db_hazir']    = $this->db_hazir();
         $this->v['v_be_layout'] = TRUE;
     }

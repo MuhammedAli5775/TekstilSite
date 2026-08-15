@@ -57,8 +57,11 @@ if (empty($menu)) {
                     <?php if (! empty($bayi)): ?>
                         <a href="<?= site_url('hesabim') ?>">👤 <?= e($bayi->yetkili_ad_soyad ? explode(' ', $bayi->yetkili_ad_soyad)[0] : 'Hesabım') ?></a>
                         <a href="<?= site_url('bayi/cikis') ?>">Çıkış</a>
+                    <?php elseif (! empty($kullanici)): ?>
+                        <a href="<?= site_url('hesabim') ?>">👤 <?= e($kullanici->ad_soyad ? explode(' ', $kullanici->ad_soyad)[0] : 'Hesabım') ?></a>
+                        <a href="<?= site_url('kullanici/cikis') ?>">Çıkış</a>
                     <?php else: ?>
-                        <a href="<?= site_url('bayi/giris') ?>">Giriş</a>
+                        <a href="<?= site_url('kullanici/giris') ?>">Kullanıcı Girişi</a>
                     <?php endif; ?>
                     <a href="<?= site_url('sepet') ?>">Sepet <span class="cart-count" id="cartCount"><?= (int) ($sepet_adet ?? 0) ?></span></a>
                 </div>

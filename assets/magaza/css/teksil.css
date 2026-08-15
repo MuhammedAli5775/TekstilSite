@@ -464,3 +464,9 @@ header{position:sticky;top:0;z-index:50;}
 .pd-tab-panel{display:none;}
 .pd-tab-panel.aktif{display:block;}
 @media (max-width:900px){.pd-grid{grid-template-columns:1fr;}.pd-gallery{position:static;}}
+
+/* ---------- Yukarı çık butonu (sayfa dibinde belirir) ---------- */
+.yukari-btn{position:fixed;right:22px;bottom:22px;z-index:60;width:46px;height:46px;border-radius:var(--r-full,999px);border:1px solid var(--hairline-strong,#d8e2dc);background:var(--surface,#fff);color:var(--ink,#0d1f17);box-shadow:0 6px 18px rgba(13,31,23,.16);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .22s ease,transform .22s ease,visibility .22s;}
+.yukari-btn.gorunur{opacity:1;visibility:visible;transform:translateY(0);}
+.yukari-btn:hover{background:var(--brand-green,#00ed64);}
+.yukari-btn:focus-visible{outline:2px solid var(--brand-green,#00ed64);outline-offset:2px;}

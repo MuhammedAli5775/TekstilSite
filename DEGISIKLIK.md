@@ -18,6 +18,42 @@
 
 ---
 
+## 2026-08-15 (X) — Kullanıcı (B2C) girişi + yukarı-çık butonu — 84/84 PASS
+
+**Kullanıcı isteği:** (1) bayi girişinin yanı sıra kullanıcı girişi; navbar'daki
+giriş artık kullanıcı girişine gider (bayi girişi footer + köprülerden erişilebilir
+kaldı). (2) Sayfa dibinde beliren, en üste taşıyan ok butonu.
+
+**Yeni:** `kullanicilar` tablosu (migration + schema + DEPLOY §3'e eklendi),
+`Kullanici` controller (kayıt/giriş/çıkış; bayi deseninde brute-force kilidi 5/15dk,
+açık-yönlendirme koruması, durum kontrolü), `Kullanici_model` (siparişler e-posta
+eşleşmeli — misafir siparişleri de hesabım'da görünür), iki view. Kayıt anında
+aktif (durum=1) — bayi admin-onay kapısından FARKLI bilinçli tasarım.
+
+**Değişen:** MY_Controller'e kullanıcı oturum yardımları (`kullanici_id/kullanici/
+giris_yap/cikis`, `v['kullanici']`); navbar üç durumlu (bayi/kullanıcı/misafir);
+Hesap iki modlu — kullanıcı modunda dashboard/siparisler/siparis_detay çalışır,
+bilgiler/sifre bayiye özel (yönlendirilir), menü koşullu; footer'a `#yukariBtn`
+(dibe 40px kala görünür, smooth-scroll üste), CSS+JS (init zincirine `initYukariBtn`).
+
+**Yazım bozulması bulgusu (yeni sınıf):** Write ile üretilen iki view'de `?>`
+kapanışı bayt düzeyinde `}}` olarak yazılmış (hex: `29 20 7d 7d`; yalnız `→` oku
+içeren satırlarda; php -l "Unmatched '}" — grep görüntüsü ALDATIR, hex doğrula!).
+Bayt-güvenli php -r str_replace ile düzeltildi.
+
+**Doğrulama:** tam regresyon **84/84 PASS** (74 + 10 yeni: kayıt→DB durum=1→yanlış
+şifre reddi→giriş→hesabım (ad+çıkış linki)→çıkış→hesabım kapalı→navbar köprüsü);
+`php -l` ×6 temiz, mojibake byte-grep ×11 temiz. Bayi akışı etkilenmedi (aynı
+pakette PASS).
+
+**[!] Canlıya taşı:** `application/controllers/Kullanici.php`, `application/models/
+Kullanici_model.php`, `application/views/magaza/kullanici/` (2 dosya), `Hesap.php`,
+`MY_Controller.php`, `header.php`, `footer.php`, `_menu.php`, `teksil.js`,
+`teksil.css`, `sql/migrate_kullanicilar.sql`, `sql/schema.sql`, `tests/regresyon.php`,
+`DEPLOY.md` + canlı DB'de `sql/migrate_kullanicilar.sql` koş.
+
+---
+
 ## 2026-08-15 (IX) — Sıfır-DB kurulum provası: DEPLOY.md §3 düzeltildi (5 bulgu) — 74/74 PASS
 
 **B3'ün (canlı kurulum SQL sırası) hiçbir zaman sıfır DB'de koşulmadığı görüldü —
