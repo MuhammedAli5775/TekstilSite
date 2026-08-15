@@ -18,6 +18,29 @@
 
 ---
 
+## 2026-08-15 (VII) — Repo hijyeni: kökteki probe.php repodan kaldırıldı
+
+**14-08 cookie-jar temizliğinin aynı sınıfından kalan tek parça** — kökteki
+`probe.php`: türkçe LIKE davranımını izole etmek için yazılmış tek kullanımlık
+mysqli probu; içinde yerel dev DB kök parolası düz metin vardı. Hiçbir belge/
+deploy adımı referans vermiyor (DEPLOY/CANLIYA-TASIMA/workflow grep temiz) →
+`git rm`. Tek dosya; kod/DB değişikliği yok.
+
+**Kalan risk (bilinen, değişmedi):** dev kimlikleri (`mysql1234` yerel kök
+parolası, `Tekstil2026!` seed admin parolası) hem GitHub tarihçesinde hem kasıtlı
+olarak HEAD'de (`tests/regresyon.php` + seed + workflow.md bunları kullanıyor —
+test paketi kimliksiz koşamaz). Hafifletme halihazırda DEPLOY.md'de: prod admin
+parolası ilk girişte değişir (m.180), prod DB parolası `SERT_PAROLA_BURAYA`
+yer tutucusundan girilir. Tarihçe temizliği (filter-branch) **kararı hâlâ açık**
+— alınırsa probe.php + 2 cookie-jar dosyası tek seferde süpürülür.
+
+**Doğrulama:** referans grep'i temiz; `git status` yalnızca silme içeriyor;
+repo artık public GitHub'da kök parolası içeren izlenen dosya taşımıyor.
+
+**[!] Canlıya taşı:** yok (repodan çıkarma; bu dosya canlıya gitmemeliydi zaten).
+
+---
+
 ## 2026-08-14 (VI) — Bayi onay kapısı açıldı (otomatik onay kapatıldı) — (V)'teki bulgu karara bağlandı
 
 **(V)'teki bulgu kapatıldı: kayıt → admin onayı akışı gerçekten devreye alındı**
