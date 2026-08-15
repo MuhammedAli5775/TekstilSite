@@ -56,10 +56,10 @@ if (empty($menu)) {
                     <a href="<?= site_url('favorilerim') ?>">♡ Favoriler</a>
                     <?php if (! empty($bayi)): ?>
                         <a href="<?= site_url('hesabim') ?>">👤 <?= e($bayi->yetkili_ad_soyad ? explode(' ', $bayi->yetkili_ad_soyad)[0] : 'Hesabım') ?></a>
-                        <a href="<?= site_url('bayi/cikis') ?>">Çıkış</a>
+                        <a href="<?= site_url('bayi/cikis') ?>" onclick="return confirm('Çıkış yapmak istediğinizden emin misiniz?')">Çıkış</a>
                     <?php elseif (! empty($kullanici)): ?>
                         <a href="<?= site_url('hesabim') ?>">👤 <?= e($kullanici->ad_soyad ? explode(' ', $kullanici->ad_soyad)[0] : 'Hesabım') ?></a>
-                        <a href="<?= site_url('kullanici/cikis') ?>">Çıkış</a>
+                        <a href="<?= site_url('kullanici/cikis') ?>" onclick="return confirm('Çıkış yapmak istediğinizden emin misiniz?')">Çıkış</a>
                     <?php else: ?>
                         <a href="<?= site_url('kullanici/giris') ?>">Kullanıcı Girişi</a>
                     <?php endif; ?>

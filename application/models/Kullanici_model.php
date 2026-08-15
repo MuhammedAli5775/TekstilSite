@@ -51,6 +51,70 @@ class Kullanici_model extends CI_Model
         $this->db->where('id', (int) $id)->update('kullanicilar', array('son_giris' => date('Y-m-d H:i:s')));
     }
 
+    public function bilgiler_guncelle($id, $d)
+    {
+        // E-posta bilinçli olarak yok: sipariş eşleşmesi e-posta üzerinden —
+        // değişirse geçmiş siparişler hesaptan kopar (view'da disabled).
+        $izinli = array('ad_soyad', 'telefon');
+        $veri = array();
+        foreach ($izinli as $k) { if (array_key_exists($k, $d)) { $veri[$k] = $d[$k]; } }
+        if ($veri) { $this->db->where('id', (int) $id)->update('kullanicilar', $veri); }
+    }
+
+    public function sifre_guncelle($id, $yeni)
+    {
+        $this->db->where('id', (int) $id)->update('kullanicilar', array('sifre' => password_hash($yeni, PASSWORD_BCRYPT)));
+    }
+
+    /* ---------------- Adres defteri (sahiplik izole) ---------------- */
+    public function adresler($kullanici_id)
+    {
+        return $this->db->where('kullanici_id', (int) $kullanici_id)
+                        ->order_by('varsayilan', 'DESC')->order_by('id', 'DESC')
+                        ->get('kullanicilar_adresleri')->result();
+    }
+
+    public function adres_getir($kullanici_id, $id)
+    {
+        return $this->db->where('kullanici_id', (int) $kullanici_id)
+                        ->where('id', (int) $id)->limit(1)->get('kullanicilar_adresleri')->row();
+    }
+
+    /** Ekle/güncelle; varsayılan işaretlenirse diğerleri temizlenir. */
+    public function adres_kaydet($kullanici_id, $d, $id = NULL)
+    {
+        $veri = array(
+            'ad_soyad'   => $d['ad_soyad'],
+            'adres'      => $d['adres'],
+            'il'         => $d['il'],
+            'ilce'       => $d['ilce'],
+            'telefon'    => $d['telefon'],
+            'tip'        => in_array($d['tip'] ?? '', array('teslimat','fatura','her_ikisi'), TRUE) ? $d['tip'] : 'her_ikisi',
+            'varsayilan' => empty($d['varsayilan']) ? 0 : 1,
+        );
+        if ($id) {
+            $this->db->where('kullanici_id', (int) $kullanici_id)->where('id', (int) $id)
+                     ->update('kullanicilar_adresleri', $veri);
+        } else {
+            $veri['kullanici_id'] = (int) $kullanici_id;
+            $this->db->insert('kullanicilar_adresleri', $veri);
+            $id = $this->db->insert_id();
+        }
+        if ($veri['varsayilan']) {
+            $this->db->set('varsayilan', 0)
+                     ->where('kullanici_id', (int) $kullanici_id)->where('id !=', (int) $id)
+                     ->update('kullanicilar_adresleri');
+        }
+        return (int) $id;
+    }
+
+    public function adres_sil($kullanici_id, $id)
+    {
+        return $this->db->where('kullanici_id', (int) $kullanici_id)
+                        ->where('id', (int) $id)
+                        ->delete('kullanicilar_adresleri');
+    }
+
     /** Kullanıcının siparişleri — e-posta eşleşmesiyle (misafir siparişleri dahil). */
     public function mg_siparisler($email)
     {

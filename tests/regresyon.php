@@ -150,6 +150,9 @@ q("UPDATE bayiler SET durum=1 WHERE id=$bayiId");
 list($c, ) = post('bayi', '/bayi/giris_yap', array('email' => $E, 'sifre' => 'Reg2026x'));
 check('bayi-giris-redirect', is_redir($c));
 list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);
+// Bayi bilgilerim (çift-modlu düzenlemeden sonra bayi yolu sabit kalmalı)
+list($c, $r) = get('bayi', '/hesabim/bilgiler');
+check('bayi-bilgiler-200', $c === 200 && strpos($r, 'yetkili_ad_soyad') !== FALSE);
 
 list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6)); // moq=6
 $jr = json_decode(trim(strstr($r, '{"'), "\r\n"), TRUE);   // header'lı gövdeden JSON çekilemezse strstr sonrası satır
@@ -214,6 +217,36 @@ check('kullanici-giris-redirect', is_redir($c));
 list($c, $r) = get('kullanici', '/hesabim');
 check('kullanici-hesabim-200', $c === 200 && strpos($r, 'Reg Kullanici') !== FALSE);
 check('kullanici-navbar-cikis', strpos($r, 'kullanici/cikis') !== FALSE);
+check('kullanici-cikis-confirm', strpos($r, 'emin misiniz') !== FALSE);   // çıkış onay diyalogu
+
+// kullanıcı bilgilerim
+list($c, $r) = get('kullanici', '/hesabim/bilgiler');
+check('kullanici-bilgiler-200', $c === 200 && strpos($r, 'name="ad_soyad"') !== FALSE);
+list($c, ) = post('kullanici', '/hesabim/bilgiler/kaydet', array('ad_soyad' => 'Reg Ad Yeni', 'telefon' => '5559998877'));
+check('kullanici-bilgiler-kaydet-redirect', is_redir($c));
+check('kullanici-bilgiler-db', q1("SELECT ad_soyad FROM kullanicilar WHERE email='" . esc($EK) . "'") === 'Reg Ad Yeni');
+
+// kullanıcı adres defteri
+$kulId = (int) q1("SELECT id FROM kullanicilar WHERE email='" . esc($EK) . "'");
+list($c, ) = get('kullanici', '/hesabim/adresler');
+check('kullanici-adresler-200', $c === 200);
+list($c, ) = post('kullanici', '/hesabim/adresler/kaydet', array(
+    'id' => 0, 'ad_soyad' => 'Reg Ad Yeni', 'adres' => 'Test mah cadde no 1',
+    'il' => 'Istanbul', 'ilce' => 'Kagithane', 'telefon' => '5559998877',
+    'tip' => 'teslimat', 'varsayilan' => '1',
+));
+check('kullanici-adres-ekle-redirect', is_redir($c));
+$adresId = (int) q1("SELECT id FROM kullanicilar_adresleri WHERE kullanici_id=$kulId");
+check('kullanici-adres-db', $adresId > 0 && (int) q1("SELECT varsayilan FROM kullanicilar_adresleri WHERE id=$adresId") === 1);
+list($c, ) = post('kullanici', '/hesabim/adresler/sil/' . $adresId, array());
+check('kullanici-adres-sil-redirect', is_redir($c));
+check('kullanici-adres-sil-db', (int) q1("SELECT COUNT(*) FROM kullanicilar_adresleri WHERE kullanici_id=$kulId") === 0);
+
+// kullanıcı şifre güncelleme → yeni şifreyle giriş
+list($c, ) = post('kullanici', '/hesabim/sifre/kaydet', array('eski' => 'Kul2026x', 'yeni' => 'Kul2026y', 'yeni2' => 'Kul2026y'));
+check('kullanici-sifre-redirect', is_redir($c));
+list($c, ) = post('kullanici2', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026y'));
+check('kullanici-yeni-sifre-giris', is_redir($c));
 list($c, ) = get('kullanici', '/kullanici/cikis');
 check('kullanici-cikis-redirect', is_redir($c));
 list($c, ) = get('kullanici', '/hesabim');

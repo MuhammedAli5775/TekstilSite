@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-08-15 (XI) — Hesabım (kullanıcı) sidebar: bilgilerim/adreslerim/şifre + çıkış onayı — 96/96 PASS
+
+**Kullanıcı isteği:** kullanıcı hesabına Bilgilerim / Adres Bilgilerim / Şifre
+Güncelleme; çıkış tıklamasında "çıkış yapmak istediğinizden emin misiniz?"
+onayı (desen olarak tüm çıkış noktalarına uygulandı: hesabım menüsü + header
+Çıkış — bayi VE kullanıcı).
+
+**Yeni:** `kullanicilar_adresleri` tablosu (migrate_kullanicilar.sql GENİŞLETİLDİ —
+henüz yayına çıkmadığı için aynı dosyada; schema.sql + dev DB'de) — checkout
+teslimat alanlarıyla aynı serbest-metin il/ilçe semantiği, varsayılan-adres
+mantığı (işaretlenince diğerleri temizlenir), sahiplik tüm sorgularda izole.
+`hesap/adresler|adres_kaydet|adres_sil($id)` + rota üçlüsü + `adresler.php`
+view (kart listesi + ekle/düzenle formu + onaylı silme).
+
+**Değişen:** Hesap `bilgiler`/`sifre` artık ÇİFT MODLU (bayi eski formunu
+korumalı; kullanıcı kendi formunu/modelini kullanır; `_bayi_ozel` kaldırıldı,
+adresler için `_kullanici_ozel`); kullanıcı bilgilerinde e-posta bilinçli
+salt-okunur (sipariş eşleşmesi e-posta üzerinden — değişirse geçmiş kopar);
+`kullanici_bilgiler.php` view; `_menu.php` kullanıcı dalına 3 yeni öğe;
+kullanıcı şifre formu mevcut genel `sifre.php`'yi kullanır.
+
+**Doğrulama:** tam regresyon **96/96 PASS** (+11 kullanıcı hesap yönetimi:
+bilgiler güncelle→DB, adres ekle→varsayılan=1→sil→DB=0, şifre değiştir→yeni
+şifreyle giriş, çıkış-confirm markup; +1 bayi-bilgiler-200 çift-modlu
+düzenleme güvenlik ağı). `php -l` ×7 temiz; mojibake ×10 temiz. Yol üstü
+bulgu: kendi yazım hatamla `set_select(` parantezini kapatmamışım — php -l
+yakaladı (hex taraması değil; görüntü doğrulaması bu dosyada yanıltıcıydı).
+
+**[!] Canlıya taşı:** `Hesap.php`, `Kullanici_model.php`, `hesabim/adresler.php`,
+`hesabim/kullanici_bilgiler.php`, `hesabim/_menu.php`, `layout/header.php`,
+`routes.php` + canlı DB'de güncel `sql/migrate_kullanicilar.sql` (adres tablosu
+eklendi — X'ten beri dosyayı koşan yoksa yeniden koş).
+
+---
+
 ## 2026-08-15 (X) — Kullanıcı (B2C) girişi + yukarı-çık butonu — 84/84 PASS
 
 **Kullanıcı isteği:** (1) bayi girişinin yanı sıra kullanıcı girişi; navbar'daki

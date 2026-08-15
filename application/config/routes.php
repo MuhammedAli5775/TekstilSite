@@ -80,6 +80,11 @@ $route['hesabim/bilgiler/kaydet']    = 'hesap/bilgiler_kaydet';
 $route['hesabim/sifre']              = 'hesap/sifre';
 $route['hesabim/sifre/kaydet']       = 'hesap/sifre_kaydet';
 
+// Kullanıcı (B2C) adres defteri
+$route['hesabim/adresler']           = 'hesap/adresler';
+$route['hesabim/adresler/kaydet']    = 'hesap/adres_kaydet';
+$route['hesabim/adresler/sil/(:num)'] = 'hesap/adres_sil/$1';
+
 // Yönetim paneli (/yonetim → giriş)
 $route['yonetim']                    = 'yonetim/giris';
 

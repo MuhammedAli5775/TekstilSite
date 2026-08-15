@@ -228,6 +228,22 @@ CREATE TABLE IF NOT EXISTS kullanicilar (
   UNIQUE KEY uq_kullanici_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Kullanıcı adres defteri — checkout teslimat alanlarıyla aynı serbest-metin semantiği.
+CREATE TABLE IF NOT EXISTS kullanicilar_adresleri (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  kullanici_id  INT UNSIGNED NOT NULL,
+  ad_soyad      VARCHAR(120),
+  adres         VARCHAR(255),
+  il            VARCHAR(60),
+  ilce          VARCHAR(90),
+  telefon       VARCHAR(30),
+  varsayilan    TINYINT NOT NULL DEFAULT 0,
+  tip           ENUM('teslimat','fatura','her_ikisi') NOT NULL DEFAULT 'her_ikisi',
+  PRIMARY KEY (id),
+  KEY idx_kadres_kullanici (kullanici_id),
+  CONSTRAINT fk_kadres_kullanici FOREIGN KEY (kullanici_id) REFERENCES kullanicilar (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS bayi_adresleri (
   id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
   bayi_id   INT UNSIGNED NOT NULL,
