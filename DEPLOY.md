@@ -18,6 +18,32 @@
 - [ ] SSH erişimi OLMAK ZORUNDA DEĞİL — FTP ile de kurulur; cron+yedek (adım 6–7) için
       kontrol panelinde cron görevi ve yedek özelliği yeterli.
 
+## 0b. Yerel prod provası (lansmandan ÖNCE — hosting alınmadan kanıtlanabilir)
+
+> 2026-08-15'te bu reçeteyle **74/74 PASS** kanıtlandı (XAMPP Apache + öz-imzalı SSL).
+> Amaç: canlıya para harcanmadan üretim davranışının (CI_ENV=production + HTTPS +
+> `.htaccess` + SetEnv mekanizması + production config seti) tamamının yerelde koşulması.
+
+1. Repoyu Türkçe karakter/boşluk içermeyen bir yola kopyala (Apache + OneDrive yolu
+   junction'u güvenilir değil — gerçek kopya kullan): `robocopy <kaynak> C:\teksilprova /E /XD .git`
+2. Kopyanın `application/config/production/` altında GEÇİCİ olarak: `base_url =
+   'https://localhost:8443/'` + database.php'ye yerel DB kimlikleri.
+3. XAMPP `httpd-vhosts.conf`'a geçici vhost: `Listen 8443` + `<VirtualHost *:8443>`
+   (SSLEngine on, default self-signed cert, `SetEnv CI_ENV production`,
+   `AllowOverride All`, `Require local`) → `httpd -t` → Apache başlat.
+4. Doğrula: `curl -sk -I https://localhost:8443/yonetim/giris` → `teksil_csrf_cookie`
+   VE `teksil_sess` çerezleri `secure` bayraklı DÜŞMELİ; `curl -sk -o /dev/null -w
+   "%{http_code}" https://localhost:8443/sql/schema.sql` → **403** (.htaccess guard'ı
+   ilk kez gerçek Apache'de test edilmiş olur).
+5. Paket: kopya dizininden `php <repo>/tests/regresyon.php https://localhost:8443 --insecure`
+   (CWD kopya olmalı — log denetimi sunulan uygulamanın loguna bakar; `--insecure`
+   yalnızca öz-imzalı sertifika içindir, canlıda KULLANMA).
+6. Teardown: Apache durdur, vhost bloğunu geri al, kopyayı ve geçici config dolgusunu
+   sil (`git checkout -- application/config/production/`).
+
+Provanın 15-08'de yakaladığı gerçek tuzak: **HTTPS'siz prod modunda tüm formlar 403**
+— bkz. bölüm 5'teki Cloudflare/Flexible SSL uyarısı.
+
 ## 1. Kodu sunucuya taşı
 
 SSH varsa (tercih):
@@ -119,6 +145,15 @@ Plesk: "Apache & nginx Settings" > ek direktifler.
 Not: PHP hata görüntüleme production'da CI3 tarafından otomatik kapatılır
 (index.php ENVIRONMENT switch'i). Ekstra `php_flag display_errors off` istenirse
 eklenebilir ama şart değil.
+
+**[!] Cloudflare / TLS-sonlandıran proxy uyarısı (15-08 provasında bulundu):**
+CI3 `Security.php` `csrf_set_cookie()`, `cookie_secure=TRUE` **ve istek HTTPS
+değilse** CSRF çerezini HİÇ yazmaz → PHP'nin HTTPS görmediği her kurulumda
+sitedeki TÜM form POST'ları 403 düşer (giriş, kayıt, sepet, ödeme dahil).
+Cloudflare kullanılırsa **Flexible SSL KULLANMA** — origin'e HTTPS taşıyan
+**Full (Strict)** mod şart. Proxy arkasında `proxy_ips` doldurulmalı
+(`application/config/production/config.php`); X-Forwarded-Proto'suz esnek
+SSL ile PHP hâlâ http görür ve formlar yine 403 verir.
 
 ## 6. Cron (B7)
 

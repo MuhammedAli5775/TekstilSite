@@ -9,6 +9,8 @@
  * Kullanım:
  *   php tests/regresyon.php                    # http://localhost:8000
  *   php tests/regresyon.php https://alanadi    # canlı (C7 lansman günü)
+ *   php tests/regresyon.php https://localhost:8443 --insecure
+ *       # yerel prod provası (Apache + öz-imzalı sertifika)
  *
  * Kurallar (ci3-http-test-recipe): CSRF cookie'den (regenerate=FALSE), bayi
  * formları 2-segment, admin 3-segment, redirect 303 kabul (30x aralığı),
@@ -23,6 +25,8 @@ $BASE = isset($argv[1]) ? rtrim($argv[1], '/') : 'http://localhost:8000';
 if (strpos($BASE, 'localhost') === FALSE && in_array('--force', $argv, TRUE) === FALSE) {
     exit("GUARD: hedef localhost değil ($BASE). Canlıya karşı koşmak için --force ekle.\n");
 }
+// --insecure: yalnızca yerel prod provası (Apache+öz-imzalı sertifika); canlı koşuda KULLANMA.
+$INSECURE = in_array('--insecure', $argv, TRUE);
 
 /* ---- altyapı ------------------------------------------------------------- */
 $db = new mysqli('127.0.0.1', 'root', 'mysql1234', 'teksilsite');
@@ -37,7 +41,7 @@ function q1($sql) { $r = q($sql)->fetch_row(); return $r ? $r[0] : NULL; }
 function esc($s) { global $db; return $db->real_escape_string($s); }
 
 function hh($ses, $url, $post = NULL) {
-    global $BASE, $SES;
+    global $BASE, $SES, $INSECURE;
     if (! isset($SES[$ses])) { $SES[$ses] = array(); }
     $ch = curl_init();
     $opt = array(
@@ -45,6 +49,8 @@ function hh($ses, $url, $post = NULL) {
         CURLOPT_RETURNTRANSFER => TRUE,
         CURLOPT_HEADER => TRUE,
         CURLOPT_FOLLOWLOCATION => FALSE,
+        CURLOPT_SSL_VERIFYPEER => ! $INSECURE,
+        CURLOPT_SSL_VERIFYHOST => $INSECURE ? 0 : 2,
         CURLOPT_TIMEOUT => 20,
     );
     if ($SES[$ses]) {

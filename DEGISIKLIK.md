@@ -18,6 +18,37 @@
 
 ---
 
+## 2026-08-15 (VIII) — Yerel PROD provası: Apache+HTTPS+SetEnv altında 74/74 PASS + Cloudflare tuzak bulgusu
+
+**Faz B'yi riske atmamak için lansmandan önce konan adım (DEPLOY.md 0b oldu):**
+tam üretim yığını — XAMPP Apache 2.4 + öz-imzalı SSL + `SetEnv CI_ENV production`
+(vhost) + repo `.htaccess`'i (ilk kez GERÇEK Apache'de) + `application/config/
+production/` seti — yerelde ayağa kaldırıldı, `tests/regresyon.php` bu ortama
+karşı koştu: **74/74 PASS** (temizlik + stok restore + log denetimi dahil).
+
+**Yol üstünde yakalanan gerçek tuzak:** HTTPS'siz prod modunda (cookie_secure=TRUE)
+CI3 `Security.php:271` CSRF çerezini HİÇ yazmaz (`$secure_cookie && ! is_https()` →
+`return FALSE`) → tüm formlar 403. İlk koşu 40+ FAIL ile çöktü; nedeni bu.
+HTTPS'te çerez düzgün düşer, provadan geçer. **Canlı riski:** Cloudflare Flexible
+SSL (origin http görür) aynı 403'ü üretir → DEPLOY.md §5'e "Full (Strict) şart"
+uyarısı eklendi. Bu, prova yapılmadan lansman günü bulunamazdı.
+
+**Değişiklik:**
+- **`tests/regresyon.php`** — `--insecure` bayrağı (CURLOPT_SSL_VERIFYPEER/HOST;
+  yalnızca yerel öz-imzalı sertifika provası, canlı koşuda yasak). +7 satır.
+- **`DEPLOY.md`** — yeni §0b (prova reçetesi, birebir bu koşu) + §5 proxy uyarısı.
+- Prova artefaktları (vhost bloğu, C:\teksilprova kopyası, geçici config dolgusu,
+  prova_router.php) koşu sonrası TAMAMEN geri alındı; `git status` yalnızca
+  yukarıdaki iki dosyayı gösteriyor.
+
+**Doğrulama:** koşu çıktısı `74 PASS / 0 FAIL`, exit=0; `.htaccess` guard'ı
+canlı kanıt (`/sql/schema.sql` → 403, `/system/...` → 403); çerezler `secure;
+HttpOnly` düşüyor; `php -l` temiz; mojibake byte-grep temiz.
+
+**[!] Canlıya taşı:** `tests/regresyon.php`, `DEPLOY.md` (belge — kod değişikliği yok).
+
+---
+
 ## 2026-08-15 (VII) — Repo hijyeni: kökteki probe.php repodan kaldırıldı
 
 **14-08 cookie-jar temizliğinin aynı sınıfından kalan tek parça** — kökteki
