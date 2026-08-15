@@ -206,6 +206,7 @@ CREATE TABLE IF NOT EXISTS bayiler (
   sifre          VARCHAR(255) NOT NULL,
   bakiye         DECIMAL(12,2) NOT NULL DEFAULT 0,
   para_birimi    CHAR(3) NOT NULL DEFAULT 'TRY',
+  son_giris      DATETIME,                -- 2026-08-15: dev'de vardı, şemaya alındı (drift fix)
   durum          TINYINT NOT NULL DEFAULT 0,        -- 0=onay bekliyor, 1=aktif, 2=pasif
   olusturma_zaman DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -265,6 +266,7 @@ CREATE TABLE IF NOT EXISTS siparisler (
   teslimat_il     VARCHAR(60),
   teslimat_ilce   VARCHAR(90),
   teslimat_telefon VARCHAR(30),
+  email           VARCHAR(150) NULL,     -- 2026-08-15: sipariş e-postası (dev'de vardı, şemaya alındı)
   fatura_ad       VARCHAR(150),
   fatura_adres    TEXT,
   firma_adi       VARCHAR(160),

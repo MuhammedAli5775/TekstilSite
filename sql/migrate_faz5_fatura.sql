@@ -5,7 +5,7 @@ SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS faturalar (
   id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  siparis_id      INT UNSIGNED NOT NULL,
+  siparis_id    BIGINT UNSIGNED NOT NULL,  -- schema.sql: siparisler.id BIGINT UNSIGNED (FK uyumu; INT olsa 3780)
   bayi_id         INT UNSIGNED NULL,
   fatura_no       VARCHAR(40)  NULL,                       -- site içi no (sipariş no tabanlı)
   etn             VARCHAR(60)  NULL,                       -- e-fatura no / ETN (entegratörden)

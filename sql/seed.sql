@@ -68,6 +68,15 @@ INSERT INTO urunler (kategori_id, marka_id, ad, slug, stok_kodu, aciklama, alis_
   (6, 1, 'Oversize Gömlek',      'oversize-gomlek',      'TKS-1004', 'Oversize kesim pamuklu gömlek.',                       80, 139.90, 6, 6, 1, 0, 1, 7,  50, 'https://picsum.photos/seed/tks6/600/800'),
   (7, 1, 'Triko Hırka',          'triko-hirka',          'TKS-1005', 'Yumuşacık triko hırka.',                               110,189.90, 4, 4, 1, 1, 1, 8,  45, 'https://picsum.photos/seed/tks7/600/800');
 
+-- Varyantlar (ürün 1-4; dev'de elle girilmişti — 2026-08-15 provasında seed'e alındı:
+-- varyantsız kurulumda hiçbir ürün satın alınamaz, sepet/checkout akışı ölür)
+TRUNCATE TABLE urun_varyantlari;
+INSERT INTO urun_varyantlari (id, urun_id, renk, beden, stok, kritik_stok, sku, durum) VALUES
+  (1, 1, 'Siyah', 'S', 248, 10, 'TKS-1001-SS', 1),
+  (2, 2, 'Siyah', 'S', 224, 10, 'TKS-1002-SS', 1),
+  (3, 3, 'Siyah', 'S',  89, 10, 'TKS-2001-SS', 1),
+  (4, 4, 'Siyah', 'S', 202, 10, 'TKS-2002-SS', 1);
+
 -- Fiyat basamağı örneği (global): 50+ adette %5, 100+ adette %10
 TRUNCATE TABLE fiyat_basamaklari;
 INSERT INTO fiyat_basamaklari (urun_id, min_adet, indirim_yuzde) VALUES

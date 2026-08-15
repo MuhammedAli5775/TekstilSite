@@ -96,16 +96,23 @@ mysql -u teksil_app -p teksilsite < sql/migrate_faz5_pazaryeri.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_kuponlar.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_para_birimi.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_2026_08_09.sql
-mysql -u teksil_app -p teksilsite < sql/migrate_yetkiler.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_feed_rate_limit.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_perf_index.sql
 mysql -u teksil_app -p teksilsite < sql/seed.sql
+mysql -u teksil_app -p teksilsite < sql/migrate_yetkiler.sql       # seed'den SONRA (FK roller'a bağlı)
 mysql -u teksil_app -p teksilsite < sql/seed_hukuki_sayfalar.sql   # hukuki taslaklar (yer tutucu doldur, adım 8)
+mysql -u teksil_app -p teksilsite < sql/seed_sayfalar_footer.sql   # iletisim/toptan-sartlari/xml-feed — YOKSA footer 404
+mysql -u teksil_app -p teksilsite < sql/seed_slider.sql            # demo anasayfa slider'ı (admin Bannerlar'dan değiştir)
 ```
 
-**seed.sql EN SONDA** (truncate içerir; sıra karışırsa veri ezilir). `bayiler.son_giris`
-kolonu `schema.sql`'e işlendi; eski bir kurulum üzerine upgrade ediyorsan elle
-`ALTER TABLE bayiler ADD COLUMN son_giris DATETIME NULL DEFAULT NULL` gerekebilir.
+**seed.sql SONRA, yetki/footer/slider seed'leri EN SONDA** (seed.sql truncate içerir;
+sıra karışırsa veri ezilir). `migrate_yetkiler` seed'den SONRAYLA: yetkiler FK'ı
+`roller(id)`'ye bağlı ve roller'i dolduran seed'dir — önce koşulursa INSERT IGNORE
+boş roller'e sessizce 0 satır ekler (15-08 provasında bulundu; rol-2 o durumda her
+modüle 403 alır). `bayiler.son_giris` ve `siparisler.email` kolonları `schema.sql`'e
+işlendi; eski bir kurulum üzerine upgrade ediyorsan elle
+`ALTER TABLE bayiler ADD COLUMN son_giris DATETIME NULL DEFAULT NULL` /
+`ALTER TABLE siparisler ADD COLUMN email VARCHAR(150) NULL` gerekebilir.
 
 ## 4. Dizin izinleri (B6)
 

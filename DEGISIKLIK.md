@@ -18,6 +18,42 @@
 
 ---
 
+## 2026-08-15 (IX) — Sıfır-DB kurulum provası: DEPLOY.md §3 düzeltildi (5 bulgu) — 74/74 PASS
+
+**B3'ün (canlı kurulum SQL sırası) hiçbir zaman sıfır DB'de koşulmadığı görüldü —
+dev DB adım adım evrildiği için drift görünmezdi.** Prova: dev DB yedeklendi
+(mysqldump, 37 tablo doğrulandı) → sıfır DB → §3 sırası → tam regresyon →
+dev geri yüklendi → tekrar 74/74. **İlk koşu lansman günü olsaydı dosya 4/16'da
+dururdu.** Beş bulgu:
+
+1. **`migrate_faz5_fatura.sql`** — `faturalar.siparis_id` INT UNSIGNED, ama
+   `schema.sql`'de `siparisler.id` BIGINT UNSIGNED → FK hatası 3780, kurulum
+   durur. → kolon BIGINT UNSIGNED'a çevrildi.
+2. **`seed.sql`** — varyant seed'i hiç yoktu (dev'deki 4 satır elle girilmiş,
+   repoda izsizdi). Varyantsız kurulumda hiçbir ürün satın alınamaz; sepet/
+   checkout akışı ölür. → ürün 1-4'e Siyah/S varyantları (devdeki birebir
+   stoklarla) seed'e alındı.
+3. **`schema.sql`** — dev'de olup şemada olmayan 2 kolon (tam kolon-diff'iyle
+   bulundu: dev 308 vs taze 306): `bayiler.son_giris` (login kaydı), 
+   `siparisler.email` (sipariş e-postası; suite temizliği bu kolona bağlı).
+   İkisi de şemaya işlendi.
+4. **DEPLOY.md §3 sırası** — `migrate_yetkiler.sql` seed'den ÖNCE koşuyordu;
+   yetkiler FK'sı `roller(id)`'ye bağlı ve roller'i dolduran seed → önce koşunca
+   INSERT IGNORE boş roller'e **sessizce 0 satır** ekler (hata yok, exit 0!) →
+   rol-2 yönetici her modüle 403 alır. → migrate_yetkiler seed sonrasına taşındı.
+5. **DEPLOY.md §3 eksik dosyalar** — `seed_sayfalar_footer.sql` (iletisim/
+   toptan-sartlari/xml-feed; YOKSA footer 404 — suite bu sayfaları assert ediyor)
+   ve `seed_slider.sql` (demo anasayfa slider'ı) listede yoktu → eklendi.
+
+**Doğrulama:** düzeltilmiş sırayla tek geçiş 16/16 OK → **74/74 PASS** (taze DB);
+dev DB geri yükleme sonrası da **74/74 PASS** (yedek→restore güvenliği kanıtlı).
+`git status` temiz kaynak + 4 SQL/DEPLOY dosyası.
+
+**[!] Canlıya taşı:** `sql/schema.sql`, `sql/seed.sql`, `sql/migrate_faz5_fatura.sql`,
+`DEPLOY.md`.
+
+---
+
 ## 2026-08-15 (VIII) — Yerel PROD provası: Apache+HTTPS+SetEnv altında 74/74 PASS + Cloudflare tuzak bulgusu
 
 **Faz B'yi riske atmamak için lansmandan önce konan adım (DEPLOY.md 0b oldu):**
