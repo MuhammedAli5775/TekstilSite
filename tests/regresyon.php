@@ -220,11 +220,18 @@ list($c, ) = get('admin2', '/yonetim/yetkiler');   check('rol2-yetkiler-403', $c
 /* ---- D2) kullanıcı (B2C) akışı — bayi girişinin yanı sıra kullanıcı girişi ---- */
 list($c, ) = get('guest', '/kullanici/kayit');    check('kullanici-kayit-200', $c === 200);
 list($c, ) = post('guest', '/kullanici/kayit_kaydet', array(
-    'ad_soyad' => 'Reg Kullanici', 'email' => $EK, 'telefon' => '5551112233',
+    'ad_soyad' => 'Reg Kullanici', 'kullanici_adi' => "regkul$T", 'email' => $EK, 'telefon' => '5551112233',
     'sifre' => 'Kul2026x', 'sifre2' => 'Kul2026x', 'sozlesme' => '1',
 ));
 check('kullanici-kayit-redirect', is_redir($c));
 check('kullanici-db-durum1', (int) q1("SELECT durum FROM kullanicilar WHERE email='" . esc($EK) . "'") === 1);
+check('kullanici-adi-db', q1("SELECT kullanici_adi FROM kullanicilar WHERE email='" . esc($EK) . "'") === "regkul$T");
+// Aynı kullanıcı adı ikinci kayıtta alınmış olmalı (form yeniden render, DB'de yine tek satır)
+list($c, ) = post('guest', '/kullanici/kayit_kaydet', array(
+    'ad_soyad' => 'Reg Kullanici 2', 'kullanici_adi' => "regkul$T", 'email' => "baska$T@test.local",
+    'telefon' => '5551112233', 'sifre' => 'Kul2026x', 'sifre2' => 'Kul2026x', 'sozlesme' => '1',
+));
+check('kullanici-adi-alinmis', $c === 200 && (int) q1("SELECT COUNT(*) FROM kullanicilar WHERE kullanici_adi='" . esc("regkul$T") . "'") === 1);
 list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'yanlis'));
 check('kullanici-yanlis-sifre-reddi', is_redir($c));
 list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026x'));
@@ -241,9 +248,10 @@ check('kullanici-faturalar-200', $c === 200 && strpos($r, 'hesabim/faturalar') !
 // kullanıcı bilgilerim
 list($c, $r) = get('kullanici', '/hesabim/bilgiler');
 check('kullanici-bilgiler-200', $c === 200 && strpos($r, 'name="ad_soyad"') !== FALSE);
-list($c, ) = post('kullanici', '/hesabim/bilgiler/kaydet', array('ad_soyad' => 'Reg Ad Yeni', 'telefon' => '5559998877'));
+list($c, ) = post('kullanici', '/hesabim/bilgiler/kaydet', array('ad_soyad' => 'Reg Ad Yeni', 'kullanici_adi' => "regkul2$T", 'telefon' => '5559998877'));
 check('kullanici-bilgiler-kaydet-redirect', is_redir($c));
 check('kullanici-bilgiler-db', q1("SELECT ad_soyad FROM kullanicilar WHERE email='" . esc($EK) . "'") === 'Reg Ad Yeni');
+check('kullanici-adi-guncellendi', q1("SELECT kullanici_adi FROM kullanicilar WHERE email='" . esc($EK) . "'") === "regkul2$T");
 
 // kullanıcı adres defteri
 $kulId = (int) q1("SELECT id FROM kullanicilar WHERE email='" . esc($EK) . "'");

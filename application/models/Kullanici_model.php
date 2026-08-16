@@ -20,18 +20,34 @@ class Kullanici_model extends CI_Model
                         ->limit(1)->get('kullanicilar')->row();
     }
 
+    public function by_kullanici_adi($kullanici_adi)
+    {
+        return $this->db->where('kullanici_adi', trim((string) $kullanici_adi))
+                        ->limit(1)->get('kullanicilar')->row();
+    }
+
+    /** Kullanıcı adı müsait mi? (düzenlemede sahibin kendi adı hariç tutulur) */
+    public function kullanici_adi_musait($kullanici_adi, $haric_id = NULL)
+    {
+        $this->db->where('kullanici_adi', trim((string) $kullanici_adi));
+        if ($haric_id) { $this->db->where('id !=', (int) $haric_id); }
+        return $this->db->limit(1)->get('kullanicilar')->num_rows() === 0;
+    }
+
     /** Kayıt oluşturma. durum=1: kullanıcı hesabı onay kuyruğu olmadan aktif. */
     public function kayit($d)
     {
         if (! $this->db->table_exists('kullanicilar')) { return array('ok' => FALSE, 'mesaj' => 'Veritabanı hazır değil.'); }
         if ($this->by_email($d['email'])) { return array('ok' => FALSE, 'mesaj' => 'Bu e-posta adresi zaten kayıtlı.'); }
+        if (! empty($d['kullanici_adi']) && $this->by_kullanici_adi($d['kullanici_adi'])) { return array('ok' => FALSE, 'mesaj' => 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.'); }
 
         $ins = array(
-            'ad_soyad' => $d['ad_soyad'],
-            'email'    => strtolower($d['email']),
-            'telefon'  => $d['telefon'] ?? NULL,
-            'sifre'    => password_hash($d['sifre'], PASSWORD_BCRYPT),
-            'durum'    => 1,
+            'ad_soyad'     => $d['ad_soyad'],
+            'kullanici_adi' => $d['kullanici_adi'] ?? NULL,
+            'email'        => strtolower($d['email']),
+            'telefon'      => $d['telefon'] ?? NULL,
+            'sifre'        => password_hash($d['sifre'], PASSWORD_BCRYPT),
+            'durum'        => 1,
         );
         $this->db->insert('kullanicilar', $ins);
         return array('ok' => TRUE, 'id' => $this->db->insert_id());
@@ -55,7 +71,7 @@ class Kullanici_model extends CI_Model
     {
         // E-posta bilinçli olarak yok: sipariş eşleşmesi e-posta üzerinden —
         // değişirse geçmiş siparişler hesaptan kopar (view'da disabled).
-        $izinli = array('ad_soyad', 'telefon');
+        $izinli = array('ad_soyad', 'kullanici_adi', 'telefon');
         $veri = array();
         foreach ($izinli as $k) { if (array_key_exists($k, $d)) { $veri[$k] = $d[$k]; } }
         if ($veri) { $this->db->where('id', (int) $id)->update('kullanicilar', $veri); }

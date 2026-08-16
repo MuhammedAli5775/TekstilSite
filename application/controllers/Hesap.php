@@ -160,6 +160,7 @@ class Hesap extends Magaza_Controller
             $this->form_validation->set_rules('yetkili_ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
         } else {
             $this->form_validation->set_rules('ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
+            $this->form_validation->set_rules('kullanici_adi', 'Kullanıcı Adı', 'trim|required|alpha_dash|min_length[3]|max_length[30]', array('alpha_dash' => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.'));
         }
         $this->form_validation->set_rules('telefon', 'Telefon', 'trim|required|max_length[30]');
         if ($this->form_validation->run() === FALSE) { $this->bilgiler(); return; }
@@ -177,10 +178,17 @@ class Hesap extends Magaza_Controller
         } else {
             $k = $this->kullanici();
             $this->load->model('kullanici_model');
-            $this->kullanici_model->bilgiler_guncelle($k->id, array(
+            $kadi = $this->input->post('kullanici_adi');
+            if ($kadi !== NULL && ! $this->kullanici_model->kullanici_adi_musait($kadi, $k->id)) {
+                $this->session->set_flashdata('hata', 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.');
+                redirect('hesabim/bilgiler');
+            }
+            $veri = array(
                 'ad_soyad' => $this->input->post('ad_soyad'),
                 'telefon'  => $this->input->post('telefon'),
-            ));
+            );
+            if ($kadi !== NULL) { $veri['kullanici_adi'] = $kadi; }
+            $this->kullanici_model->bilgiler_guncelle($k->id, $veri);
             $this->kullanici_cache = NULL;
         }
         $this->session->set_flashdata('bilgi', 'Bilgileriniz güncellendi.');
@@ -290,6 +298,7 @@ class Hesap extends Magaza_Controller
         return (object) array(
             'id'               => $k->id,
             'yetkili_ad_soyad' => $k->ad_soyad,
+            'kullanici_adi'    => $k->kullanici_adi ?? NULL,
             'firma_adi'        => NULL,
             'email'            => $k->email,
             'telefon'          => $k->telefon,

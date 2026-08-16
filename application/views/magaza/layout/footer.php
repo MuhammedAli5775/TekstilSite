@@ -49,6 +49,15 @@ $yil = date('Y');
 <button type="button" id="yukariBtn" class="yukari-btn" aria-label="Sayfanın başına dön" title="Yukarı çık">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
 </button>
+<?php /* tkBase: origin-göreli uygulama kökü (php -S kökünde '/', Apache alt-dizinde '/TekstilSite/').
+       DİKKAT: Windows PHP dirname('/index.php') '\' döndürür (platform ayraç normalizasyonu) —
+       dirname KULLANMA; strrpos+substr ile saf dizgi hesapla. Mutlak base_url kullanılsaydı
+       sayfa başka origin'den açılınca AJAX CORS'a takılıp "Bağlantı hatası" ��retiyordu
+       (DEGISIKLIK XVII). */
+$tk_script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+$tk_kes = (int) strrpos($tk_script, '/');
+$tk_base = ($tk_kes > 0 ? rtrim(substr($tk_script, 0, $tk_kes), '/') : '') . '/'; ?>
+<script>window.tkBase = <?= json_encode($tk_base, JSON_UNESCAPED_SLASHES) ?>;</script>
 <script>window.tkCsrf = {name: <?= json_encode($this->security->get_csrf_token_name()) ?>, hash: <?= json_encode($this->security->get_csrf_hash()) ?>}};</script>
 <script src="<?= asset('magaza/js/teksil.js') ?>"></script>
 </body>

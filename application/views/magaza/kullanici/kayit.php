@@ -14,6 +14,7 @@
         <form action="<?= site_url('kullanici/kayit_kaydet') ?>" method="post">
             <?= csrf_field() ?>
             <div class="odeme-alan"><label>Ad Soyad <span class="zor">*</span></label><input type="text" name="ad_soyad" value="<?= set_value('ad_soyad') ?>" required maxlength="120"></div>
+            <div class="odeme-alan"><label>Kullanıcı Adı <span class="zor">*</span></label><input type="text" name="kullanici_adi" value="<?= set_value('kullanici_adi') ?>" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_-]+" title="Harf, rakam, tire (-) ve alt çizgi (_)" placeholder="ör. ayse_yilmaz"></div>
             <div class="odeme-alan"><label>E-posta <span class="zor">*</span></label><input type="email" name="email" value="<?= set_value('email') ?>" required maxlength="150"></div>
             <div class="odeme-alan"><label>Telefon</label><input type="tel" name="telefon" value="<?= set_value('telefon') ?>" maxlength="30"></div>
             <div class="odeme-alan-2">

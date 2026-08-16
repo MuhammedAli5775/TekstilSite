@@ -20,6 +20,7 @@ class Kullanici extends Magaza_Controller
     {
         $this->load->library('form_validation');
         $this->form_validation->set_rules('ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
+        $this->form_validation->set_rules('kullanici_adi', 'Kullanıcı Adı', 'trim|required|alpha_dash|min_length[3]|max_length[30]', array('alpha_dash' => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.'));
         $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email|max_length[150]');
         $this->form_validation->set_rules('telefon', 'Telefon', 'trim|max_length[30]');
         $this->form_validation->set_rules('sifre', 'Şifre', 'trim|required|min_length[6]|max_length[60]');
@@ -30,10 +31,11 @@ class Kullanici extends Magaza_Controller
 
         $this->load->model('kullanici_model');
         $res = $this->kullanici_model->kayit(array(
-            'ad_soyad' => $this->input->post('ad_soyad'),
-            'email'    => $this->input->post('email'),
-            'telefon'  => $this->input->post('telefon'),
-            'sifre'    => $this->input->post('sifre'),
+            'ad_soyad'     => $this->input->post('ad_soyad'),
+            'kullanici_adi' => $this->input->post('kullanici_adi'),
+            'email'        => $this->input->post('email'),
+            'telefon'      => $this->input->post('telefon'),
+            'sifre'        => $this->input->post('sifre'),
         ));
         if (! $res['ok']) {
             $this->session->set_flashdata('hata', $res['mesaj']);

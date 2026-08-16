@@ -218,6 +218,7 @@ CREATE TABLE IF NOT EXISTS bayiler (
 CREATE TABLE IF NOT EXISTS kullanicilar (
   id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ad_soyad   VARCHAR(120) NOT NULL,
+  kullanici_adi VARCHAR(30),               -- 2026-08-16: kullanıcı adı (unique; NULL = eski kayıt)
   email      VARCHAR(150) NOT NULL,
   telefon    VARCHAR(30),
   sifre      VARCHAR(255) NOT NULL,
@@ -225,7 +226,8 @@ CREATE TABLE IF NOT EXISTS kullanicilar (
   son_giris  DATETIME,
   olusturma_zaman DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_kullanici_email (email)
+  UNIQUE KEY uq_kullanici_email (email),
+  UNIQUE KEY uq_kullanici_adi (kullanici_adi)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Kullanıcı adres defteri — checkout teslimat alanlarıyla aynı serbest-metin semantiği.

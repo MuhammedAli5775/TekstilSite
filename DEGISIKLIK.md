@@ -18,6 +18,52 @@
 
 ---
 
+## 2026-08-16 (XVII) — Kullanıcı adı alanı + boş arama kilidi + arama-buyuk kaldırıldı + sepet AJAX kökü (tkBase) — 104/104 PASS
+
+**Kullanıcı isteği (4 madde):**
+
+**1) Kullanıcı adı (ad soyad yanında):** `kullanicilar.kullanici_adi VARCHAR(30)`
+UNIQUE (NULL serbest — eski kayıtlar etkilenmez): `schema.sql` +
+`migrate_kullanicilar.sql` (yorumda upgrade ALTER) + dev DB'de ALTER uygulandı.
+Kayıt ve Bilgilerim formlarına zorunlu alan (`alpha_dash`, 3-30, harf/rakam/-/_);
+benzersizlik kayıtta model katmanında (e-posta deseniyle aynı), düzenlemede
+`kullanici_adi_musait($v, $haric_id)` — kendi adı hariç. Hesabım menüsünde adın
+altında `@kullanici_adi` görünür (yalnız kullanıcı modunda). Giriş e-posta ile —
+değişmedi.
+
+**2) Boş arama kilidi:** `teksil.js` `initHeaderArama()` — header arama kutusu
+boşken submit engellenir (büyüteç/Enter hiçbir şey yapmaz).
+
+**3) form.arama-buyuk:** /arama sayfasındaki büyük arama formu kaldırıldı (header
+araması yeterli; başlık + sonuç ızgarası kalır).
+
+**4) Sepet "Bağlantı hatası" — kök tkBase'ti:** `window.tkBase` HİÇ tanımlı
+değildi; teksil.js `'/sepet/ekle'` KÖK-göreli atıyordu. Site Apache alt-dizininden
+açılınca (ör. http://localhost/TekstilSite) istek http://localhost/sepet/ekle'a
+gider → 404 HTML → JSON parse çöker → toast "Bağlantı hatası". Çözüm: `footer.php`
+tkBase'i SCRIPT_NAME'den türetip origin-göreli basar ('/' veya '/TekstilSite/').
+**Yol üstünde ikinci bir Windows tuzağı (od ile bayt-kanıtlı):**
+`dirname('/index.php')` bu makinede `'\'` döndürüyor (platform ayraç
+normalizasyonu) → taban `'\/'` çıkıyordu; dirname yerine `strrpos+substr` saf
+dizgi hesabına geçildi → çıktı bayt bayt `"/"`. (JS'te `"\/"` de `/` demekti —
+:8000 kökünde şans eseri çalışıyordu ama Apache alt-dizinde kırılacaktı.)
+
+**Doğrulama:** `php -l` ×10 temiz; mojibake taraması temiz; tam regresyon
+**104/104 PASS** (+kullanici-adi-db, +kullanici-adi-alinmis [aynı ad ikinci kayıt
+reddi, DB'de tek satır], +kullanici-adi-guncellendi); E2E misafir sepete ekleme
+iki kez (ürün sayfası → CSRF → POST → `{"ok":true,"adet":6}`); /arama'da
+arama-buyuk yok; servis edilen teksil.js'te initHeaderArama mevcut; tkBase çıktısı
+od ile bayt-bayt doğrulandı.
+
+**[!] Canlıya taşı:** `Kullanici.php`, `Kullanici_model.php`, `Hesap.php`,
+`kullanici/kayit.php`, `hesabim/kullanici_bilgiler.php`, `hesabim/_menu.php`,
+`arama/index.php`, `layout/footer.php`, `teksil.js` (9 dosya) + canlı DB:
+`ALTER TABLE kullanicilar ADD COLUMN kullanici_adi VARCHAR(30) NULL AFTER
+ad_soyad, ADD UNIQUE KEY uq_kullanici_adi (kullanici_adi);`
+(migrate_kullanicilar.sql yorumunda da kayıtlı).
+
+---
+
 ## 2026-08-16 (XVI) — Sıfır-DB kurulum provası tekrarı: 101/101 PASS + Windows env/yetim süreç dersleri
 
 **Amaç:** IX provası (08-15, 74 test) kullanıcı özelliğinden önceydi — `migrate_kullanicilar`

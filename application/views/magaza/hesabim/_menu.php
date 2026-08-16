@@ -27,6 +27,7 @@ $menuler = $kullanici_modu ? array(
             <small><?= e($b->firma_adi) ?></small>
             <small class="hesabim-grup"><?= $ind ? 'Grup indirimi %' . number_format($ind, 0) : 'Standart toptan' ?></small>
             <?php else: ?>
+            <?php if (! empty($b->kullanici_adi)): ?><small>@<?= e($b->kullanici_adi) ?></small><?php endif; ?>
             <?php endif; ?>
         </div>
     </div>

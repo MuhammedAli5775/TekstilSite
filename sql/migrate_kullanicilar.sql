@@ -9,6 +9,7 @@ SET NAMES utf8mb4;
 CREATE TABLE IF NOT EXISTS kullanicilar (
   id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ad_soyad   VARCHAR(120) NOT NULL,
+  kullanici_adi VARCHAR(30),               -- 2026-08-16: kullanıcı adı (unique; NULL = eski kayıt)
   email      VARCHAR(150) NOT NULL,
   telefon    VARCHAR(30),
   sifre      VARCHAR(255) NOT NULL,
@@ -16,8 +17,15 @@ CREATE TABLE IF NOT EXISTS kullanicilar (
   son_giris  DATETIME,
   olusturma_zaman DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_kullanici_email (email)
+  UNIQUE KEY uq_kullanici_email (email),
+  UNIQUE KEY uq_kullanici_adi (kullanici_adi)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- MEVCUT kurulumlara upgrade (taze kurulumda üstteki CREATE zaten içerir; bu yüzden
+-- buradaki ALTER çalıştırılmaz — elle koş): 2026-08-16 dev DB'sinde uygulandı.
+--   ALTER TABLE kullanicilar
+--     ADD COLUMN kullanici_adi VARCHAR(30) NULL AFTER ad_soyad,
+--     ADD UNIQUE KEY uq_kullanici_adi (kullanici_adi);
 
 -- Adres defteri — checkout'taki teslimat alanlarıyla aynı serbest-metin semantiği
 -- (siparisler.teslimat_il/ilce VARCHAR; il/ilçe FK'su yok, ön-doldurma birebir).

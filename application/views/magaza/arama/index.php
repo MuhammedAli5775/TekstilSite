@@ -3,10 +3,6 @@
     <div class="container">
         <h1 class="kat-baslik">Arama<?= $q !== '' ? ': <span class="arama-sorgu">' . e($q) . '</span>' : '' ?></h1>
         <p class="kat-alt"><?= $q !== '' ? ((int) $toplam . ' sonuç bulundu') : 'Aramak istediğiniz ürünü yazın' ?></p>
-        <form class="arama-buyuk" action="<?= site_url('arama') ?>" method="get" role="search">
-            <input type="text" name="q" value="<?= e($q) ?>" placeholder="Ürün adı veya stok kodu…" aria-label="Arama">
-            <button type="submit" class="btn btn-primary btn--lg">Ara</button>
-        </form>
     </div>
 </section>
 

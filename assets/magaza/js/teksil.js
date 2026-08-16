@@ -250,6 +250,17 @@
         hesapla();
     }
 
+    /* ---------- Navbar arama ---------- */
+    /* Kutu boşsa form gönderilmez — büyüteç/Enter hiçbir şey yapmasın. */
+    function initHeaderArama() {
+        var form = document.querySelector('form.header-search');
+        if (!form) { return; }
+        form.addEventListener('submit', function (e) {
+            var q = form.querySelector('input[name="q"]');
+            if (!q || !String(q.value).trim()) { e.preventDefault(); }
+        });
+    }
+
     /* ---------- Yukarı çık butonu ---------- */
     /* Sayfa dibine gelince belirir; tıklamada yumuşak kaydırmayla en üste döner. */
     function initYukariBtn() {
@@ -267,7 +278,7 @@
         });
     }
 
-    function init() { initFiltre(); initUrunDetay(); initCheckout(); initYukariBtn(); }
+    function init() { initFiltre(); initUrunDetay(); initCheckout(); initYukariBtn(); initHeaderArama(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
     else { init(); }
 })();
