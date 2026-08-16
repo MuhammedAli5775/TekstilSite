@@ -6,7 +6,7 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-16):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **99/99 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **101/101 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
 > (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli ertelenmişler
 > (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
@@ -108,7 +108,7 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **C7.** Lansman öncesi **regresyon**: tüm E2E paketlerini (yetki/feed/stok/kupon/banner/B2B 53) tek seferde koş.
   **✓ 2026-08-14 (lokal):** `tests/regresyon.php` — kalıcı, tek komutla tam paket
   (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
-  **99/99 PASS** (2026-08-16 itibarıyla; X–XIII ile kullanıcı girişi/hesabı + favori +
+  **101/101 PASS** (2026-08-16 itibarıyla; X–XIV ile kullanıcı girişi/hesabı + favori +
   faturalarım testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
   ~~**Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
   "admin onayı" vaat ediyor~~ **✓ çözüldü (VI, 08-14):** kayıt `durum=0` başlar, admin

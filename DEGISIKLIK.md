@@ -18,6 +18,26 @@
 
 ---
 
+## 2026-08-16 (XIV) — Sipariş detayında fatura bölümü (XIII'ün tamamlayıcısı) — 101/101 PASS
+
+**Kapsam:** müşterinin faturaya bakacağı asıl yer kendi sipariş detayı — XIII ile
+açılan liste sayfasının doğal tamamlayıcısı. (Kalıcı pakette `hesabim/siparis/(:num)`
+sayfasının testi de yoktu; birlikte eklendi.)
+
+**Değişen:** `Hesap::siparis_detay()` — sahiplik kontrolünden geçen siparişin
+faturalarını `Fatura_model::siparis_faturalari()` ile view'a geçirir (IDOR yok:
+`$s` zaten bayi-id/e-posta izolasyonlu çekiliyor). `hesabim/siparis_detay.php` —
+fatura varsa "Faturalar" kartı (fatura no / tip / durum rozeti / tutar / PDF);
+fatura yoksa bölüm hiç render edilmez (boş gürültü yok). `tests/regresyon.php`
++2: `bayi-siparis-detay-200`, `bayi-siparis-detay-fatura` (admin'in kestiği
+fatura bayinin sipariş detayında 'Bekliyor' rozetiyle).
+
+**Doğrulama:** `php -l` ×3 temiz; tam regresyon **101/101 PASS**; UTF-8/FFFD temiz.
+
+**[!] Canlıya taşı:** `Hesap.php`, `hesabim/siparis_detay.php` — 2 dosya; DB değişikliği yok.
+
+---
+
 ## 2026-08-16 (XIII) — Faturalarım (bayi + kullanıcı): C2'nin faturalar yarısı — 99/99 PASS
 
 **Kapsam:** C2 kapsam notundaki boşluk — fatura kayıtları yalnız admin panelde

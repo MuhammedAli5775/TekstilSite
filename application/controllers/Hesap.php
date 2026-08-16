@@ -100,8 +100,15 @@ class Hesap extends Magaza_Controller
             $s = $this->kullanici_model->mg_siparis_getir($this->kullanici()->email, $id);
         }
         if (! $s) { show_404(); }
+        // $s sahiplik kontrolünden geçti — bu siparişin faturaları da oturum sahibinin.
+        $this->load->model('fatura_model');
         $b = $this->_bayi_modu() ? $this->bayi() : $this->_kullanici_kart();
-        $data = array('b' => $b, 's' => $s, 'menu_aktif' => 'siparisler');
+        $data = array(
+            'b'         => $b,
+            's'         => $s,
+            'faturalar' => $this->fatura_model->siparis_faturalari($s->id),
+            'menu_aktif'=> 'siparisler',
+        );
         $this->v['meta_title']     = 'Sipariş #' . $s->siparis_no . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/siparis_detay', $data);

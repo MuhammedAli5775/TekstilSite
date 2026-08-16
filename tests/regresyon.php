@@ -199,6 +199,11 @@ list($c, $r) = get('bayi', '/hesabim/faturalar');
 check('bayi-faturalar-200', $c === 200);
 check('bayi-faturalar-liste', strpos($r, $siparisNo) !== FALSE && strpos($r, 'Bekliyor') !== FALSE);
 
+// Bayi sipariş detayı: fatura bölümü de görünmeli (sayfanın kalıcı testi ilk kez)
+list($c, $r) = get('bayi', "/hesabim/siparis/$siparisId");
+check('bayi-siparis-detay-200', $c === 200 && strpos($r, $siparisNo) !== FALSE);
+check('bayi-siparis-detay-fatura', strpos($r, 'Bekliyor') !== FALSE);
+
 /* ---- D) yetki matrisi (rol-2) ---------------------------------------------- */
 q("INSERT INTO yoneticiler (rol_id, ad_soyad, email, sifre, durum) VALUES (2, 'Reg Rol2', 'reg2$T@test.local', '"
   . esc(password_hash('Reg2026x', PASSWORD_BCRYPT)) . "', 1)");

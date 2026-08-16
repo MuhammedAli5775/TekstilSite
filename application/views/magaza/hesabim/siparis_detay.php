@@ -1,6 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 $de = durum_etiket($s->durum);
 $detaylar = isset($s->detaylar) ? $s->detaylar : array();
+$fatura_durum = array(
+    'bekliyor'   => array('Bekliyor', 'gri'),
+    'isleniyor'  => array('İşleniyor', 'mavi'),
+    'olustu'     => array('Oluştu', 'yesil'),
+    'gonderildi' => array('Gönderildi', 'yesil'),
+    'reddedildi' => array('Reddedildi', 'kirmizi'),
+    'iptal'      => array('İptal', 'gri'),
+);
 ?>
 <section class="kat-hero">
     <div class="container">
@@ -42,5 +50,25 @@ $detaylar = isset($s->detaylar) ? $s->detaylar : array();
             <h3 style="margin-bottom:8px">Teslimat Adresi</h3>
             <p style="font-size:14px;color:var(--slate);line-height:1.6"><?= e($s->teslimat_ad) ?><br><?= nl2br(e($s->teslimat_adres)) ?><br><?= e(((string) ($s->teslimat_il ?? '')) . ' ' . ((string) ($s->teslimat_ilce ?? ''))) ?><br><?= e($s->teslimat_telefon) ?></p>
         </div>
+
+        <?php if (! empty($faturalar)): ?>
+        <div class="odeme-kart" style="margin-top:16px">
+            <h3 style="margin-bottom:8px">Faturalar</h3>
+            <table class="tablo-sepet">
+                <thead><tr><th>Fatura No</th><th>Tip</th><th>Durum</th><th class="sag">Tutar</th><th></th></tr></thead>
+                <tbody>
+                <?php foreach ($faturalar as $f): $dm = $fatura_durum[$f->durum] ?? array($f->durum, 'gri'); ?>
+                    <tr>
+                        <td><b><?= e($f->fatura_no ?: ('#' . $f->id)) ?></b></td>
+                        <td><?= $f->tip === 'efatura' ? 'e-Fatura' : 'e-Arşiv' ?></td>
+                        <td><span class="rozet rozet-<?= e($dm[1]) ?>"><?= e($dm[0]) ?></span></td>
+                        <td class="sag"><?= para_formatla($f->toplam, $f->para_birimi) ?></td>
+                        <td><?php if (! empty($f->pdf_url)): ?><a class="btn btn-ghost btn-sm" href="<?= e($f->pdf_url) ?>" target="_blank" rel="noopener">PDF</a><?php endif; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
     </div>
 </div></section>
