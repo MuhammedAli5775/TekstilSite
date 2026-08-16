@@ -71,12 +71,13 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **B1.** Hosting + alan adı + **SSL/HTTPS** (ödeme formu var → zorunlu). (Ops·M)
 - **B2.** Web sunucu: **Apache + `.htaccess` hazır** (rewrite, `system|application|sql|tests` erişim
   engeli, gzip, expires). Nginx ise eşdeğer kuralları elle çevir. (Ops·M)
-- **B3.** Production **DB**: ayrı kullanıcı (min. yetki) + sert parola. Kurulum sırası:
-  `schema.sql` → `migrate_faz2` → `migrate_faz4` → `migrate_faz5_fatura` → `migrate_faz5_feed` →
-  `migrate_faz5_pazaryeri` → `migrate_kuponlar` → `migrate_para_birimi` → `migrate_2026_08_09` →
-  **`migrate_yetkiler`** → **`migrate_feed_rate_limit`** → **`migrate_perf_index`** →
-  `seed.sql` → **`seed_hukuki_sayfalar.sql`** (seed SONDA — truncate içerir; hukuki
-  sayfalar seed'den sonra, durum=1 taslak yazılır). (Ops·M)
+- **B3.** Production **DB**: ayrı kullanıcı (min. yetki) + sert parola. Kurulum sırasının
+  komut-level listesi **`DEPLOY.md` §3'tedir (otorite orası)** — özet: `schema` → faz
+  migrasyonları → `kuponlar/para_birimi/2026_08_09/feed_rate_limit/perf_index/kullanicilar`
+  → `seed` → **`migrate_yetkiler` seed'den SONRA** (FK roller'e bağlı; IX bulgusu) →
+  hukuki/footer/slider seed'leri EN SONDA (seed truncate içerir). (Ops·M)
+  **✓ 2026-08-16 (XVI):** sıra sıfır-DB provasında uçtan uca koşuldu — 17/17 dosya, 39
+  tablo, **101/101 regresyon** (`migrate_kullanicilar` dahil). DETAY: DEGISIKLIK.md XVI.
 - **B4.** PHP: `ENVIRONMENT=production` (`CI_ENV` ile), `base_url`=gerçek domain, hata görüntüleme kapalı. (Ops·S)
 - **B5.** `sess_save_path`'i production dizinine çevir (lokalde `C:/xampp/tmp`). (Ops·S)
 - **B6.** `uploads/` + `application/logs/` oluştur, web sunucusuna **yazma izni**; log rotasyonu. (Ops·S)
