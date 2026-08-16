@@ -385,7 +385,8 @@ header{position:sticky;top:0;z-index:50;}
   .katalog-sidebar{position:static;}
   .filtre-mobil-toggle{display:inline-flex;}
   .filtre-sarma{display:none;}
-  .filtre-sarma.is-open{display:block;}
+  /* açılınca toggle butonuyla panel arası boşluk (katalog/index.php'den taşındı) */
+  .filtre-sarma.is-open{display:block;margin-top:18px;}
   .sepet-layout,.odeme-grid,.hesabim-grid,.basari-grid{grid-template-columns:1fr;}
   .hesabim-aside{position:static;}
 }
@@ -470,3 +471,11 @@ header{position:sticky;top:0;z-index:50;}
 .yukari-btn.gorunur{opacity:1;visibility:visible;transform:translateY(0);}
 .yukari-btn:hover{background:var(--brand-green,#00ed64);}
 .yukari-btn:focus-visible{outline:2px solid var(--brand-green,#00ed64);outline-offset:2px;}
+
+/* ---------- Toast (JS geri bildirimi — teksil.js toast()) ---------- */
+/* 2026-08-15: kural HİÇ yoktu; sepete ekle çalışıyordu ama geri bildirim görünmezdi */
+.tk-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);z-index:80;background:#0d1f17;color:#fff;padding:12px 22px;border-radius:var(--r-full,999px);font-size:14px;font-weight:600;box-shadow:0 10px 28px rgba(13,31,23,.28);opacity:0;visibility:hidden;transition:opacity .25s ease,transform .25s ease,visibility .25s;max-width:90vw;text-align:center;}
+.tk-toast.gor{opacity:1;visibility:visible;transform:translate(-50%,0);}
+
+/* Favoride durumundaki buton vurgusu (urun detay) */
+.pd-favoride{border-color:var(--brand-green,#00ed64);color:#0a5c36;background:rgba(0,237,100,.08);}

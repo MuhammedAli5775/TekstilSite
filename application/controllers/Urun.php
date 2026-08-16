@@ -25,6 +25,8 @@ class Urun extends Magaza_Controller
             'varyant_map'  => $vmap,
             'basamaklar'   => $this->urun_model->mg_basamaklar($u->id),
             'benzer'       => $this->urun_model->mg_benzer($u->id, 4),
+            // Favori butonu durumlu render edilsin (session wishlist)
+            'favorilerde'  => in_array((int) $u->id, array_map('intval', (array) $this->session->userdata('favoriler')), TRUE),
         );
 
         $this->v['meta_title'] = ! empty($u->meta_title) ? $u->meta_title : ($u->ad . ' — ' . ayar('site_adi', 'TekstilSite'));

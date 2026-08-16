@@ -18,6 +18,45 @@
 
 ---
 
+## 2026-08-16 (XII) — Durumlu favori butonu (ürün detayı) + toast CSS + filtre sadeliği — 96/96 PASS
+
+**Kullanıcı isteği:** dünkü (XI sonrası) yarım işi bitir — favori butonu durumlu
+olsun: controller `favorilerde` bayrağı ve `.pd-favoride` CSS'i yazılmıştı ama
+view hâlâ statik "♡ Favorilere Ekle" linkiydi.
+
+**Değişen:** `views/magaza/urun/detay.php` — favori butonu oturum state'ine göre
+render: ♡ Favorilere Ekle ↔ ♥ Favorilerde (`.pd-favoride` yeşil vurgu, hedef
+`favoriler/sil/{id}`, title ipucu). `controllers/Urun.php` — detay view'ına
+`favorilerde` bayrağı (session wishlist üyeliği, strict int karşılaştırma).
+`controllers/Sayfa.php` — `favoriler_sil` artık referer-aware: ürün sayfasından
+çıkarınca kullanıcı `favorilerim`'e fırlatılmıyor; yeni `ref_ic()` yalnız
+**same-host** http(s) referer döndürür — `favoriler_ekle`'deki ham
+`HTTP_REFERER` redirect'i (dış siteye açık redirect) de kapandı. Host
+karşılaştırması **port harfiç** (tuzak: `parse_url` host'u portsuz, `HTTP_HOST`
+portlu döner; :8000 provasında yakalandı — düzeltme öncesi hep fallback'e
+düşüyordu). `teksil.css` — `.tk-toast` kuralları (kural HİÇ yoktu: sepete ekle
+çalışıyordu ama geri bildirim görünmezdi), `.pd-favoride`; `katalog/index.php`'deki
+inline `margin-top:18px` CSS'e taşındı (yalnız mobil medya sorgusunda — toggle
+butonu ile panel arası boşluk). `views/magaza/partial/filtre.php` — "Alt
+Kategoriler" bloğu (header mega menüsüyle kopya) ve "Seçimler anında uygulanır"
+ipucu kaldırıldı.
+
+**Doğrulama:** `php -l` temiz (5 koşu). Tam regresyon **96/96 PASS** (ref_ic port
+düzeltmesi sonrası son kodla tekrar koşuldu). E2E curl 7 adım: temiz oturumda ♡ →
+`favoriler/ekle/1` (referer=ürün) **307 ürün sayfasına geri** → sayfada
+`♥ Favorilerde` + `.pd-favoride` + `favoriler/sil/1` → sil (referer=ürün) 307
+geri → ♡; DIŞ referer (evil.example) → `favorilerim` fallback (dış redirect yok);
+`favorilerim` sayfasında ürün + "Favoriden Çıkar" listeleniyor. Servis edilen
+CSS'te yeni kurallar mevcut; katalog HTML'inde kaldırılan bloklar yok; mojibake
+byte-grep temiz.
+
+**[!] Canlıya taşı:** `Urun.php`, `Sayfa.php`, `urun/detay.php`,
+`katalog/index.php`, `partial/filtre.php`, `teksil.css` — 6 dosya; DB değişikliği
+yok. (Not: `Katalog.php` `alt_kategoriler`'i hâlâ hesaplayıp view'a geçiyor —
+partial artık kullanmıyor, zararsız ölü veri, dokunulmadı.)
+
+---
+
 ## 2026-08-15 (XI) — Hesabım (kullanıcı) sidebar: bilgilerim/adreslerim/şifre + çıkış onayı — 96/96 PASS
 
 **Kullanıcı isteği:** kullanıcı hesabına Bilgilerim / Adres Bilgilerim / Şifre

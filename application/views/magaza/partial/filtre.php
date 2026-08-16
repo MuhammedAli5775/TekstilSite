@@ -6,15 +6,6 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
 <form class="filtre-form" action="<?= e(site_url($liste_url)) ?>" method="get">
     <input type="hidden" name="sira" value="<?= e($sira) ?>">
 
-    <?php if (! empty($alt_kategoriler) && ! empty($kategori)): ?>
-    <div class="filtre-grup">
-        <h4>Alt Kategoriler</h4>
-        <?php foreach ($alt_kategoriler as $a): ?>
-            <a class="filtre-alt-kat" href="<?= e(site_url('katalog/' . $kategori->slug . '/' . $a->slug)) ?>"><?= e($a->ad) ?> →</a>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-
     <?php if (! empty($facet_beden)): ?>
     <div class="filtre-grup">
         <h4>Beden</h4>
@@ -47,6 +38,5 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
             <span>–</span>
             <input type="number" name="max" placeholder="en çok" value="<?= e($this->input->get('max')) ?>" min="0" inputmode="numeric">
         </div>
-        <small class="filtre-canli" style="display:block;margin-top:10px;color:var(--steel);font-size:12px">Seçimler anında uygulanır</small>
     </div>
 </form>

@@ -105,7 +105,11 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
                 <div class="pd-sepet-satir">
                     <button type="button" class="btn btn-primary btn--lg pd-sepet" id="pdSepet">Sepete Ekle</button>
                     <a class="btn btn-secondary btn--lg" href="<?= e(site_url('bayi/kayit')) ?>">Bayi Fiyatları</a>
+                    <?php if (! empty($favorilerde)): ?>
+                    <a class="btn btn-secondary btn--lg pd-favoride" href="<?= site_url('favoriler/sil/' . $u->id) ?>" title="Favorilerden çıkar">♥ Favorilerde</a>
+                    <?php else: ?>
                     <a class="btn btn-secondary btn--lg" href="<?= site_url('favoriler/ekle/' . $u->id) ?>">♡ Favorilere Ekle</a>
+                    <?php endif; ?>
                 </div>
 
                 <ul class="pd-deger">

@@ -52,7 +52,7 @@ class Sayfa extends Magaza_Controller
             $this->session->set_userdata('favoriler', $f);
             $this->session->set_flashdata('bilgi', 'Favorilere eklendi.');
         }
-        $ref = $this->input->server('HTTP_REFERER');
+        $ref = $this->ref_ic();
         redirect($ref ?: 'favorilerim');
     }
 
@@ -63,7 +63,26 @@ class Sayfa extends Magaza_Controller
         $f = array_values(array_diff((array) $this->session->userdata('favoriler'), array($id)));
         $this->session->set_userdata('favoriler', $f);
         $this->session->set_flashdata('bilgi', 'Favorilerden çıkarıldı.');
-        redirect('favorilerim');
+        redirect($this->ref_ic() ?: 'favorilerim');
+    }
+
+    /**
+     * Yalnızca aynı siteden gelen referer URL'si (tam, sorgusuyla).
+     * Dış siteye redirect kapalı — ham HTTP_REFERER'i asla Location'a yazma.
+     * Host karşılaştırması port harfiç (php -S :8000 / Apache :8443 provasında
+     * parse_url host'u portsuz, HTTP_HOST portlu döner — yoksa hep fallback).
+     */
+    private function ref_ic()
+    {
+        $ref = trim((string) $this->input->server('HTTP_REFERER'));
+        if ($ref !== '' && ($p = parse_url($ref))
+            && isset($p['scheme'], $p['host'])
+            && in_array($p['scheme'], array('http', 'https'), TRUE)
+            && strcasecmp($p['host'], strtok((string) $this->input->server('HTTP_HOST'), ':')) === 0)
+        {
+            return $ref;
+        }
+        return NULL;
     }
 
     /** Sipariş takibi (misafir — sipariş no + e-posta). */
