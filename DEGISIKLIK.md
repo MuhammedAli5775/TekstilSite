@@ -18,6 +18,47 @@
 
 ---
 
+## 2026-08-16 (XVI) — Sıfır-DB kurulum provası tekrarı: 101/101 PASS + Windows env/yetim süreç dersleri
+
+**Amaç:** IX provası (08-15, 74 test) kullanıcı özelliğinden önceydi — `migrate_kullanicilar`
+dahil §3 sırası + güncel 101-test paketi hiç sıfır DB'de koşulmamıştı; ilk koşu lansman
+günü olacaktı.
+
+**Sonuç: 101/101 PASS** — taze scratch DB (`teksilsite_rehearsal`), 17/17 SQL dosyası
+§3 sırasıyla (39 tablo). Kurulum sırası sağlam; IX'ten bu yana yeni kurulum bulgusu yok.
+
+**Kalıcı prova altyapısı:** `application/config/testing/database.php` (CI_ENV=testing
+DB override — CI3'ün `system/database/DB.php` ENVIRONMENT dizin desteği kaynaktan
+doğrulandı), `router.php`'e CI_ENV süreç-env → $_SERVER geçişi, `tests/regresyon.php`'ye
+`REGRESYON_DB` parametresi (kullanım başlıkta), `npm run dev:testing` (dev.js: arg →
+açık child env → shell'siz direkt spawn).
+
+**Yol üstü bulgular (üçü de düzeltildi):**
+1. **Windows env zinciri kırılgan:** npm→cmd→php zincirinde CI_ENV yutuldu (php
+   getenv=false — router'a geçici sondayla kanıtlandı; CI3 config mekanizması doğruydu,
+   sorun zincirdeydi). Çözüm: dev.js php'yi shell KULLANMADAN direkt spawn ediyor
+   (mutlak yol + args dizisi + açık env; DEP0190 uyarısı da kalktı).
+2. **Yetim php.exe sunucuları:** sarmalayıcı sert öldürülünce (terminate) php çocukları
+   Windows'ta yetim kalıyor — :8000'de 5 yetim dinler bulundu; istekler rastgele eski
+   (env'siz, dev-config'li) süreçlere düşüp "env kayıp" yanılsaması yaratıyordu. Yetimler
+   öldürüldü; dev.js'e sinyal işleyicileri + **port ön-kontrolü** eklendi: port doluysa
+   PID'yle gürültülü red (doğrulandı: yetim varken ikinci başlatma "HATA: localhost:8000
+   ... PID 18812" + taskkill ipucuyla exit 1) — sessiz istek-ruleti modu kapandı. Not:
+   sert öldürmede sinyal işleyicileri çalışmayabilir; ön-kontrol asıl sigortadır.
+3. **İlk koşu dev DB'sine yazdı:** yanlış (yetim) sunucular kirlilik yarattı — prova
+   bayi/kullanıcı/adres/sipariş satırları + 6 adet stok eksilmesi temizlendi (242→248,
+   scratch referansıyla); 08-14'ten kalma bağımlılıksız test bayisi de kaldırıldı.
+
+**Doğrulama:** taze kurulum 17/17 → scratch'te **101/101 PASS**; dev yolu smoke
+(`npm run dev` direkt spawn ile 200); dev.js `node --check` temiz + tam yaşam döngüsü
+(başlat → 200 → durdur → yeniden başlatma gürültülü red → yetim temizliği); prova
+sonrası scratch DROP edildi, php.exe yok, port boş.
+
+**[!] Canlıya taşı:** yok — salt dev/test altyapısı (router.php yalnız `php -S` içindir;
+testing config, dev.js, regresyon parametresi prod'u etkilemez).
+
+---
+
 ## 2026-08-16 (XV) — npm run dev: dev sunucusu tek komutla (localhost:8000)
 
 **Kullanıcı isteği:** terminalde `npm run dev` → proje localhost:8000'de çalışsın.

@@ -20,6 +20,11 @@ if ($uri !== '/' && $uri !== '') {
     }
 }
 
+// CI_ENV süreç ortam değişkeninden geçirilir (ör. CI_ENV=testing npm run dev →
+// config/testing/ yüklenir). php -S süreç env'ini $_SERVER'a yansıtmayabilir —
+// index.php 'CI_ENV' SERVER değişkenine bakar.
+if (getenv('CI_ENV')) { $_SERVER['CI_ENV'] = getenv('CI_ENV'); }
+
 // Geri kalan her şey CodeIgniter front controller'a gider
 $_SERVER['PATH_INFO']       = $uri;
 $_SERVER['SCRIPT_NAME']     = '/index.php';

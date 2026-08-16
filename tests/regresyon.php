@@ -11,6 +11,8 @@
  *   php tests/regresyon.php https://alanadi    # canlı (C7 lansman günü)
  *   php tests/regresyon.php https://localhost:8443 --insecure
  *       # yerel prod provası (Apache + öz-imzalı sertifika)
+ *   REGRESYON_DB=teksilsite_rehearsal php tests/regresyon.php
+ *       # sıfır-DB provası: scratch DB'ye §3 kurulumu + CI_ENV=testing sunucu
  *
  * Kurallar (ci3-http-test-recipe): CSRF cookie'den (regenerate=FALSE), bayi
  * formları 2-segment, admin 3-segment, redirect 303 kabul (30x aralığı),
@@ -29,7 +31,10 @@ if (strpos($BASE, 'localhost') === FALSE && in_array('--force', $argv, TRUE) ===
 $INSECURE = in_array('--insecure', $argv, TRUE);
 
 /* ---- altyapı ------------------------------------------------------------- */
-$db = new mysqli('127.0.0.1', 'root', 'mysql1234', 'teksilsite');
+// REGRESYON_DB: sıfır-DB provasında scratch şemaya koşmak için; varsayılan dev DB.
+// Sunucu tarafının database.php'i de AYNI DB'yi göstermeli (CI_ENV=testing override).
+$DBNAME = getenv('REGRESYON_DB') ?: 'teksilsite';
+$db = new mysqli('127.0.0.1', 'root', 'mysql1234', $DBNAME);
 if ($db->connect_errno) { exit("DB bağlanamadı: (canlı koşuda config'i uyarla) " . $db->connect_error . "\n"); }
 $db->set_charset('utf8mb4');
 
