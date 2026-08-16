@@ -194,6 +194,11 @@ check('admin-fatura-olustur-redirect', is_redir($c));
 $faturaId = (int) q1("SELECT id FROM faturalar WHERE siparis_id=$siparisId ORDER BY id DESC LIMIT 1");
 check('fatura-db-bekliyor', $faturaId > 0 && q1("SELECT durum FROM faturalar WHERE id=$faturaId") === 'bekliyor');
 
+// Bayi faturalarım: sahiplik (siparisler.bayi_id) üzerinden listelenmeli
+list($c, $r) = get('bayi', '/hesabim/faturalar');
+check('bayi-faturalar-200', $c === 200);
+check('bayi-faturalar-liste', strpos($r, $siparisNo) !== FALSE && strpos($r, 'Bekliyor') !== FALSE);
+
 /* ---- D) yetki matrisi (rol-2) ---------------------------------------------- */
 q("INSERT INTO yoneticiler (rol_id, ad_soyad, email, sifre, durum) VALUES (2, 'Reg Rol2', 'reg2$T@test.local', '"
   . esc(password_hash('Reg2026x', PASSWORD_BCRYPT)) . "', 1)");
@@ -218,6 +223,10 @@ list($c, $r) = get('kullanici', '/hesabim');
 check('kullanici-hesabim-200', $c === 200 && strpos($r, 'Reg Kullanici') !== FALSE);
 check('kullanici-navbar-cikis', strpos($r, 'kullanici/cikis') !== FALSE);
 check('kullanici-cikis-confirm', strpos($r, 'emin misiniz') !== FALSE);   // çıkış onay diyalogu
+
+// kullanıcı faturalarım (siparişi yok → boş liste + menü linki render)
+list($c, $r) = get('kullanici', '/hesabim/faturalar');
+check('kullanici-faturalar-200', $c === 200 && strpos($r, 'hesabim/faturalar') !== FALSE);
 
 // kullanıcı bilgilerim
 list($c, $r) = get('kullanici', '/hesabim/bilgiler');

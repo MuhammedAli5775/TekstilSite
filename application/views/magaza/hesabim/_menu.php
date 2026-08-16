@@ -6,12 +6,14 @@ $menuler = $kullanici_modu ? array(
     // Kullanıcı (B2C): sipariş takip + hesap yönetimi (firma alanları yok)
     'dashboard'  => array('📋 Hesap Özeti',   site_url('hesabim')),
     'siparisler' => array('📦 Siparişlerim',  site_url('hesabim/siparisler')),
+    'faturalar'  => array('🧾 Faturalarım',   site_url('hesabim/faturalar')),
     'bilgiler'   => array('👤 Bilgilerim',    site_url('hesabim/bilgiler')),
     'adresler'   => array('📍 Adreslerim',    site_url('hesabim/adresler')),
     'sifre'      => array('🔑 Şifre Değiştir', site_url('hesabim/sifre')),
 ) : array(
     'dashboard'  => array('📋 Hesap Özeti',   site_url('hesabim')),
     'siparisler' => array('📦 Siparişlerim',  site_url('hesabim/siparisler')),
+    'faturalar'  => array('🧾 Faturalarım',   site_url('hesabim/faturalar')),
     'bilgiler'   => array('👤 Bilgilerim',    site_url('hesabim/bilgiler')),
     'sifre'      => array('🔑 Şifre Değiştir', site_url('hesabim/sifre')),
 );

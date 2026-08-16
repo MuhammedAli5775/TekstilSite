@@ -75,6 +75,7 @@ $route['arama']                      = 'arama/index';
 $route['hesabim']                    = 'hesap/index';
 $route['hesabim/siparisler']         = 'hesap/siparisler';
 $route['hesabim/siparis/(:num)']     = 'hesap/siparis_detay/$1';
+$route['hesabim/faturalar']          = 'hesap/faturalar';
 $route['hesabim/bilgiler']           = 'hesap/bilgiler';
 $route['hesabim/bilgiler/kaydet']    = 'hesap/bilgiler_kaydet';
 $route['hesabim/sifre']              = 'hesap/sifre';

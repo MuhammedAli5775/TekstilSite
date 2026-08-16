@@ -30,6 +30,26 @@ class Fatura_model extends CI_Model
                         ->order_by('id', 'DESC')->get('faturalar')->result();
     }
 
+    /** Mağaza: bayinin kendi faturaları — sahiplik sipariş üzerinden (f.bayi_id yedek kopya). */
+    public function mg_bayi_liste($bayi_id)
+    {
+        return $this->db->select('f.*, s.siparis_no')
+                        ->from('faturalar f')
+                        ->join('siparisler s', 's.id = f.siparis_id')
+                        ->where('s.bayi_id', (int) $bayi_id)
+                        ->order_by('f.id', 'DESC')->get()->result();
+    }
+
+    /** Mağaza: kullanıcının faturaları — sipariş e-posta eşleşmesiyle (mg_siparisler ile aynı anahtar). */
+    public function mg_kullanici_liste($email)
+    {
+        return $this->db->select('f.*, s.siparis_no')
+                        ->from('faturalar f')
+                        ->join('siparisler s', 's.id = f.siparis_id')
+                        ->where('s.email', $email)
+                        ->order_by('f.id', 'DESC')->get()->result();
+    }
+
     public function get($id)
     {
         return $this->db->where('id', (int) $id)->limit(1)->get('faturalar')->row();

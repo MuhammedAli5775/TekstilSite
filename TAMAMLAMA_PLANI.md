@@ -6,7 +6,7 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-16):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **96/96 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **99/99 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
 > (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli ertelenmişler
 > (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
@@ -94,8 +94,10 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   **✓ 2026-08-13:** 10/10 — boş/ASCII/Türkçe(%-enc) sorgu, LIKE alanları, no-match, noindex.
 - **C2.** Hesap (bayi self-servis: siparişlerim / adresler / faturalar / bakiye) — M
   **✓ 2026-08-13:** 19/19 — auth gate, IDOR sahiplik izolasyonu, bilgiler/şifre akışları.
-  **Kapsam notu:** bayi *faturalar/bakiye* self-servis sayfaları hiç inşa edilmedi (workflow
-  Faz 3 vaadi; DoD gerektirmiyor) — ihtiyaç halinde yeni iş olarak açılmalı.
+  **✓ 2026-08-16 (XIII):** *faturalar* yarısı kapandı — `hesabim/faturalar` (çift modlu;
+  bayi: sipariş sahipliği, kullanıcı: sipariş e-postası). **Kalan kapsam notu:** bayi
+  *bakiye* — `bayiler.bakiye` kolonu kodda hiç okunmuyor/yazılmıyor (dormant); kredi/bakiye
+  iş modeli kararlanırsa yeni iş.
 - **C3.** Raporlar (admin rapor derinliği + ciro TRY doğruluğu) — M
   **✓ 2026-08-13:** 19/20 — ciro `SUM(toplam*kur)` çoklu-para normalizasyonu kanıtlı; 1 kozmetik assertion.
 - **C4.** SEO/sitemap (`seo/sitemap` route + `robots.txt` ekle) — S
@@ -106,8 +108,8 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **C7.** Lansman öncesi **regresyon**: tüm E2E paketlerini (yetki/feed/stok/kupon/banner/B2B 53) tek seferde koş.
   **✓ 2026-08-14 (lokal):** `tests/regresyon.php` — kalıcı, tek komutla tam paket
   (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
-  **96/96 PASS** (2026-08-16 itibarıyla; X–XII ile kullanıcı girişi/hesabı + favori
-  testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
+  **99/99 PASS** (2026-08-16 itibarıyla; X–XIII ile kullanıcı girişi/hesabı + favori +
+  faturalarım testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
   ~~**Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
   "admin onayı" vaat ediyor~~ **✓ çözüldü (VI, 08-14):** kayıt `durum=0` başlar, admin
   onayı zorunlu (regresyonda `bayi-kayit-db-onay-bekliyor` + `bayi-onaysiz-giris-red` PASS).

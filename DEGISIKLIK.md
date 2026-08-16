@@ -18,6 +18,37 @@
 
 ---
 
+## 2026-08-16 (XIII) — Faturalarım (bayi + kullanıcı): C2'nin faturalar yarısı — 99/99 PASS
+
+**Kapsam:** C2 kapsam notundaki boşluk — fatura kayıtları yalnız admin panelde
+görünürdü; bayi/kullanıcı kendi faturasını göremiyordu (workflow Faz 3 vaadi).
+
+**Yeni:** `hesabim/faturalar` rota + `Hesap::faturalar()` (çift modlu) +
+`Fatura_model::mg_bayi_liste()/mg_kullanici_liste()` + `hesabim/faturalar.php`
+view (durum rozetli tablo: fatura no / sipariş linki / e-Fatura·e-Arşiv / tutar /
+tarih / PDF linki + boş durum kartı).
+
+**Sahiplik:** bayi → `siparisler.bayi_id` join'i üzerinden (f.bayi_id yedek kopya,
+salt ona güvenilmedi); kullanıcı → `siparisler.email` (mg_siparisler ile aynı
+anahtar). IDOR yüzeyi yok: id-parametreli detay yok, liste sorgusu oturum sahibine
+sıkı; sipariş linki zaten sahiplik kontrollü `hesabim/siparis/(:num)`.
+
+**Değişen:** `hesabim/_menu.php` (iki moda da 🧾 Faturalarım), `tests/regresyon.php`
+(+3: bayi-faturalar-200, bayi-faturalar-liste [admin'in kestiği fatura bayinin
+listesinde: sipariş no + 'Bekliyor'], kullanici-faturalar-200).
+
+**Bakiye notu (bilinçli dokunmadık):** `bayiler.bakiye` kolonu kodda hiç
+okunmuyor/yazılmıyor (dormant) — sıfır gösteren sahte kart yerine yeni iş; kredi/
+bakiye iş modeli kararlanınca (bayi limiti, ödeme kaydı) ayrı inşa edilmeli.
+
+**Doğrulama:** `php -l` ×6 temiz; tam regresyon **99/99 PASS**; view UTF-8 /
+FFFD taraması temiz.
+
+**[!] Canlıya taşı:** `Hesap.php`, `Fatura_model.php`, `hesabim/faturalar.php`,
+`hesabim/_menu.php`, `routes.php` — 5 dosya; DB değişikliği yok.
+
+---
+
 ## 2026-08-16 (XII) — Durumlu favori butonu (ürün detayı) + toast CSS + filtre sadeliği — 96/96 PASS
 
 **Kullanıcı isteği:** dünkü (XI sonrası) yarım işi bitir — favori butonu durumlu

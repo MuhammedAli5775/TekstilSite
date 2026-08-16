@@ -107,6 +107,27 @@ class Hesap extends Magaza_Controller
         $this->render('magaza/hesabim/siparis_detay', $data);
     }
 
+    /** Faturalarım (çift modlu — bayi: sipariş sahipliği, kullanıcı: sipariş e-postası). */
+    public function faturalar()
+    {
+        $this->load->model('fatura_model');
+        if ($this->_bayi_modu()) {
+            $b         = $this->bayi();
+            $faturalar = $this->fatura_model->mg_bayi_liste($b->id);
+        } else {
+            $b         = $this->_kullanici_kart();
+            $faturalar = $this->fatura_model->mg_kullanici_liste($this->kullanici()->email);
+        }
+        $data = array(
+            'b'          => $b,
+            'faturalar'  => $faturalar,
+            'menu_aktif' => 'faturalar',
+        );
+        $this->v['meta_title']     = 'Faturalarım — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['indexlenebilir'] = FALSE;
+        $this->render('magaza/hesabim/faturalar', $data);
+    }
+
     public function bilgiler()
     {
         if (! $this->_bayi_modu()) { $this->_kullanici_bilgiler(); return; }
