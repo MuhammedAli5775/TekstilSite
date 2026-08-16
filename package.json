@@ -1,0 +1,9 @@
+{
+  "name": "tekstilsite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TekstilSite — CI3 mağaza (gelistirme: npm run dev → http://localhost:8000)",
+  "scripts": {
+    "dev": "node scripts/dev.js"
+  }
+}

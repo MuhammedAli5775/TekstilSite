@@ -208,8 +208,10 @@ PHP:        C:\xampp\php\php.exe  (8.1.25)
 MySQL:      C:\xampp\mysql\bin\mysql.exe  (MariaDB 10.4.32)
 DB:         teksilsite  (utf8mb4)   — root şifreli [! bekliyor]
 Çalıştırma (dev önizleme):
-   C:\xampp\php\php.exe -S localhost:8000 -t .
+   npm run dev
    → http://localhost:8000   (mağaza)
+   Eşdeğer (elle): C:\xampp\php\php.exe -S localhost:8000 router.php
+   (router.php ŞART: statikleri o servis eder, pretty-URL'ler CI'ya gider — "-t ." yetmez)
 Üretim-benzeri: kodu C:\xampp\htdocs\teksilsite altına kopyala → http://localhost/teksilsite
 phpMyAdmin: http://localhost/phpmyadmin
 ```

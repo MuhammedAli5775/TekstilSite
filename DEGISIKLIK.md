@@ -18,6 +18,29 @@
 
 ---
 
+## 2026-08-16 (XV) — npm run dev: dev sunucusu tek komutla (localhost:8000)
+
+**Kullanıcı isteği:** terminalde `npm run dev` → proje localhost:8000'de çalışsın.
+
+**Yeni:** `package.json` (tek script `dev`; bağımlılık YOK — node_modules/lock
+üretilmez) + `scripts/dev.js` başlatıcı: PHP önce PATH'te aranır, yoksa sabit
+XAMPP yolu denenir (bu makinede php PATH'te DEĞİL — `C:\xampp\php\php.exe`).
+Komut shell'e tek dizgi olarak verilir (args dizisi + `shell:true` Node'da
+DEP0190 uyarısı üretirdi — ilk denemede görüldü, düzeltildi); `PORT` yalnız
+sayısal kabul edilir (enjeksiyon kapısı yok); Ctrl+C alt süreci birlikte kapatır.
+
+**Değişen:** `workflow.md` §8 — çalıştırma komutu artık `npm run dev`; mevcut
+"elle" satırı `-t .` ile yazılmıştı, pretty-URL'ler için şart olan `router.php`
+eksikti — eşdeğer komut olarak düzeltildi.
+
+**Doğrulama:** `npm run dev` arka planda → "PHP 8.1.25 Development Server
+started"; anasayfa/katalog/statik CSS **200**; DEP0190/DeprecationWarning
+eşleşmesi **0**; durdurma temiz. Node v24.14.1 / npm 11.11.0 ile.
+
+**[!] Canlıya taşı:** yok — salt dev aracı; prod'u ilgilendirmez.
+
+---
+
 ## 2026-08-16 (XIV) — Sipariş detayında fatura bölümü (XIII'ün tamamlayıcısı) — 101/101 PASS
 
 **Kapsam:** müşterinin faturaya bakacağı asıl yer kendi sipariş detayı — XIII ile
