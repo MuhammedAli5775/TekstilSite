@@ -5,8 +5,11 @@
 > farkı somut görevlere yayar. Görevler **Sahip** (Dev / İş / Ops) ve **Efor** (S/M/L) ile
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
-> **Durum (2026-08-13):** Kod-tamamlanma ~%92-95 · Doğrulama (dev'de) ~%80 · Canlıya-hazır ~%55-60.
-> Kapanacak gap'in büyük kısmı **kod değil** — iş kimlikleri + production ortamı + doğrulama.
+> **Durum (2026-08-16):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
+> (ayrıntılar maddelerin altında); regresyon **96/96 PASS** (dev) + yerel prod ve
+> sıfır-DB kurulum provası 74/74. Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
+> (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli ertelenmişler
+> (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
 
 ---
 
@@ -15,19 +18,19 @@
 | Boyut | Durum | Kanıt |
 |---|---|---|
 | Kod | Faz 0-5 tamamına yakını yazılı | 13 mağaza + 18 admin controller, 17 model |
-| Dış entegrasyonlar | **Hepsi yapılandırılmamış** | smtp_*/sms_*/paytr_*/efatura_* ayarlar boş veya yok |
+| Dış entegrasyonlar | Alanlar panelden girilebilir (D0 ✓); **gerçek kimlik yok** | smtp_*/sms_*/paytr_*/efatura_* Ayarlar formunda hazır, değerler test/boş — İş bekliyor (Faz A) |
 | Ortam | Dev | `ENVIRONMENT=development`, `base_url=localhost:8000`, session `C:/xampp/tmp` |
-| Deploy | Kısmen hazır | `.htaccess` hazır (Apache rewrite+güvenlik+gzip+expires); `uploads/` yok |
-| Doğrulama | Çoğu test edildi | B2B 53/53, yetki, feed, stok, kupon, banner, cron, PayTR(yapısal) PASS; **pazaryeri/doğrulanmadı** |
+| Deploy | Runbook hazır | `application/config/production/` + `DEPLOY.md` (VIII–IX provalarıyla 74/74); `uploads/` prod'da elle (B6) |
+| Doğrulama | Dev tarafı doygun | B2B 53/53, Faz C 88/89 (kod değişikliği yok), yetki/feed/stok/kupon/banner/cron/PayTR(yapısal); regresyon **96/96**; **yalnız pazaryeri canlı (C6) doğrulanmadı** |
 
 **Planlama sırasında bulunan somut kod gap'leri (Faz D0):**
-- **`paytr_*` / `efatura_*` Ayarlar whitelist'te YOK** → `Ayarlar::kaydet()` bu alanları sessizce
-  atar (`application/controllers/yonetim/Ayarlar.php:35` yalnızca `$WHITELIST` iterasyonu; view
-  alanları var ama kaydedilmez). Bu yüzden DB'de paytr_* yok. Admin panelden ödeme/fatura kimliği
-  **girilemiyor**. → D0 düzeltmesi şart.
-- `uploads/` dizini yok (banner görseli ilk yüklemede oluşturulur) → prod'da elle oluştur + yazma izni.
-- `robots.txt` yok (`sitemap.xml` route'u dinamik: `seo/sitemap`).
-- Pazaryeri: yalnız **trendyol** adapter'ı var (Hepsiburada/N11/Amazon = "adapter yok" graceful atlar).
+- ~~`paytr_*` / `efatura_*` Ayarlar whitelist'te YOK~~ **✓ D0 2026-08-13'te kapandı** —
+  `$WHITELIST` + `$TOGGLES` + Ayarlar'a PayTR kartı; E2E 20/20 (kimlikler kalıcı, diğer
+  ayarlar korunuyor, rol-2 403). Yol üstünde bulunan "formda-olmayan alanları null'lama"
+  bug'ı da 08-14'te kapatıldı (posted-olmayan non-toggle key'ler korunur).
+- `uploads/` dizini yok (banner görseli ilk yüklemede oluşturulur) → prod'da elle oluştur + yazma izni. (B6)
+- ~~`robots.txt` yok~~ **✓ zaten varmış** — `Seo::robots()` + `robots\.txt` route'u (Faz C düzeltmesi, 08-13).
+- Pazaryeri: yalnız **trendyol** adapter'ı var (Hepsiburada/N11/Amazon = "adapter yok" graceful atlar). (D1 ertelendi)
 
 ---
 
@@ -88,17 +91,26 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 ## Faz C — Kalan doğrulama  (Sahip: **Dev** · bug bulunursa düzelt)
 
 - **C1.** Arama (mağaza search) — S
+  **✓ 2026-08-13:** 10/10 — boş/ASCII/Türkçe(%-enc) sorgu, LIKE alanları, no-match, noindex.
 - **C2.** Hesap (bayi self-servis: siparişlerim / adresler / faturalar / bakiye) — M
+  **✓ 2026-08-13:** 19/19 — auth gate, IDOR sahiplik izolasyonu, bilgiler/şifre akışları.
+  **Kapsam notu:** bayi *faturalar/bakiye* self-servis sayfaları hiç inşa edilmedi (workflow
+  Faz 3 vaadi; DoD gerektirmiyor) — ihtiyaç halinde yeni iş olarak açılmalı.
 - **C3.** Raporlar (admin rapor derinliği + ciro TRY doğruluğu) — M
+  **✓ 2026-08-13:** 19/20 — ciro `SUM(toplam*kur)` çoklu-para normalizasyonu kanıtlı; 1 kozmetik assertion.
 - **C4.** SEO/sitemap (`seo/sitemap` route + `robots.txt` ekle) — S
+  **✓ 2026-08-13:** 11/11 — sitemap well-formed (42 URL), robots 200, `arama_index` davranışı.
 - **C5.** Kalan admin CRUD (Markalar / Kategoriler / Sayfalar) — kuponlar/bannerlar pattern'iyle — S/M
+  **✓ 2026-08-13:** 29/29 — CRUD + `slug_tr` + benzersizlik + ağaç koruması + rol-2 gate'leri.
 - **C6.** Pazaryeri **canlı** test (Trendyol cred gelince): hesap CRUD + eşleştirme + senkron — L (dışa bağlı)
 - **C7.** Lansman öncesi **regresyon**: tüm E2E paketlerini (yetki/feed/stok/kupon/banner/B2B 53) tek seferde koş.
   **✓ 2026-08-14 (lokal):** `tests/regresyon.php` — kalıcı, tek komutla tam paket
   (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
-  **72/72 PASS**. Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
-  **Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
-  "admin onayı" vaat ediyor — (a) durum=0 başlat ya da (b) metinleri düzelt.
+  **96/96 PASS** (2026-08-16 itibarıyla; X–XII ile kullanıcı girişi/hesabı + favori
+  testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
+  ~~**Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
+  "admin onayı" vaat ediyor~~ **✓ çözüldü (VI, 08-14):** kayıt `durum=0` başlar, admin
+  onayı zorunlu (regresyonda `bayi-kayit-db-onay-bekliyor` + `bayi-onaysiz-giris-red` PASS).
 
 ---
 
@@ -107,6 +119,8 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **D0. (ÖNCELİKLİ) Ayarlar'a PayTR + e-fatura + pazaryeri kimlik alanları ekle**
   (`Ayarlar.php` `$WHITELIST` + TOGGLES güncelle; view alanları zaten var). Olmadan A2/A4 panelden
   girilemez. — S/M. **Test:** kaydet → DB'de `paytr_*`/`efatura_*` kalıcı.
+  **✓ 2026-08-13:** `$WHITELIST` + `$TOGGLES` (paytr_test/efatura_test) + Ayarlar'a PayTR kartı;
+  E2E 20/20 — kimlikler kalıcı, diğer ayarlar korunuyor, rol-2 403.
 - **D1.** Pazaryeri adapter'ları: Hepsiburada, N11, Amazon (yalnız trendyol var) — her biri L (API başına).
   *Erteleme uygundur* — Trendyol tek başına ilk lansman için yeter.
 - **D2.** Rapor/SEO cilası (ihtiyaç halinde) — M
@@ -152,8 +166,8 @@ B (production ortam) ─────────────────►┤
 C1–C5 (doğrulama) ──► E (sertleştirme)─┘
 ```
 
-1. **D0** hemen (panelden kimlik girişini açar). **A** ∥ **B** paralel (ikisi de engelleyici).
-2. **C1–C5** kalan bug avı. **E** lansman öncesi sertleştirme.
+1. ~~**D0** hemen~~ ✓ bitti. **A** ∥ **B** paralel — ikisi de engelleyici, **dev dışı (İş/Ops)**.
+2. ~~**C1–C5** kalan bug avı~~ ✓ bitti. ~~**E** sertleştirme~~ ✓ bitti. Dev tarafında zorunlu iş kalmadı.
 3. **Soft launch** → **C6/C7** canlı regresyon + **D1** pazaryeri genişletme lansman sonrası da olabilir.
 
 ---
@@ -180,5 +194,8 @@ C1–C5 (doğrulama) ──► E (sertleştirme)─┘
 | E1–E2 (sertleştirme) | ~1-2 gün |
 | **Toplam zorunlu dev** | **~4-6 gün** |
 | D1 (her pazaryeri adapter'ı) | 1-2 gün/adet (opsiyonel, ertelenebilir) |
+
+> **2026-08-16:** Zorunlu dev işi (ilk dört satır) **tamamlandı**; kalan dev kalemleri
+> ertelenmiş opsiyoneller (D1+) ve lansman günü canlı C7 koşusu.
 
 İş/ops tarafı (kimlik abonelikleri + hosting) süresi **işletmeye/teslimata bağlı**, dev dışı.
