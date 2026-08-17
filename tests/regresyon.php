@@ -236,6 +236,33 @@ list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 
 list($c, ) = get('bayi', "/paytr/basarili/$siparisId");  check('paytr-basarili-sahibine-200', $c === 200);
 list($c, ) = get('guest', "/paytr/basarili/$siparisId"); check('paytr-basarili-yabanci-red', is_redir($c));
 
+// PayTR callback provası (XXVII): test anahtarlarıyla — geçerli hash + YANLIŞ tutar
+// → 'tutar uyusmazligi' (ödendi işaretlenmez); DOĞRU tutar (kuruş) → 'OK' + odendi.
+q("UPDATE ayarlar SET deger='TKEY123' WHERE anahtar='paytr_merchant_key'");
+q("UPDATE ayarlar SET deger='TSALT123' WHERE anahtar='paytr_merchant_salt'");
+q("UPDATE ayarlar SET deger='TID123' WHERE anahtar='paytr_merchant_id'");
+$no = q1("SELECT siparis_no FROM siparisler WHERE id=$siparisId");
+list($ttop, $tkur) = array_map('floatval', explode('|', q1("SELECT CONCAT(toplam,'|',kur) FROM siparisler WHERE id=$siparisId")));
+$kurus = (string) (int) round($ttop * $tkur * 100);
+function paytr_cb($url, $oid, $stat, $total, $key, $salt) {
+    $h = base64_encode(hash_hmac('sha256', $oid . $salt . $stat . $total, $key, TRUE));
+    $ch = curl_init($url);
+    curl_setopt_array($ch, array(
+        CURLOPT_RETURNTRANSFER => TRUE, CURLOPT_HEADER => TRUE, CURLOPT_FOLLOWLOCATION => FALSE,
+        CURLOPT_SSL_VERIFYPEER => ! $GLOBALS['INSECURE'], CURLOPT_SSL_VERIFYHOST => $GLOBALS['INSECURE'] ? 0 : 2,
+        CURLOPT_TIMEOUT => 20, CURLOPT_POST => TRUE,
+        CURLOPT_POSTFIELDS => http_build_query(array('merchant_oid' => $oid, 'status' => $stat, 'total_amount' => $total, 'hash' => $h)),
+    ));
+    $r = curl_exec($ch);
+    curl_close($ch);
+    return preg_match('/\r?\n\r?\n(.*)$/s', (string) $r, $m) ? trim($m[1]) : '';
+}
+$r1 = paytr_cb($BASE . '/paytr/bildirim', $no, 'success', '1', 'TKEY123', 'TSALT123');
+check('paytr-callback-tutar-red', $r1 === 'tutar uyusmazligi' && q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId") === 'bekliyor');
+$r2 = paytr_cb($BASE . '/paytr/bildirim', $no, 'success', $kurus, 'TKEY123', 'TSALT123');
+check('paytr-callback-gecerli-ok', $r2 === 'OK');
+check('paytr-callback-odendi-db', q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId") === 'odendi');
+
 /* ---- C) admin smoke + sipariş/fatura -------------------------------------- */
 $sessOnce = $SES['admin']['teksil_sess'] ?? '';
 list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@teksilsite.test', 'sifre' => 'Tekstil2026!'));
@@ -397,6 +424,9 @@ if (is_file($logFile)) {
         // XXIII: csrf-403 sözleşme testinin kendi ret satırı — yalnız o URI'de
         // atlanır; başka uçta gerçek CSRF kırılırsa denetim yine düşer.
         if (strpos($l, 'CSRF reddi') !== FALSE && strpos($l, 'uri=/sepet/ekle') !== FALSE) { continue; }
+        // XXVII: callback provasının kendi satırları (tutar uyuşmazlığı + ödendi
+        // işaretlendi) — PayTR bildirimleri bilgilendirici ERROR seviyesinde loglanır.
+        if (strpos($l, 'PayTR bildirim') !== FALSE) { continue; }
         $yeni[] = $l;
     }
 }
@@ -412,6 +442,7 @@ q("DELETE FROM siparis_detaylari WHERE siparis_id=" . (int) ($kSiparisId ?? 0));
 q("DELETE FROM siparisler WHERE id=" . (int) ($kSiparisId ?? 0));
 q("DELETE FROM sepet WHERE bayi_id=$bayiId");
 q("DELETE FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "'");
+q("UPDATE ayarlar SET deger='' WHERE anahtar IN ('paytr_merchant_key','paytr_merchant_salt','paytr_merchant_id')"); // callback provası anahtarlarını geri al
 q("DELETE FROM bayiler WHERE id=$bayiId");
 q("DELETE FROM yoneticiler WHERE email='reg2$T@test.local'");
 q("DELETE FROM kullanicilar WHERE email='" . esc($EK) . "'");

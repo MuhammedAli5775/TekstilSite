@@ -108,12 +108,12 @@ class Bayi extends Magaza_Controller
         redirect('');
     }
 
-    /** Açık-yönlendirme koruması: yalnız site-içi göreli yol döndürür. */
+    /** Açık-yönlendirme koruması: yalnız site-içi göreli yol döndürür
+     *  ('https:/evil.com' tek-slash baypası kapanır — karakter beyaz listesi, XXVIII). */
     private function _guvenli_donus($donus)
     {
         if (! $donus) { return NULL; }
-        if (preg_match('#^https?://#i', $donus)) { return NULL; }
-        if (strpos($donus, '//') === 0) { return NULL; }
+        if (strpos($donus, '//') !== FALSE || preg_match('#^[A-Za-z0-9/_?=&.%-]+$#', $donus) !== 1) { return NULL; }
         return ltrim($donus, '/');
     }
 }

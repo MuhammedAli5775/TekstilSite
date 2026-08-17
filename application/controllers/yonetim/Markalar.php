@@ -107,12 +107,12 @@ class Markalar extends Admin_Controller
     private function _logo_yukle()
     {
         if (empty($_FILES['logo_dosya']) || $_FILES['logo_dosya']['error'] !== UPLOAD_ERR_OK) { return NULL; }
-        $izinli = array('jpg', 'jpeg', 'png', 'webp', 'gif', 'svg');
+        $izinli = array('jpg', 'jpeg', 'png', 'webp', 'gif'); // svg YOK — sanitizasyonsuz SVG kendi <script>'ini çalıştırır: stored-XSS vektörü (XXVIII)
         $tmp = $_FILES['logo_dosya']['tmp_name'];
         if (! is_uploaded_file($tmp)) { return NULL; }
         $ext = strtolower(pathinfo($_FILES['logo_dosya']['name'], PATHINFO_EXTENSION));
         if (! in_array($ext, $izinli, TRUE)) { return NULL; }
-        if ($ext !== 'svg' && @getimagesize($tmp) === FALSE) { return NULL; } // gerçek resim (svg hariç)
+        if (@getimagesize($tmp) === FALSE) { return NULL; } // gerçek resim
         if ($_FILES['logo_dosya']['size'] > 2 * 1024 * 1024) { return NULL; } // 2MB
         $klasor = FCPATH . 'uploads/markalar/';
         if (! is_dir($klasor)) { @mkdir($klasor, 0775, TRUE); }

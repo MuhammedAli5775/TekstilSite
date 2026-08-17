@@ -41,6 +41,7 @@ class Bannerlar extends Admin_Controller
 
         // Görsel: yükleme > URL > mevcut (düzenleme).
         $gorsel = trim((string) $this->input->post('gorsel_url'));
+        if ($gorsel !== '' && ! preg_match('#^https://#i', $gorsel)) { $gorsel = ''; } // dış URL yalnız https — '../' veya şemasız yol DB'ye girmez (XXVIII)
         $yuklenen = $this->_gorsel_yukle();
         if ($yuklenen !== NULL) {
             $gorsel = $yuklenen;
@@ -122,11 +123,15 @@ class Bannerlar extends Admin_Controller
         $this->_yerel_gorsel_sil($mevcut->gorsel);
     }
 
-    /** Yerel (http olmayan) görsel dosyasını diskten siler. */
+    /** Yerel (http olmayan) görsel dosyasını diskten siler — yalnız uploads/ altına iner. */
     private function _yerel_gorsel_sil($gorsel)
     {
         if (! $gorsel || strpos($gorsel, 'http') === 0) { return; }
         $yol = FCPATH . ltrim($gorsel, '/');
-        if (is_file($yol)) { @unlink($yol); }
+        $gercek = realpath($yol);
+        // Kapatma (XXVIII): DB'den gelen yola girilebilecek '../' ile docroot
+        // dışına çıkıp rastgele dosya silme (path traversal) engellenir.
+        if ($gercek === FALSE || strpos($gercek, realpath(FCPATH . 'uploads') . DIRECTORY_SEPARATOR) !== 0) { return; }
+        if (is_file($gercek)) { @unlink($gercek); }
     }
 }

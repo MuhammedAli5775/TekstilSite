@@ -21,11 +21,11 @@
                 <?php foreach ($urunler as $u):
                     $fiyat = (float) $u->fiyat; $eski = (float) ($u->eski_fiyat ?: 0); ?>
                     <article class="prodcard">
-                        <a class="prodcard__media" href="<?= site_url('urun/' . $u->slug) ?>" aria-label="<?= e($u->ad) ?>">
+                        <a class="prodcard__media" href="<?= e(site_url('urun/' . $u->slug)) ?>" aria-label="<?= e($u->ad) ?>">
                             <?php if ($u->ana_gorsel): ?><img src="<?= e(gorsel_url($u->ana_gorsel)) ?>" alt="<?= e($u->ad) ?>" loading="lazy"><?php else: ?><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px">görsel yok</div><?php endif; ?>
                         </a>
                         <div class="prodcard__body">
-                            <a class="prodcard__name" href="<?= site_url('urun/' . $u->slug) ?>"><?= e($u->ad) ?></a>
+                            <a class="prodcard__name" href="<?= e(site_url('urun/' . $u->slug)) ?>"><?= e($u->ad) ?></a>
                             <?php if ($u->stok_kodu): ?><span class="prodcard__sku"><?= e($u->stok_kodu) ?></span><?php endif; ?>
                             <div class="prodcard__price">
                                 <span class="now"><?= para_tr($fiyat) ?></span>

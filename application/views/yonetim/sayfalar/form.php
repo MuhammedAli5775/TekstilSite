@@ -40,6 +40,6 @@ $veri = function ($alan, $def = '') use ($s) { return $s ? ($s->{$alan} ?? $def)
 
     <div style="margin-top:16px">
         <button type="submit" class="btn btn-primary"><?= $s ? 'Güncelle' : 'Ekle' ?></button>
-        <?php if ($s): ?><a class="btn btn-ghost" href="<?= site_url('sayfa/' . $s->slug) ?>" target="_blank">Sitede Gör →</a><?php endif; ?>
+        <?php if ($s): ?><a class="btn btn-ghost" href="<?= e(site_url('sayfa/' . $s->slug)) ?>" target="_blank">Sitede Gör →</a><?php endif; ?>
     </div>
 </form>

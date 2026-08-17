@@ -153,7 +153,11 @@ class Urunler extends Admin_Controller
         $yol = $this->urun_model->mg_gorsel_sil($gorsel_id);
         if ($yol && strpos($yol, 'http') !== 0) {
             $tam = FCPATH . ltrim(str_replace('/', DIRECTORY_SEPARATOR, $yol), DIRECTORY_SEPARATOR);
-            if (is_file($tam)) { @unlink($tam); }
+            $gercek = realpath($tam);
+            // Silme yalnız uploads/ altına iner (XXVIII — Bannerlar ile aynı kapatma).
+            if ($gercek !== FALSE && strpos($gercek, realpath(FCPATH . 'uploads') . DIRECTORY_SEPARATOR) === 0 && is_file($gercek)) {
+                @unlink($gercek);
+            }
         }
         redirect($this->input->server('HTTP_REFERER') ?: 'yonetim/urunler');
     }
@@ -164,7 +168,9 @@ class Urunler extends Admin_Controller
         if (! $id) { redirect('yonetim/urunler'); }
         $this->yetki_gerek('urunler', 'duzenle');
         $gorsel_id = (int) $this->input->post('gorsel_id');
-        $g = $this->db->where('id', $gorsel_id)->limit(1)->get('urun_gorselleri')->row();
+        // Görselin BU ürüne ait olduğu doğrulanır (XXVIII — bütünlük: A ürününün
+        // ana görseli B'nin görseli yapılamaz).
+        $g = $this->db->where('id', $gorsel_id)->where('urun_id', (int) $id)->limit(1)->get('urun_gorselleri')->row();
         if ($g) {
             $this->urun_model->mg_gorsel_ana($id, $g->yol);
         }

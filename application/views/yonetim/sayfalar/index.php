@@ -23,7 +23,7 @@
                 <td><small class="mono">/<?= e($s->slug) ?></small></td>
                 <td>
                     <?php if ((int) $s->durum === 1): ?>
-                        <a class="rozet rozet-yesil" href="<?= site_url('sayfa/' . $s->slug) ?>" target="_blank">yayında ↗</a>
+                        <a class="rozet rozet-yesil" href="<?= e(site_url('sayfa/' . $s->slug)) ?>" target="_blank">yayında ↗</a>
                     <?php else: ?>
                         <span class="rozet rozet-gri">taslak</span>
                     <?php endif; ?>

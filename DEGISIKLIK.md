@@ -19,6 +19,66 @@
 
 ---
 
+## 2026-08-17 (XXVIII) — Denetim ajanları kapanışı: SVG yükleme kapandı + banner dosya-silme path-traversal kapatıldı + sertleştirmeler — 123/123
+
+**Kapsam:** iki paralel tarama ajanı — (1) XSS/raw-çıkış: 70 view + teksil.js,
+889 PHP çıktısı, 113 ham echo tamamı kaynağına izlendi; (2) yönetim
+IDOR/yetki/SQL: 18 controller + model katmanı + upload'lar. Yetki matrisi
+tutarlı, ham SQL sıfır, eksik yetki-check yok.
+
+**Bulgu 1 (orta) — Markalar SVG yükleme (stored-XSS vektörü):** sanitizasyonsuz
+SVG `uploads/markalar/`'a yazılıyordu; .htaccess PHP'yi engeller ama SVG'in
+kendi `<script>`'ini doğrudan URL'den açınca site origin'inde çalışır. svg
+whitelist'ten çıkarıldı (+getimagesize svg-isti'si kalktı). **E2E kanıt:**
+script'li .svg admin olarak yüklendi → kayıt işlendi (303) ama dosya diske
+yazılmadı (klasör 0 dosya) + DB'de logo boş.
+
+**Bulgu 2 (orta) — Bannerlar serbest dosya silme (path traversal):** `gorsel_url`
+serbest POST + `_yerel_gorsel_sil` DB'den gelen yolla unlink ediyordu → '../'
+ile docroot dışı dahil rastgele dosya silme. Kapatma: dış URL yalnız `https://`;
+silme realpath ile `uploads/` altına hapsoldu (`Urunler::gorsel_sil`'e aynı
+kapatma).
+
+**Sertleştirmeler:** feed kartındaki onclick-JS-string gömmesi → data-attribute
+deseni; `donus` üç yerde (yonetim Giriş + Kullanici + Bayi) karakter beyaz
+listesine bağlandı ('https:/evil.com' tek-slash açık-yönlendirme baypası
+kapandı); `gorsel_ana` görselin ürününe aidiyetini doğrular (A'nın ana görseli
+B yapılamaz); 5 yerde slug'lı `site_url()` çıktıları `e()` ile sarıldı.
+
+**Kabul edildi (bilinçli, dokümante):** CMS ham HTML çıktısı (admin yazarlı,
+view'da yorumlu); Dashboard'ın tüm rollere iş verisi göstermesi (İş kararı);
+controller katmanı (int) cast eksikleri (model katmanı kapatıyor); CI'nin
+kendi hata view'ları.
+
+**Doğrulama:** lint ×16 temiz; E2E SVG reddi; tam regresyon **123/123**.
+
+**[!] Canlıya taşı:** `Markalar.php`, `Bannerlar.php`, `Urunler.php`,
+`Giris.php` (yonetim), `Kullanici.php`, `Bayi.php`, `feed/index.php`,
+`sepet/index.php`, `favorilerim.php`, `sayfalar/index.php`, `sayfalar/form.php`.
+
+---
+
+## 2026-08-17 (XXVII) — PayTR callback kuruş-varsayım hatası düzeltildi (resmî dokümantasyon kanıtı) + callback provası testleri — 123/123
+
+**Gerekçe:** XXVI'da eklenen tutar çapraz kontrolü `total_amount`'u TL-ondalık
+varsayıp ×100 yapıyordu. Resmî dokümantasyon (dev.paytr.com, iframe-api 2. adım)
+doğrulandı: **total_amount zaten kuruş geliyor** ("34.56 → 3456") — meşru her
+ödeme reddedilirdi (lansman günü ödeme kesintisi olurdu). Düzeltildi: doğrudan
+kuruş karşılaştırması. Dokümanın diğer gereksinimleri mevcut kodla karşılanıyor:
+hash formülü resmî örnek kodla birebir, tekrarlı bildirim idempotent + OK,
+callback'te session yok, yanıt düz metin.
+
+**Callback provası (regresyon +3):** test anahtarları geçici girilir — geçerli
+hash + YANLIŞ tutar → `tutar uyusmazligi` + odeme_durumu değişmez; DOĞRU tutar
+(kuruş) → `OK` + `odendi` (DB kanıtı). Temizlikte anahtarlar geri alınır. Log
+denetimine 'PayTR bildirim' satırları bilgilendirici olarak eklendi.
+
+**Doğrulama:** lint temiz; tam regresyon **123/123**.
+
+**[!] Canlıya taşı:** `Paytr_bildirim.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-17 (XXVI) — Kapsamlı güvenlik/bug denetimi: 3 bulgu kapatıldı (PayTR sahiplik + callback tutar çaprazı + stok yarış güvenliği) — 120/120
 
 **Kapsam (kullanıcı isteği "iyice kontrol et"):** klasik taramalar (eval/exec/

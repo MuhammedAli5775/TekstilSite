@@ -6,7 +6,7 @@
 <div class="adm-uyari adm-uyari--ok" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
     <b>Yeni anahtar (bir daha gösterilmeyecek — şimdi kopyalayın):</b>
     <code style="background:var(--surface-soft);padding:6px 10px;border-radius:6px;font-size:13px;word-break:break-all"><?= e($yeni_anahtar) ?></code>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('<?= e($yeni_anahtar) ?>')">Kopyala</button>
+    <button type="button" class="btn btn-ghost btn-sm" data-anahtar="<?= e($yeni_anahtar) ?>" onclick="navigator.clipboard.writeText(this.dataset.anahtar)">Kopyala</button>
 </div>
 <?php endif; ?>
 

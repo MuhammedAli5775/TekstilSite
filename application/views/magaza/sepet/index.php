@@ -27,7 +27,7 @@ $satirlar = isset($satirlar) ? $satirlar : array();
                         <td>
                             <div style="display:flex;gap:12px;align-items:center">
                                 <img src="<?= e(gorsel_url($r->ana_gorsel)) ?>" alt="" class="sepet-gorsel">
-                                <div><a class="b" href="<?= site_url('urun/' . $r->slug) ?>"><?= e($r->ad) ?></a><br><small class="mono text-steel"><?= e($r->stok_kodu) ?></small></div>
+                                <div><a class="b" href="<?= e(site_url('urun/' . $r->slug)) ?>"><?= e($r->ad) ?></a><br><small class="mono text-steel"><?= e($r->stok_kodu) ?></small></div>
                             </div>
                         </td>
                         <td><?= e(trim(((string) ($r->renk ?? '')) . ' ' . ((string) ($r->beden ?? '')))) ?: '-' ?></td>

@@ -28,7 +28,9 @@ class Giris extends Admin_Controller
             redirect('yonetim/giris');
         }
         $donus = $this->input->post('donus');
-        if ($donus && ! preg_match('#^https?://#i', $donus) && strpos($donus, '//') !== 0) {
+        // Yalnız güvenli göreli yol — 'https:/evil.com' tek-slash baypası kapanır (XXVIII):
+        // karakter beyaz listesi (':' yok) + '//' yasak.
+        if ($donus && strpos($donus, '//') === FALSE && preg_match('#^[A-Za-z0-9/_?=&.%-]+$#', $donus) === 1) {
             redirect(ltrim($donus, '/'));
         }
         redirect('yonetim/dashboard');
