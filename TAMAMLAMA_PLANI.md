@@ -78,6 +78,8 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   hukuki/footer/slider seed'leri EN SONDA (seed truncate içerir). (Ops·M)
   **✓ 2026-08-16 (XVI):** sıra sıfır-DB provasında uçtan uca koşuldu — 17/17 dosya, 39
   tablo, **101/101 regresyon** (`migrate_kullanicilar` dahil). DETAY: DEGISIKLIK.md XVI.
+  **✓ 2026-08-17 (XIX):** prova güncel paketle tekrar — XVII şeması (kullanici_adi) +
+  XVIII oturum-dönüşü + perf-indeks güncellemesi altında 17/17, 39 tablo, **111/111**.
 - **B4.** PHP: `ENVIRONMENT=production` (`CI_ENV` ile), `base_url`=gerçek domain, hata görüntüleme kapalı. (Ops·S)
 - **B5.** `sess_save_path`'i production dizinine çevir (lokalde `C:/xampp/tmp`). (Ops·S)
 - **B6.** `uploads/` + `application/logs/` oluştur, web sunucusuna **yazma izni**; log rotasyonu. (Ops·S)
@@ -151,6 +153,10 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   **✓ 2026-08-14:** EXPLAIN 3 boşluk buldu → `migrate_perf_index.sql` (urunler(durum,
   olusturma_zaman), urunler(durum, fiyat), siparisler(olusturma_zaman)) uygulandı; filesort
   kalktı, sıralamalar covering index'ten. Opcache: prod PHP'de doğrulanacak (B4 ile).
+  **✓ 2026-08-17 (tazeleme):** X–XVII sorgularına aynı EXPLAIN denetimi — tek bulgu
+  `siparisler.email` indekssizliği (B2C hesabım tam geri-tarama); `idx_siparis_email`
+  migrate_perf_index.sql'e eklendi (taze kurulum §3'ten alır). Sıfır-DB provası da
+  güncel paketle 111/111 tekrarlandı. Ayrıntı: DEGISIKLIK.md XIX.
 - **E3. İzleme:** hata log izleme + uptime. — S
   **✓ 2026-08-14:** `scripts/log_kontrol.sh` (günlük ERROR özeti, mesaj bazlı gruplu —
   fonksiyonel test edildi); DEPLOY.md 7b: cron satırı + uptime monitör önerisi

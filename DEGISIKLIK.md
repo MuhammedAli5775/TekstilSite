@@ -18,6 +18,46 @@
 
 ---
 
+## 2026-08-17 (XIX) — E2 tazeleme: siparisler.email indeksi + sıfır-DB provası tekrarı — 111/111
+
+**Gerekçe:** E2'nin EXPLAIN denetimi (08-14) de kullanıcı-hesabı kodundan önceydi;
+X–XVII'nin eklediği sorgular (Kullanici_model::mg_siparisler*, Fatura_model
+join'leri) e-posta anahtarıyla sipariş çekiyor.
+
+**Bulgu (EXPLAIN kanıtlı):** `siparisler.email` indekssizdi — hesabım sorgusu
+PRIMARY üzerinde tam geri-tarama (type=index, Backward index scan, tüm satırlar);
+faturalar join'inde type=ALL. `faturalar.siparis_id` zaten indeksli
+(idx_fatura_siparis), `kullanicilar` (email/kullanici_adi UNIQUE) ve `sepet`
+(bayi_id/oturum_id) de tamamdı — dokunulmadı.
+
+**Çözüm:** `migrate_perf_index.sql`'e `idx_siparis_email (email)` ALTER'ı +
+dev DB'ye uygulama. Sonrası EXPLAIN: type=ref, key=idx_siparis_email, rows
+18→1 (join'de kalan type=ALL, 1 satırlık `faturalar`'ı süren tablo — bu boyutta
+optimal plan; ölçekte optimizer email-indeksli yönü seçebilir).
+
+**Yol üstü ders (schema çakışması):** indeksi önce schema.sql'e de ekledim —
+taze §3 kurulumunda schema yaratıyor + migrasyonun ALTER'ı çift ekliyor →
+duplicate-key hatası (provada yakalandı). E2 deseni doğrulandı: **perf
+indeksleri yalnız migrate_perf_index.sql'de yaşar**; taze kurulum onları §3'teki
+migrasyondan alır. schema.sql'deki satır geri alındı. (XVII'nin kullanici_adi
+kolonu farklıydı: migrasyondaki ALTER yorum içinde duruyor.)
+
+**Sıfır-DB provası tekrarı (XVI tazelemesi):** XVI'ın kanıtı XVII şema
+değişikliği + XVIII kodu/testleri + perf-indeks güncellemesinden önceydi. Taze
+scratch DB: §3 **17/17** dosya temiz, 39 tablo, idx_siparis_email +
+kullanici_adi doğrulandı, seed'ler dolu (3 rol, admin, 8 sayfa);
+`npm run dev:testing` + `REGRESYON_DB` ile **111/111 PASS**. Prova sonrası
+scratch DB düşürüldü.
+
+**Doğrulama:** dev DB regresyonu indeks öncesi/sonrası 111/111; EXPLAIN
+öncesi/sonrası yukarıda; §3 uçtan uca yeniden kanıtlandı.
+
+**[!] Canlıya taşı:** `migrate_perf_index.sql` — mevcut kurulumda elle
+`ALTER TABLE siparisler ADD INDEX idx_siparis_email (email);` (taze kurulum
+§3'ten otomatik alır).
+
+---
+
 ## 2026-08-17 (XVIII) — E1 taraması sonrası-koda uygulandı + oturum sabitleme (fixation) koruması — 111/111 PASS
 
 **Gerekçe:** E1 güvenlik review'u 08-14'te yapıldı; kullanıcı-hesabı dönemi

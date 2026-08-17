@@ -26,3 +26,11 @@ ALTER TABLE urunler
 
 ALTER TABLE siparisler
   ADD INDEX idx_siparis_zaman (olusturma_zaman);
+
+-- 2026-08-17 (E2 tazeleme, DEGISIKLIK XVIII): B2C hesabım sorguları siparişi
+-- e-postasıyla çeker (Kullanici_model::mg_siparisler*, Fatura_model join'leri)
+-- → EXPLAIN: PRIMARY üzerinde tam geri-tarama (Backward index scan) / join'de
+-- type=ALL. idx_siparis_email ref'e indirir.
+-- Varmı? kontrol: yukarıdaki SELECT'in IN(...) listesine 'idx_siparis_email' ekleyin.
+ALTER TABLE siparisler
+  ADD INDEX idx_siparis_email (email);
