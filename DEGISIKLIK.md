@@ -19,6 +19,47 @@
 
 ---
 
+## 2026-08-17 (XXV) — Kullanıcı siparişi hesabına işleniyor (checkout e-posta atıflaması) + yönetimde misafir satırına e-posta — 118/118
+
+**Belirti (kullanıcı):** hesabim/siparisler'de siparişi görünmüyor; yönetim
+panelinde sipariş "Misafir" olarak duruyor — oysa giriş yaptıktan sonra sipariş
+vermişti.
+
+**Kök neden (DB kanıtlı):** checkout e-postasını TAMAMEN formdan alıyordu
+(`Odeme.php` `input->post('email')`); görünüm alanı yalnız BAYİ için
+doluyordu — giriş yapmış KULLANICI boş zorunlu alan görüp elle (hatalı)
+e-posta yazdı (sipariş #87 `asd@gmail.com`, #88 `afdsfads@gmail.com` — hesap
+`asdasd@gmail.com`). Hesabım eşleşmesi `siparisler.email` üzerinden → eşleşmez
+→ görünmez; yönetim satırı bayiler join alanlarını gösterdiğinden "Misafir"
+(siparişin kendi e-postası hiç gösterilmiyordu).
+
+**Düzeltme:**
+1. `Odeme::tamamla()` — giriş yapmış kullanıcıda sipariş e-postası HESAPTAN
+   gelir (otoriter; form değeri ezemez). E-posta doğrulama kuralı yalnız
+   misafir/bayi için. Bilgilerim'deki değişmez-e-posta ilkesinin checkout
+   tamamlaması.
+2. `odeme/index.php` — kullanıcı girişliyken e-posta alanı hesap adresiyle
+   dolu + readonly.
+3. Yönetim: `mg_admin_liste` seçimine `s.email, s.teslimat_ad`; liste satırı
+   teslimat adını ve bayi e-postası yoksa SİPARİŞ e-postasını gösterir
+   ("Misafir" artık e-postasız çıplak kalmaz); arama filtresine `s.email`.
+
+**Veri onarımı:** kullanıcının iki test siparişi (#87, #88) hesap e-postasına
+bağlandı (niyeti buydu; dev verisi).
+
+**Doğrulama:** lint ×5 temiz; regresyon +4 (`kullanici-odeme-form-200`,
+`kullanici-siparis-redirect`, `kullanici-siparis-hesap-eposta` [formda YANLIŞ
+e-posta → sipariş hesap e-postasıyla; yanlış e-postayla satır yok],
+`kullanici-siparisler-gorunur` [hesabim/siparisler'de sipariş_no görünüyor]);
+temizliğe B2C siparişi silme eklendi → **118/118**.
+
+**[!] Canlıya taşı:** `Odeme.php`, `odeme/index.php`, `Siparis_model.php`,
+`yonetim/siparisler/index.php`, `tests/regresyon.php`. DB: mevcut canlı B2C
+siparişleri varsa elle e-posta düzeltme gerekebilir (yeni kodla gelecek
+siparişler otomatik doğru).
+
+---
+
 ## 2026-08-17 (XXIV) — Sepet CSRF takibi: ölçüm hatası bulundu (CI3 $_POST'tan token'ı siler) + AJAX gövdesi urlencoded + çerez-yedekli token — 114/114
 
 **Belirti (kullanıcı, XXIII sonrası):** "Güvenlik anahtarı hâlâ eskimiş. Sayfayı

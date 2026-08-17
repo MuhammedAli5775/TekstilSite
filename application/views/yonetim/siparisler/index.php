@@ -23,7 +23,7 @@ $qs = $_GET; unset($qs['sayfa']);
             <tr>
                 <td><a class="b" href="<?= site_url('yonetim/siparisler/detay/' . $s->id) ?>"><?= e($s->siparis_no) ?></a></td>
                 <td><?= e(date('d.m.Y H:i', strtotime($s->olusturma_zaman))) ?></td>
-                <td><?= e($s->firma_adi ?: ($s->yetkili_ad_soyad ?: 'Misafir')) ?><br><small><?= e($s->bayi_email ?: '') ?></small></td>
+                <td><?= e($s->firma_adi ?: ($s->yetkili_ad_soyad ?: ($s->teslimat_ad ?: 'Misafir'))) ?><br><small><?= e($s->bayi_email ?: $s->email) ?></small></td>
                 <td><?= e($s->odeme_yontemi) ?></td>
                 <td><span class="rozet rozet-<?= e($de[1]) ?>"><?= e($de[0]) ?></span></td>
                 <td class="sag"><b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></td>

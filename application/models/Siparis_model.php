@@ -226,7 +226,7 @@ class Siparis_model extends CI_Model
     {
         $this->_admin_filtre($filtre);
         return $this->db->select('s.id, s.siparis_no, s.olusturma_zaman, s.odeme_yontemi, s.durum,
-                                  s.toplam, s.para_birimi,
+                                  s.toplam, s.para_birimi, s.email, s.teslimat_ad,
                                   b.firma_adi, b.yetkili_ad_soyad, b.email AS bayi_email')
                         ->from('siparisler s')
                         ->join('bayiler b', 'b.id = s.bayi_id', 'left')
@@ -252,6 +252,7 @@ class Siparis_model extends CI_Model
                      ->like('s.siparis_no', $q)
                      ->or_like('b.firma_adi', $q)
                      ->or_like('b.email', $q)
+                     ->or_like('s.email', $q)
                      ->group_end();
         }
     }

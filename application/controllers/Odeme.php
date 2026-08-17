@@ -59,7 +59,11 @@ class Odeme extends Magaza_Controller
         $this->form_validation->set_rules('teslimat_adres', 'Teslimat adresi', 'trim|required|max_length[500]');
         $this->form_validation->set_rules('teslimat_il', 'İl', 'trim|required');
         $this->form_validation->set_rules('teslimat_telefon', 'Telefon', 'trim|required|max_length[30]');
-        $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email|max_length[150]');
+        // E-posta kuralı yalnız misafir/bayi için — giriş yapmış KULLANICININ siparişi
+        // hesabının e-postasına işlenir (form değeri eşleşmeyi koparamaz, XXV).
+        if (! $this->kullanici()) {
+            $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email|max_length[150]');
+        }
         $this->form_validation->set_rules('odeme_yontemi', 'Ödeme yöntemi', 'trim|required');
         $this->form_validation->set_rules('kargo_firma_id', 'Kargo firması', 'trim|required|integer');
         $this->form_validation->set_rules('sozlesme', 'Sözleşme onayı', 'trim|required', array('required' => 'Mesafeli satış sözleşmesini onaylamanız gerekir.'));
@@ -78,7 +82,7 @@ class Odeme extends Magaza_Controller
             'teslimat_il'      => $this->input->post('teslimat_il'),
             'teslimat_ilce'    => $this->input->post('teslimat_ilce'),
             'teslimat_telefon' => $this->input->post('teslimat_telefon'),
-            'email'            => $this->input->post('email'),
+            'email'            => $this->kullanici() ? $this->kullanici()->email : $this->input->post('email'), // kullanıcı: hesap e-postası otoriter
             'fatura_ad'        => $fatura_ayni ? $this->input->post('teslimat_ad') : $this->input->post('fatura_ad'),
             'fatura_adres'     => $fatura_ayni ? $this->input->post('teslimat_adres') : $this->input->post('fatura_adres'),
             'firma_adi'        => $this->input->post('firma_adi'),

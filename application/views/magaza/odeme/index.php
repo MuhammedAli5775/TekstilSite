@@ -32,7 +32,7 @@ foreach ($odeme_yontemleri as $oy) { if ($oy->tip === 'havale') { $havale_var = 
         </div>
         <div class="odeme-row">
             <div class="odeme-alan"><label>Telefon <span class="zor">*</span></label><input type="tel" name="teslimat_telefon" value="<?= set_value('teslimat_telefon', $bayi ? $bayi->telefon : '') ?>" required maxlength="30"></div>
-            <div class="odeme-alan"><label>E-posta <span class="zor">*</span></label><input type="email" name="email" value="<?= set_value('email', $bayi ? $bayi->email : '') ?>" required maxlength="150"></div>
+            <div class="odeme-alan"><label>E-posta <span class="zor">*</span></label><input type="email" name="email" value="<?= set_value('email', $bayi ? $bayi->email : ($kullanici ? $kullanici->email : '')) ?>" <?= $kullanici ? 'readonly' : '' ?> required maxlength="150"></div>
         </div>
 
         <h3 style="margin:20px 0 12px">Fatura Bilgileri</h3>

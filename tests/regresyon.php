@@ -297,6 +297,23 @@ list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'si
 check('kullanici-giris-redirect', is_redir($c));
 check('kullanici-giris-oturum-doner', ($SES['kullanici']['teksil_sess'] ?? '') !== $sessOnce);
 check('kullanici-giris-sepet-devredi', (int) q1("SELECT COUNT(*) FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "' AND bayi_id IS NULL AND urun_id=1 AND varyant_id=1") === 1);
+
+// Kullanıcı siparişi hesabına işlenmeli (XXV): formda yanlış e-posta olsa bile
+// sipariş hesabın e-postasıyla kaydedilir (hesabım eşleşmesi bu alandan).
+list($c, ) = get('kullanici', '/odeme');
+check('kullanici-odeme-form-200', $c === 200);
+list($c, ) = post('kullanici', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Reg Kullanici', 'teslimat_adres' => 'Test mahalle cadde no 2',
+    'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112244',
+    'email' => "yanlis$T@test.local", 'fatura_ayni' => '1', 'odeme_yontemi' => 'havale', 'kargo_firma_id' => 1,
+    'sozlesme' => '1',
+));
+check('kullanici-siparis-redirect', is_redir($c));
+$kSiparisId = (int) q1("SELECT id FROM siparisler WHERE email='" . esc($EK) . "' ORDER BY id DESC LIMIT 1");
+check('kullanici-siparis-hesap-eposta', $kSiparisId > 0 && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc("yanlis$T@test.local") . "'") === 0);
+$kSiparisNo = (string) q1("SELECT siparis_no FROM siparisler WHERE id=$kSiparisId");
+list($c, $r) = get('kullanici', '/hesabim/siparisler');
+check('kullanici-siparisler-gorunur', $c === 200 && $kSiparisId > 0 && strpos($r, $kSiparisNo) !== FALSE);
 list($c, $r) = get('kullanici', '/hesabim');
 check('kullanici-hesabim-200', $c === 200 && strpos($r, 'Reg Kullanici') !== FALSE);
 check('kullanici-navbar-cikis', strpos($r, 'kullanici/cikis') !== FALSE);
@@ -386,6 +403,9 @@ foreach ($yeni as $l) { echo "  LOG: $l\n"; }
 q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
 q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");
 q("DELETE FROM siparisler WHERE id=$siparisId");
+q("DELETE FROM faturalar WHERE siparis_id=" . (int) ($kSiparisId ?? 0));
+q("DELETE FROM siparis_detaylari WHERE siparis_id=" . (int) ($kSiparisId ?? 0));
+q("DELETE FROM siparisler WHERE id=" . (int) ($kSiparisId ?? 0));
 q("DELETE FROM sepet WHERE bayi_id=$bayiId");
 q("DELETE FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "'");
 q("DELETE FROM bayiler WHERE id=$bayiId");
@@ -396,7 +416,7 @@ q("DELETE FROM feed_denemeler");
 q("UPDATE urun_varyantlari SET stok=$vStokOnce WHERE id=1");
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
-    q("DELETE FROM stok_hareketleri WHERE siparis_id=$siparisId");
+    q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ")");
 }
 $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "')
                  + (SELECT COUNT(*) FROM bayiler WHERE email='" . esc($E) . "')
