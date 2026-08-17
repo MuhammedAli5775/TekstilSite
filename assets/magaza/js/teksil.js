@@ -22,13 +22,25 @@
         if (el) { el.textContent = n; el.style.display = n > 0 ? '' : 'none'; }
     };
 
-    /* AJAX POST yardımcı (CSRF + FormData) */
+    /* AJAX POST yardımcı (CSRF + FormData).
+       Yanıt JSON değilse (CSRF 403 sayfası, hata HTML'i…) tip'li hata fırlatır —
+       ağ hatasıyla karışmasın; "Bağlantı hatası" yanlış etiketti (XXII). */
     function ajaxPost(url, fd) {
         if (window.tkCsrf && fd && typeof fd.append === 'function') {
             fd.append(window.tkCsrf.name, window.tkCsrf.hash);
         }
         return fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
-            .then(function (r) { return r.json(); });
+            .then(function (r) {
+                return r.text().then(function (govde) {
+                    var veri = null;
+                    try { veri = JSON.parse(govde); } catch (e) {}
+                    if (veri) { return veri; }
+                    var hata = new Error('yanit');
+                    hata.tip = r.status === 403 ? 'csrf' : 'yanit';
+                    hata.status = r.status;
+                    throw hata;
+                });
+            });
     }
     window.tkAjaxPost = ajaxPost;
 
@@ -192,7 +204,19 @@
                             toast((res && res.mesaj) ? res.mesaj : 'Eklenemedi.');
                         }
                     })
-                    .catch(function () { sepet.disabled = false; sepet.textContent = 'Sepete Ekle'; toast('Bağlantı hatası.'); });
+                    .catch(function (hata) {
+                        sepet.disabled = false; sepet.textContent = 'Sepete Ekle';
+                        if (hata && hata.tip === 'csrf') {
+                            /* Bayat güvenlik anahtarı: istek denetleyiciye hiç varmadı —
+                               yenileme güvenli; taze hash'le kullanıcı tekrar tıklar. */
+                            toast('Güvenlik anahtarı eskimiş — sayfa yenileniyor…');
+                            setTimeout(function () { window.location.reload(); }, 2000);
+                            return;
+                        }
+                        toast((hata && hata.tip === 'yanit')
+                            ? 'Sunucu beklenmeyen yanıt döndürdü. Sayfayı yenileyip tekrar deneyin.'
+                            : 'Bağlantı hatası.');
+                    });
             });
         }
 

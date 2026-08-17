@@ -188,6 +188,28 @@ list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' =>
 $jr = json_decode(trim(strstr($r, '{"'), "\r\n"), TRUE);   // header'lı gövdeden JSON çekilemezse strstr sonrası satır
 if ($jr === NULL && preg_match('/\{.*\}/s', $r, $m)) { $jr = json_decode($m[0], TRUE); }
 check('sepet-ekle-json-ok', is_array($jr) && ! empty($jr['ok']));
+
+// CSRF sözleşmesi (XXII): geçerli çerez + bayat hash → 403 + text/html.
+// teksil.js bu sözleşmeye dayanır ('csrf' dalı → yenileme kurtarması);
+// ileride yanıt şekil değiştirirse bu test düşer, JS ile birlikte güncellenir.
+$ch = curl_init($BASE . '/sepet/ekle');
+curl_setopt_array($ch, array(
+    CURLOPT_RETURNTRANSFER => TRUE,
+    CURLOPT_HEADER         => TRUE,
+    CURLOPT_FOLLOWLOCATION => FALSE,
+    CURLOPT_SSL_VERIFYPEER => ! $INSECURE,
+    CURLOPT_SSL_VERIFYHOST => $INSECURE ? 0 : 2,
+    CURLOPT_TIMEOUT        => 20,
+    CURLOPT_POST           => TRUE,
+    CURLOPT_POSTFIELDS     => http_build_query(array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6, 'teksil_csrf' => str_repeat('0', 28) . 'dead')),
+    CURLOPT_COOKIE         => 'teksil_sess=' . ($SES['bayi']['teksil_sess'] ?? '')
+                             . '; teksil_csrf_cookie=' . ($SES['bayi']['teksil_csrf_cookie'] ?? ''),
+));
+curl_exec($ch);
+$c403 = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$t403 = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+curl_close($ch);
+check('sepet-ekle-csrf-403-html', $c403 === 403 && strpos($t403, 'text/html') !== FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 

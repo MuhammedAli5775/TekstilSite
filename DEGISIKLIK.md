@@ -19,6 +19,37 @@
 
 ---
 
+## 2026-08-17 (XXII) — "Bağlantı hatası" düzeltmesi: sepet AJAX'ı yanıt-tipi farkında — 113/113
+
+**Belirti (kullanıcı):** sepete eklemede toast "Bağlantı hatası." (div.tk-toast.gor).
+
+**Teşhis (kanıtlı):** tarayıcı-taklidi uçtan uca akış sağlıklı — ürün sayfası →
+sayfaya gömülü `tkCsrf.hash` → POST `{"ok":true,"adet":6}` (200, JSON). Bayat/
+eskimiş CSRF anahtarında CI3 **403 + HTML** döner → `r.json()` parse'ı patlar →
+`.catch` → yanıltıcı toast. Tetikleyici büyük olasılıkla bayat sekme
+(`csrf_expire=7200` — çerez 2 saatte esker) veya açık sekme altında sunucunun
+yeniden başlaması (ölü sunucuya fetch → gerçek ağ hatası → aynı mesaj). Tek
+mesaj üç farklı arızayı birleştiriyordu.
+
+**Düzeltme (`teksil.js`):** `ajaxPost` gövdeyi okuyup JSON'a çevirir;
+çevrilemezse **tip'li hata** fırlatır (`tip:'csrf'` — 403, `'yanit'` — diğer).
+Sepet `catch`'i üç dal: (1) csrf → "Güvenlik anahtarı eskimiş — sayfa
+yenileniyor…" + 2 sn sonra `location.reload()` (istek denetleyiciye hiç
+varmadı, yan etki yok; taze hash'le kullanıcı tekrar tıklar); (2) yanit →
+"Sunucu beklenmeyen yanıt döndürdü. Sayfayı yenileyip tekrar deneyin.";
+(3) ağ hatası → "Bağlantı hatası."
+
+**Teslim:** `asset()` filemtime sürümlemesi yeni JS'i otomatik çeker (sayfa
+`teksil.js?v=1786952305` basıyor) — elle önbellek temizliği gerekmez.
+
+**Sözleşme kilidi:** regresyon +1 — `sepet-ekle-csrf-403-html` (geçerli çerez +
+bayat hash → 403 + text/html): JS'in 'csrf' dalı bu sunucu davranışına dayanır;
+ileri değişirse test düşer → JS ile birlikte güncellenir. **113/113 PASS**.
+
+**[!] Canlıya taşı:** `assets/magaza/js/teksil.js` + `tests/regresyon.php`.
+
+---
+
 ## 2026-08-17 (XXI) — CLAUDE.md yeniden yazıldı: oturum-başlangıç kısayolu
 
 Soğuk başlayan oturumlar ("nerede kaldıysan devam et") durumu her seferinde
