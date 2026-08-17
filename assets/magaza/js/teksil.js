@@ -208,7 +208,13 @@
                         sepet.disabled = false; sepet.textContent = 'Sepete Ekle';
                         if (hata && hata.tip === 'csrf') {
                             /* Bayat güvenlik anahtarı: istek denetleyiciye hiç varmadı —
-                               yenileme güvenli; taze hash'le kullanıcı tekrar tıklar. */
+                               yenileme güvenli; taze hash'le kullanıcı tekrar tıklar.
+                               Döngü-kilidi: otomatik yenileme sayfa ömründe bir kez. */
+                            if (sessionStorage.getItem('tkCsrfYenile')) {
+                                toast('Güvenlik anahtarı hâlâ eskimiş. Sayfayı elle yenileyin (F5) ve tekrar deneyin.');
+                                return;
+                            }
+                            sessionStorage.setItem('tkCsrfYenile', '1');
                             toast('Güvenlik anahtarı eskimiş — sayfa yenileniyor…');
                             setTimeout(function () { window.location.reload(); }, 2000);
                             return;

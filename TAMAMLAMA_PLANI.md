@@ -6,7 +6,7 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-17):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **113/113 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **114/114 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
 > (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli ertelenmişler
 > (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
@@ -113,8 +113,9 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
   **101/101 PASS** (2026-08-16 itibarıyla; X–XIV ile kullanıcı girişi/hesabı + favori +
   faturalarım testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
-  **113/113** (2026-08-17; XVIII +7: üç girişte oturum-ID dönüşü, misafir-sepet transfer/devri
-  + XX +1: eski-çerez sabitleme pruebası + XXII +1: CSRF-403 sözleşmesi).
+  **114/114** (2026-08-17; XVIII +7: üç girişte oturum-ID dönüşü, misafir-sepet transfer/devri
+  + XX +1: eski-çerez sabitleme pruebası + XXII +1: CSRF-403 sözleşmesi + XXIII +1: CSRF
+  çerezi SameSite=Lax).
   ~~**Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
   "admin onayı" vaat ediyor~~ **✓ çözüldü (VI, 08-14):** kayıt `durum=0` başlar, admin
   onayı zorunlu (regresyonda `bayi-kayit-db-onay-bekliyor` + `bayi-onaysiz-giris-red` PASS).

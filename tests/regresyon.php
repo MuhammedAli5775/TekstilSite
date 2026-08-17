@@ -210,6 +210,12 @@ $c403 = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $t403 = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 curl_close($ch);
 check('sepet-ekle-csrf-403-html', $c403 === 403 && strpos($t403, 'text/html') !== FALSE);
+
+// CSRF çerez politikası (XXIII): stok CI3 Strict basıyordu; oturum çereziyle
+// hizalı Lax olmalı (Strict bazı tarayıcı akışlarında hash/çerez senkronunu bozuyordu).
+list($c, $r) = get('guest', '/');
+preg_match('/^Set-Cookie:\s*teksil_csrf_cookie=[^\r\n]*/mi', $r, $cm);
+check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax') !== FALSE && stripos($cm[0], 'SameSite=Strict') === FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 
@@ -367,6 +373,9 @@ if (is_file($logFile)) {
         // Beklenen/önbilinen: kimliksiz ortamda graceful atlamalar + testin kendi 404'ü.
         if (strpos($l, 'Eposta:') !== FALSE || strpos($l, 'Sms') !== FALSE
             || strpos($l, 'Efatura:') !== FALSE || strpos($l, '404 Page Not Found') !== FALSE) { continue; }
+        // XXIII: csrf-403 sözleşme testinin kendi ret satırı — yalnız o URI'de
+        // atlanır; başka uçta gerçek CSRF kırılırsa denetim yine düşer.
+        if (strpos($l, 'CSRF reddi') !== FALSE && strpos($l, 'uri=/sepet/ekle') !== FALSE) { continue; }
         $yeni[] = $l;
     }
 }

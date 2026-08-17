@@ -19,6 +19,42 @@
 
 ---
 
+## 2026-08-17 (XXIII) — Sepet CSRF 403 kökü: stok CI3'ün SameSite=Strict çerezi → Lax + ret tanı günlüğü — 114/114
+
+**Belirti (kullanıcı, XXII sonrası):** sepete eklemede "Güvenlik anahtarı
+eskimiş — sayfa yenileniyor…" (403 sürüyordu).
+
+**Kök neden (kanıtlı):** stok CI3 `system/core/Security.php` CSRF çerezine
+**sabit SameSite=Strict** basar (dosya ilk commit'ten beri dokunulmamış — stok
+davranış; `cookie_samesite` hiçbir yapılandırmada yok). Oturum çerezi ise
+Lax. Strict'in çerez göndermeme kuralı bazı tarayıcı akışlarında (BFCache'li
+geri dönüş, çapraz-site bağlantıyla gelen ilk GET) sayfaya gömülü
+`tkCsrf.hash` ile kavanozdaki çerezi senkron dışı bırakabiliyor → tarayıcıda
+POST 403; curl repro üretemez (çerez öznitelik semantiği yok — XXII'deki
+multipart vb. testler hep geçer).
+
+**Düzeltme:**
+1. `application/core/MY_Security.php` (CI3 onaylı uygulama-katmanı uzantısı;
+   `system/` dosyasına DOKUNULMADI): `csrf_set_cookie()` SameSite=**Lax** —
+   oturum çereziyle hizalı; CSRF koruması değişmez (çapraz-site POST'a çerez
+   yine gitmez). `csrf_show_error()` ret anında tanı satırı düşer
+   (`CSRF reddi: cerez=… posted=… eslesme=… uri=… ua=…`) — kalıcı tanı aracı,
+   E3 izlemesine girer.
+2. `teksil.js`: otomatik yenileme döngü-kilidi (sessionStorage işareti; sayfa
+   ömründe bir kez — sürerse "elle F5" yönlendirmesi).
+
+**Doğrulama:** sayfa yanıtı `teksil_csrf_cookie … SameSite=Lax` (curl -D —
+MY_Security'nin yüklendiğinin kanıtı); mutlu yol multipart 200 JSON; bayat
+hash → 403 + günlükte tanı satırı görüldü; regresyon +1 `csrf-cerez-samesite-lax`
+→ **114/114** (log denetimine kasıtlı ret satırı DAR kapsamda eklendi: yalnız
+`CSRF reddi` + `uri=/sepet/ekle`; başka uçta gerçek kırılma yakalanmaya devam
+eder — ilk koşuda denetim bu satırı yakaladı, beklendiği gibi).
+
+**[!] Canlıya taşı:** `application/core/MY_Security.php`,
+`assets/magaza/js/teksil.js`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-17 (XXII) — "Bağlantı hatası" düzeltmesi: sepet AJAX'ı yanıt-tipi farkında — 113/113
 
 **Belirti (kullanıcı):** sepete eklemede toast "Bağlantı hatası." (div.tk-toast.gor).
