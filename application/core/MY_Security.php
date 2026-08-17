@@ -15,6 +15,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class MY_Security extends CI_Security
 {
+    /** csrf_verify $_POST[token]'ı unset ETMEDEN önce yakalanan değer —
+     *  stok csrf_verify reddetmeden hemen önce alanı siler; tanı satırı
+     *  silinmiş diziyi görüp "posted=YOK" yazardı (ölçüm hatası, XXIV). */
+    protected $_tan_posted = NULL;
+
+    /** Token'ı unset'ten önce yakalayıp stok doğrulamaya devreder. */
+    public function csrf_verify()
+    {
+        $name = $this->_csrf_token_name;
+        $this->_tan_posted = isset($_POST[$name]) ? (string) $_POST[$name] : NULL;
+        return parent::csrf_verify();
+    }
+
     /** CSRF çerezini oturum çereziyle hizalı biçimde basar (SameSite=Lax). */
     public function csrf_set_cookie()
     {
@@ -48,9 +61,14 @@ class MY_Security extends CI_Security
     {
         $name  = $this->_csrf_token_name;
         $cname = $this->_csrf_cookie_name;
+        $posted_var = $this->_tan_posted !== NULL;
+        $eslesme    = ($posted_var && isset($_COOKIE[$cname]) && hash_equals($this->_tan_posted, (string) $_COOKIE[$cname])) ? 'evet' : 'hayir';
         log_message('error', 'CSRF reddi: cerez=' . (isset($_COOKIE[$cname]) ? 'var' : 'YOK')
-            . ' posted=' . (isset($_POST[$name]) ? 'var' : 'YOK')
-            . ' eslesme=' . ((isset($_POST[$name], $_COOKIE[$cname]) && hash_equals((string) $_POST[$name], (string) $_COOKIE[$cname])) ? 'evet' : 'hayir')
+            . ' posted=' . ($posted_var ? 'var' : 'YOK')
+            . ' eslesme=' . $eslesme
+            . ' post_anahtar=' . implode(',', array_keys($_POST))
+            . ' icerik_tipi=' . ($_SERVER['CONTENT_TYPE'] ?? ($_SERVER['HTTP_CONTENT_TYPE'] ?? '-'))
+            . ' uzunluk=' . ($_SERVER['CONTENT_LENGTH'] ?? ($_SERVER['HTTP_CONTENT_LENGTH'] ?? '-'))
             . ' uri=' . ($_SERVER['REQUEST_URI'] ?? '-')
             . ' ua=' . substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? '-'), 0, 80));
 

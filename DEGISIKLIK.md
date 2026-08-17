@@ -19,6 +19,40 @@
 
 ---
 
+## 2026-08-17 (XXIV) — Sepet CSRF takibi: ölçüm hatası bulundu (CI3 $_POST'tan token'ı siler) + AJAX gövdesi urlencoded + çerez-yedekli token — 114/114
+
+**Belirti (kullanıcı, XXIII sonrası):** "Güvenlik anahtarı hâlâ eskimiş. Sayfayı
+elle yenileyin…" — otomatik yenileme sonrası da 403 sürüyordu.
+
+**Ölçüm hatası (kritik ders):** XXIII'ün tanı satırlarında `posted=YOK` hep
+çıkıyordu — stok CI3 `csrf_verify()` reddetmeden HEMEN ÖNCE `$_POST[token]`'ı
+unset ediyor; `csrf_show_error()` artık silinmiş diziyi görüyordu. Kanıt:
+curl'la token'ı AÇIKÇA gövdeye koyup attım — log yine `posted=YOK
+post_anahtar=urun_id,varyant_id,adet` (teksil_csrf anahtarı yok). Yani
+tarayıcı loglarındaki `posted=YOK` hiçbir şey kanıtlamıyordu.
+
+**Düzeltmeler:**
+1. `MY_Security::csrf_verify()` — token'ı unset'ten ÖNCE yakalar (`_tan_posted`);
+   `csrf_show_error()` artık anlamlı `posted=`/`eslesme=` basar (kanıtlandı: bozuk
+   hash atınca `posted=var eslesme=hayir`) + `post_anahtar=`/`icerik_tipi=`/
+   `uzunluk=` (gövde hiç parse edilmedi mi, hangi biçimde geldi mi — kesin ayırt).
+2. `teksil.js ajaxPost` — gövde URLSearchParams: `application/x-www-form-urlencoded`
+   (FormData multipart basıyordu; tarayıcı multipart'ının php -S altında $_POST'a
+   boş düşmesi ihtimali tamamen ortadan kalkar — kanıtlı çalışan tüm istekler
+   urlencoded'dı). Token kaynağı çift kol: sayfaya gömülü `tkCsrf`, yoksa
+   `document.cookie`'den `teksil_csrf_cookie` (HttpOnly değil — double-submit
+   modeli zaten bu). Tek çağrı sepet — dosya yükleme yok; gelirse multipart
+   yeniden değerlendirilir.
+
+**Doğrulama:** lint ×2 temiz; mutlu yol urlencoded 200 JSON; bozuk hash → 403 +
+`posted=var eslesme=hayir icerik_tipi=application/x-www-form-urlencoded
+uzunluk=74`; tam regresyon **114/114**.
+
+**[!] Canlıya taşı:** `application/core/MY_Security.php`,
+`assets/magaza/js/teksil.js`.
+
+---
+
 ## 2026-08-17 (XXIII) — Sepet CSRF 403 kökü: stok CI3'ün SameSite=Strict çerezi → Lax + ret tanı günlüğü — 114/114
 
 **Belirti (kullanıcı, XXII sonrası):** sepete eklemede "Güvenlik anahtarı

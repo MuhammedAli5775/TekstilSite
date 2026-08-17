@@ -22,18 +22,31 @@
         if (el) { el.textContent = n; el.style.display = n > 0 ? '' : 'none'; }
     };
 
-    /* AJAX POST yardımcı (CSRF + FormData).
+    /* AJAX POST yardımcı (CSRF + urlencoded gövde).
+       Gövde URLSearchParams ile application/x-www-form-urlencoded gider —
+       tarayıcının FormData'sı multipart basar ve php -S altında $_POST'a
+       boş düşebiliyordu (XXIV: tarayıcıda posted=YOK; curl multipart testi
+       yanıltıcıydı). Token kaynağı: sayfaya gömülü tkCsrf, yoksa (bir sebeple
+       eksikse) çerezden okunur — çerez HttpOnly değil, model double-submit.
        Yanıt JSON değilse (CSRF 403 sayfası, hata HTML'i…) tip'li hata fırlatır —
-       ağ hatasıyla karışmasın; "Bağlantı hatası" yanlış etiketti (XXII). */
+       ağ hatasıyla karışmasın (XXII). Not: dosya yükleyen çağrı gelirse
+       multipart yeniden düşünülmeli (tek çağrı sepet — dosya yok). */
     function ajaxPost(url, fd) {
-        if (window.tkCsrf && fd && typeof fd.append === 'function') {
-            fd.append(window.tkCsrf.name, window.tkCsrf.hash);
+        var govde = new URLSearchParams();
+        if (fd && typeof fd.forEach === 'function') {
+            fd.forEach(function (v, k) { govde.append(k, v); });
         }
-        return fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
+        var tk = window.tkCsrf;
+        if (! tk || ! tk.hash) {
+            var m = document.cookie.match(/(?:^|;\s*)teksil_csrf_cookie=([^;]+)/);
+            tk = { name: 'teksil_csrf', hash: m ? decodeURIComponent(m[1]) : '' };
+        }
+        if (tk && tk.hash) { govde.append(tk.name, tk.hash); }
+        return fetch(url, { method: 'POST', body: govde, credentials: 'same-origin' })
             .then(function (r) {
-                return r.text().then(function (govde) {
+                return r.text().then(function (txt) {
                     var veri = null;
-                    try { veri = JSON.parse(govde); } catch (e) {}
+                    try { veri = JSON.parse(txt); } catch (e) {}
                     if (veri) { return veri; }
                     var hata = new Error('yanit');
                     hata.tip = r.status === 403 ? 'csrf' : 'yanit';
