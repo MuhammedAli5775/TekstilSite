@@ -3,6 +3,7 @@
  * tests/regresyon.php — TekstilSite uçtan uca regresyon paketi (C7).
  *
  * Kapsam: yayın sayfaları, hukuki sayfalar, SEO, bayi kayıt→giriş→sepet→sipariş,
+ * kullanıcı (B2C) kayıt→giriş→hesabım + oturum-ID dönüşü/misafir-sepet sürekliliği,
  * admin panel smoke + sipariş durum + e-fatura (bekliyor), yetki matrisi (rol-2),
  * feed anahtar doğrulama + IP rate-limit, graceful hata-log denetimi, temizlik.
  *
