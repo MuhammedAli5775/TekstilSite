@@ -123,12 +123,19 @@ class Siparis_model extends CI_Model
                 'ara_toplam'    => $ara_satir,
             ));
 
-            // Stok varyant düzeyinde tutulur → düş + hareket yaz.
+            // Stok varyant düzeyinde tutulur → KOŞULLU düşüm (yarış güvenliği, XXVI):
+            // stok yeterli değilse satır etkilenmez → işlem geri alınır, sipariş oluşmaz.
             if (! empty($r->varyant_id)) {
                 $v = $this->db->select('stok')->where('id', (int) $r->varyant_id)->limit(1)->get('urun_varyantlari')->row();
                 $onceki = $v ? (int) $v->stok : 0;
-                $this->db->where('id', (int) $r->varyant_id)
-                         ->update('urun_varyantlari', array('stok' => $onceki - (int) $r->adet));
+                $this->db->set('stok', 'stok - ' . (int) $r->adet, FALSE)   // adet (int) cast — enjeksiyon yüzeyi yok
+                         ->where('id', (int) $r->varyant_id)
+                         ->where('stok >=', (int) $r->adet)
+                         ->update('urun_varyantlari');
+                if ($this->db->affected_rows() === 0) {
+                    $this->db->trans_rollback();
+                    return array('ok' => FALSE, 'mesaj' => 'Yetersiz stok: ' . ($r->ad ?? '') . ' (mevcut ' . $onceki . ' adet).');
+                }
                 $this->db->insert('stok_hareketleri', array(
                     'urun_id'     => ! empty($r->urun_id) ? (int) $r->urun_id : NULL,
                     'varyant_id'  => (int) $r->varyant_id,

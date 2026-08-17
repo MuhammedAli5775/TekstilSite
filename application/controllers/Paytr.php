@@ -40,7 +40,9 @@ class Paytr extends Magaza_Controller
     {
         $id = (int) $id;
         $s = $this->siparis_model->mg_getir($id);
-        if (! $s) { redirect(''); }
+        // Sahiplik ŞART (XXVI): IDsiz sahiplik atlanırsa sıralı id ile herkes
+        // sipariş görür + kendi son_siparis_id'sini atayıp ödeme sayfasına erişir.
+        if (! $s || ! $this->_sahip($s)) { redirect(''); }
 
         $this->session->set_userdata('son_siparis_id', $id);
         $this->v['meta_title']     = 'Ödeme Alındı — ' . ayar('site_adi', 'TekstilSite');
@@ -51,6 +53,7 @@ class Paytr extends Magaza_Controller
     public function basarisiz($id = NULL)
     {
         $s = $this->siparis_model->mg_getir((int) $id);
+        if (! $s || ! $this->_sahip($s)) { redirect(''); }   // sahiplik ŞART (XXVI)
         $this->v['meta_title']     = 'Ödeme Başarısız — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/odeme/paytr_basarisiz', array('s' => $s));

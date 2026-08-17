@@ -232,6 +232,10 @@ $siparisNo = q1("SELECT siparis_no FROM siparisler WHERE id=$siparisId");
 check('sepet-bosaldi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId") === 0);
 list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 200);
 
+// PayTR sonuç sayfaları sahiplik ister (XXVI): sahibi görür, yabancı redirect'e düşer
+list($c, ) = get('bayi', "/paytr/basarili/$siparisId");  check('paytr-basarili-sahibine-200', $c === 200);
+list($c, ) = get('guest', "/paytr/basarili/$siparisId"); check('paytr-basarili-yabanci-red', is_redir($c));
+
 /* ---- C) admin smoke + sipariş/fatura -------------------------------------- */
 $sessOnce = $SES['admin']['teksil_sess'] ?? '';
 list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@teksilsite.test', 'sifre' => 'Tekstil2026!'));

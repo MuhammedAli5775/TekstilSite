@@ -37,6 +37,18 @@ class Paytr_bildirim extends CI_Controller
             return;
         }
 
+        // Tutar çapraz kontrolü (XXVI): hash yalnız PayTR'un gönderdiğine dair
+        // kanıttır; ödenen tutarın siparişe eşleşmesi ayrıca doğulanır — get_token
+        // payment_amount = toplam*kur (kuruş) gönderir, callback TL döndürür.
+        $odenelen_kurus = (int) round((float) ($post['total_amount'] ?? 0) * 100);
+        $beklenen_kurus = (int) round((float) $s->toplam * (float) $s->kur * 100);
+        if ($odenelen_kurus !== $beklenen_kurus) {
+            log_message('error', 'PayTR bildirim: TUTAR UYUŞMAZLIĞI (oid=' . $oid
+                . ', beklenen=' . $beklenen_kurus . ' kuruş, ödenen=' . $odenelen_kurus . ' kuruş) — ödendi işaretlenmedi.');
+            echo 'tutar uyusmazligi';
+            return;
+        }
+
         if (($post['status'] ?? '') === 'success') {
             // Idempotent: zaten ödendiyse tekrar işleme
             if ($s->odeme_durumu !== 'odendi') {

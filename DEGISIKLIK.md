@@ -19,6 +19,46 @@
 
 ---
 
+## 2026-08-17 (XXVI) — Kapsamlı güvenlik/bug denetimi: 3 bulgu kapatıldı (PayTR sahiplik + callback tutar çaprazı + stok yarış güvenliği) — 120/120
+
+**Kapsam (kullanıcı isteği "iyice kontrol et"):** klasik taramalar (eval/exec/
+unserialize, sabit kodlu anahtar, debug artığı — temiz; CSRF muafiyeti yalnız
+`paytr/bildirim`), para yolu derin inceleme (sipariş tutarı, ödeme callback'i,
+kupon, stok), iki paralel tarama ajanı (view XSS/çıkış + yönetim IDOR/yetki).
+
+**Doğrulanan temiz noktalar:** sipariş tutarları TAMAMEN sunucu tarafında
+(Sepet_model::liste DB fiyatı + basamak/bayi indirimi hesaplar — istemciden
+fiyat gelmiyor); PayTR callback hash formülü resmî spec ile birebir
+(HMAC-SHA256 + hash_equals); kupon doğrulaması eksiksiz (pencere/limit/
+min-sepet/tavan + "indirim ara toplamı aşamaz" — negatif toplam imkânsız);
+sepet ekleme/güncelleme stok denetimli.
+
+**Bulgu 1 (orta) — Paytr basarili/basarisiz sahipliksiz:** `basarili($id)`
+herhangi bir sıralı id'li siparişi sahiplik kontrolüsüz render ediyordu VE
+session `son_siparis_id`'yi kendisi atıyordu → yabancı, `ode()`'nin `_sahip`
+ikinci dalından geçip başkasının siparişinin ödeme sayfasına erişebiliyordu.
+Çözüm: iki uç nokta da `_sahip()` ister (meşru akış bozulmaz — checkout
+`son_siparis_id` yazar, bayi `bayi_id` ile geçer).
+
+**Bulgu 2 (sertleştirme) — callback tutar çapraz kontrolü:** hash yalnız
+PayTR'un gönderdiğine kanıttı; ödenen tutar siparişle karşılaşılmıyordu.
+Artık `total_amount` (TL→kuruş) ≠ `toplam*kur` (kuruş) ise `tutar uyusmazligi`
++ ERROR günlüğü; ödendi işaretlenmez (PayTR tekrar dener, panelde görünür).
+
+**Bulgu 3 (yarış güvenliği) — koşulsuz stok düşümü:** `mg_olustur` stoku
+`önceki - adet` ile koşulsuz düşüyordu → eşzamanlı checkout'ta negatif stok/
+aşırı satış. Artık `SET stok = stok - adet WHERE id = ? AND stok >= adet`
+koşullu düşüm; satır etkilenmezse trans_rollback + "Yetersiz stok" (Odeme
+akışı !ok'u zaten karşılıyor; ifade int-cast'li — enjeksiyon yüzeyi yok).
+
+**Doğrulama:** lint ×4 temiz; regresyon +2 (`paytr-basarili-sahibine-200`,
+`paytr-basarili-yabanci-red` [yabancı redirect'e düşer]) → **120/120**.
+
+**[!] Canlıya taşı:** `Paytr.php`, `Paytr_bildirim.php`, `Siparis_model.php`,
+`tests/regresyon.php`.
+
+---
+
 ## 2026-08-17 (XXV) — Kullanıcı siparişi hesabına işleniyor (checkout e-posta atıflaması) + yönetimde misafir satırına e-posta — 118/118
 
 **Belirti (kullanıcı):** hesabim/siparisler'de siparişi görünmüyor; yönetim
