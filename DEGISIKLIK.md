@@ -13,8 +13,25 @@
 >
 > Bu günlük **2026-08-08'de açıldı**. Öncesindeki Faz 0–4 kurulum işleri
 > `workflow.md` yol haritasında ve kod tabanında kendini gösterir; burada ayrıca
-> kayıtlı değildir. CLAUDE.md bu projeye ait değildir (eski Nesem referansıdır) —
-> gerçek rehber `workflow.md` + bu dosyadır.
+> kayıtlı değildir. Gerçek rehber `workflow.md` + bu dosyadır; `CLAUDE.md`
+> 2026-08-17'de oturum-başlangıç kısayolu olarak yeniden yazıldı (otorite değil,
+> bu dosyalara işaretçi — XXI).
+
+---
+
+## 2026-08-17 (XXI) — CLAUDE.md yeniden yazıldı: oturum-başlangıç kısayolu
+
+Soğuk başlayan oturumlar ("nerede kaldıysan devam et") durumu her seferinde
+yeniden türetiyordu. CLAUDE.md oturum başına otomatik yüklendiğinden işaretçi +
+komut kopya kağıdı olarak yeniden yazıldı (eski hali silinmiş bir Nesem
+referansıydı): otorite dosyaları (workflow / DEGISIKLIK / TAMAMLAMA_PLANI /
+DEPLOY), kaldığın-yerden-devam adımları, XAMPP komutları, bir-kez-öğrenilen
+dersler (yetim php.exe, perf-indeks-yalnız-migrasyonda, §3 sırası, CI_ENV
+zinciri), tarihli durum özeti. **Otorite değil** — içerik bu dosyalardan
+türetilmiş kısayoldur.
+
+**Davranış değişikliği YOK** — yeni dosya + bu günlüğün başlığındaki eski
+"CLAUDE.md bu projeye ait değildir" notu güncellendi. Kod/DB etkisiz.
 
 ---
 
