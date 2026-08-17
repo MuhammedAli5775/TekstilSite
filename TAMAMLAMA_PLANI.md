@@ -6,7 +6,7 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-17):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **111/111 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **112/112 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
 > (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli ertelenmişler
 > (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
@@ -113,7 +113,8 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   (yayın+bayi akışı+admin smoke+yetki matrisi+feed+rate-limit+log denetimi+temizlik):
   **101/101 PASS** (2026-08-16 itibarıyla; X–XIV ile kullanıcı girişi/hesabı + favori +
   faturalarım testleri eklendi). Canlı koşusu lansman günü: `php tests/regresyon.php https://alanadi --force`.
-  **111/111** (2026-08-17; XVIII +7: üç girişte oturum-ID dönüşü, misafir-sepet transfer/devri).
+  **112/112** (2026-08-17; XVIII +7: üç girişte oturum-ID dönüşü, misafir-sepet transfer/devri
+  + XX +1: eski-çerez sabitleme pruebası).
   ~~**Açık bulgu (İş kararı):** bayi kaydı otomatik onaylı (durum=1) ama belgeler
   "admin onayı" vaat ediyor~~ **✓ çözüldü (VI, 08-14):** kayıt `durum=0` başlar, admin
   onayı zorunlu (regresyonda `bayi-kayit-db-onay-bekliyor` + `bayi-onaysiz-giris-red` PASS).
@@ -148,7 +149,7 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
   **✓ 2026-08-17 (tazeleme):** E1'den sonra yazılan kullanıcı-hesabı koduna (X–XVII)
   aynı liste uygulandı — tek bulgu **oturum sabitleme** (hiçbir giriş ID döndürmüyordu);
   `sess_regenerate()` tüm giriş/çıkış/şifre noktalarına + B2C sepet anahtar sürekliliği
-  (`oturum_tasi` / transfer `eski_sid`). Regresyon 111/111. Ayrıntı: DEGISIKLIK.md XVIII.
+  (`oturum_tasi` / transfer `eski_sid`). Regresyon 112/112. Ayrıntı: DEGISIKLIK.md XVIII.
 - **E2. Performans:** 89 index mevcut; ana sorgulara `EXPLAIN`; opcache açık. — S/M
   **✓ 2026-08-14:** EXPLAIN 3 boşluk buldu → `migrate_perf_index.sql` (urunler(durum,
   olusturma_zaman), urunler(durum, fiyat), siparisler(olusturma_zaman)) uygulandı; filesort

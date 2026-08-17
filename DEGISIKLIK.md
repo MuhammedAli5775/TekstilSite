@@ -18,6 +18,25 @@
 
 ---
 
+## 2026-08-17 (XX) — Sabitleme özelliği testi (eski çerez → misafir) — 112/112
+
+XVIII'in rotasyon testleri mekânizmayı (çerez dönüyor) kilitliyordu; bu ek
+**güvenlik özelliğini** kilitler: bayi girişinden sonra ESKİ `teksil_sess`
+çereziyle gelen istek `/hesabim`'a misafir olarak düşer (30x → login) —
+kimliklendirme verisi yalnız yeni oturum ID'sine yazılır, eski dosyada kalmaz.
+Ham curl bloğu hh()'den bağımsız tek çerezle atar (SSL bayrakları $INSECURE
+ile hizalı — yerel prod provasında da koşar).
+
+Aynı gün kayıp kayıt: `ff3085d` — regresyon.php kapsam başlığına kullanıcı
+(B2C) akışları + oturum dönüşü eklendi (paketin X–XVIII'den beri kapsadığının
+özeti; davranış değişikliği yok).
+
+**Doğrulama:** tam regresyon **112/112** (yeni: bayi-eski-oturum-giris-degil).
+
+**[!] Canlıya taşı:** `tests/regresyon.php` (C7 lansman-günü koşusu).
+
+---
+
 ## 2026-08-17 (XIX) — E2 tazeleme: siparisler.email indeksi + sıfır-DB provası tekrarı — 111/111
 
 **Gerekçe:** E2'nin EXPLAIN denetimi (08-14) de kullanıcı-hesabı kodundan önceydi;

@@ -162,6 +162,23 @@ check('bayi-giris-redirect', is_redir($c));
 check('bayi-giris-oturum-doner', ($SES['bayi']['teksil_sess'] ?? '') !== $sessOnce);
 check('bayi-giris-sepet-transferi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1 AND oturum_id IS NULL") === 1);
 q("DELETE FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1"); // ana akış taze başlasın
+
+// Sabitleme (fixation) özelliği: ESKİ çerezle gelen artık giriş yapmamıştır —
+// yetki verisi yalnız yeni oturum ID'sine yazıldı; eski dosya misafir kalır.
+$ch = curl_init($BASE . '/hesabim');
+curl_setopt_array($ch, array(
+    CURLOPT_RETURNTRANSFER => TRUE,
+    CURLOPT_HEADER         => TRUE,
+    CURLOPT_FOLLOWLOCATION => FALSE,
+    CURLOPT_SSL_VERIFYPEER => ! $INSECURE,
+    CURLOPT_SSL_VERIFYHOST => $INSECURE ? 0 : 2,
+    CURLOPT_TIMEOUT        => 20,
+    CURLOPT_COOKIE         => 'teksil_sess=' . $sessOnce,
+));
+curl_exec($ch);
+$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+check('bayi-eski-oturum-giris-degil', is_redir($code));
 list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);
 // Bayi bilgilerim (çift-modlu düzenlemeden sonra bayi yolu sabit kalmalı)
 list($c, $r) = get('bayi', '/hesabim/bilgiler');
