@@ -231,6 +231,7 @@ class Hesap extends Magaza_Controller
             }
             $this->kullanici_model->sifre_guncelle($k->id, $this->input->post('yeni'));
         }
+        $this->_oturum_dondur(); // şifre değişti — oturum ID'si de dönsün
         $this->session->set_flashdata('bilgi', 'Şifreniz güncellendi.');
         redirect('hesabim');
     }

@@ -94,9 +94,8 @@ class Bayi extends Magaza_Controller
         }
 
         $this->session->unset_userdata(array('bayi_deneme', 'bayi_kilit'));
-        $this->bayi_giris_yap($b);
+        $this->bayi_giris_yap($b);   // oturum döner + misafir sepeti transferi içeride
         $this->bayi_model->son_giris_isaretle($b->id);
-        $this->sepet_model->transfer_to_bayi($b->id);
 
         $donus = $this->_guvenli_donus($this->input->post('donus'));
         redirect($donus ?: 'hesabim');

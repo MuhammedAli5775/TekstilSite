@@ -63,13 +63,20 @@ class Magaza_Controller extends MY_Controller
 
     public function bayi_giris_yap($bayi)
     {
+        // Oturum sabitleme (fixation) koruması: yetki değişince ID döner.
+        // Misafir sepeti eski anahtarda — transfer eski ID ile yapılır.
+        $eski_sid = $this->session->session_id ?: session_id();
+        $this->session->sess_regenerate();
         $this->session->set_userdata('bayi_id', (int) $bayi->id);
         $this->bayi_cache = $bayi;
+        $this->load->model('sepet_model');
+        $this->sepet_model->transfer_to_bayi($bayi->id, $eski_sid);
     }
 
     public function bayi_cikis()
     {
         $this->session->unset_userdata('bayi_id');
+        $this->session->sess_regenerate();
         $this->bayi_cache = FALSE;
     }
 
@@ -98,6 +105,7 @@ class Magaza_Controller extends MY_Controller
 
     public function kullanici_giris_yap($kullanici)
     {
+        $this->_oturum_dondur();   // fixation koruması + misafir sepetini yeni anahtara taşı
         $this->session->set_userdata('kullanici_id', (int) $kullanici->id);
         $this->kullanici_cache = $kullanici;
     }
@@ -105,7 +113,20 @@ class Magaza_Controller extends MY_Controller
     public function kullanici_cikis()
     {
         $this->session->unset_userdata('kullanici_id');
+        $this->_oturum_dondur();
         $this->kullanici_cache = FALSE;
+    }
+
+    /**
+     * Oturum ID'sini döndürür (fixation koruması) ve bayiye ait olmayan (misafir)
+     * sepet satırlarını yeni anahtara taşır — B2C sepet anahtarı oturum_id'dir.
+     */
+    protected function _oturum_dondur()
+    {
+        $eski = $this->session->session_id ?: session_id();
+        $this->session->sess_regenerate();
+        $this->load->model('sepet_model');
+        $this->sepet_model->oturum_tasi($eski, $this->session->session_id ?: session_id());
     }
 
     /** Mağaza çapında ortak veriyi hazırlar (menü, başlık, sepet sayısı, bayi, durum). */

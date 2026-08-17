@@ -17,13 +17,24 @@ class Sepet_model extends CI_Model
         return array('bayi_id' => NULL, 'oturum_id' => $sid);
     }
 
-    /** Giriş anında: misafir (oturum) sepetini bayi hesabına taşır. */
-    public function transfer_to_bayi($bayi_id)
+    /** Giriş anında: misafir (oturum) sepetini bayi hesabına taşır.
+     *  $eski_sid: giriş oturum ID'sini döndürdüyse (fixation koruması) döndürülmeden
+     *  ÖNCEKİ değer — satırlar o anahtarda durur. */
+    public function transfer_to_bayi($bayi_id, $eski_sid = NULL)
     {
-        $sid = $this->session->session_id ?: session_id();
+        $sid = $eski_sid ?: ($this->session->session_id ?: session_id());
         $this->db->where('oturum_id', $sid)
                  ->where('bayi_id IS NULL', NULL, FALSE)
                  ->update('sepet', array('bayi_id' => (int) $bayi_id, 'oturum_id' => NULL));
+    }
+
+    /** Oturum ID'si döndüğünde (kullanıcı girişi/çıkışı) misafir sepetini yeni anahtara taşır. */
+    public function oturum_tasi($eski_sid, $yeni_sid)
+    {
+        if (! $this->db->table_exists('sepet')) { return; }
+        $this->db->where('oturum_id', $eski_sid)
+                 ->where('bayi_id IS NULL', NULL, FALSE)
+                 ->update('sepet', array('oturum_id' => $yeni_sid));
     }
 
     /** Sepetteki toplam adet (header rozeti). */

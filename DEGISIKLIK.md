@@ -18,6 +18,51 @@
 
 ---
 
+## 2026-08-17 (XVIII) — E1 taraması sonrası-koda uygulandı + oturum sabitleme (fixation) koruması — 111/111 PASS
+
+**Gerekçe:** E1 güvenlik review'u 08-14'te yapıldı; kullanıcı-hesabı dönemi
+kodu (X–XVII: kullanıcı girişi, hesabım, favoriler, faturalarım, kullanıcı adı)
+ondan SONRA yazıldı. Aynı kontrol listesi yeni koda uygulandı.
+
+**Tarama sonucu (temiz):** SQLi — `where(...,NULL,FALSE)` taraması 27 ham ifade,
+tümü sabit SQL parçası (`deleted_at IS NULL` vb.), kullanıcı girdisi birleşeni
+yok. XSS — yeni view'lardaki `<?=` çıktıları tamamen e()/helper/(int) cast
+(`$moq`/`$adim` view başında int'e bağlanmış); `tkBase` json_encode'lu; `pdVeri`
+JSON_HEX_TAG yerinde. IDOR — hesabım sahipliği bayi_id/e-posta anahtarlı sorgu
+izolasyonu (regresyonda kanıtlı). Brute-force kilidi üç girişte de var
+(oturum-sayaçlı, 5 deneme → 15 dk). Açık yönlendirme: `donus`
+(_guvenli_donus) + favori `ref_ic()` aynı-site referer kontrolü. Prod
+config'te `cookie_secure=TRUE` (dev FALSE bilinçli).
+
+**Bulgu — oturum sabitleme:** hiçbir giriş oturum ID'sini döndürmüyordu; CI3
+yalnız `sess_time_to_update=300` ile periyodik döndürür. Yetki değişiminde
+(misafir→girişli) ID sabit kalıyorsa sabitleme saldırısına açık.
+
+**Düzeltme:** `sess_regenerate()` yetki-değişim noktalarına — `bayi_giris_yap()`
+(MY_Controller; sepet transferi çağrısı da içeri alındı), yeni `_oturum_dondur()`
+yardımcısı (`kullanici_giris_yap`/`kullanici_cikis`/`Hesap::sifre_kaydet`),
+`Auth_admin::giris_yap()`/`cikis()`.
+
+**Sepet sürekliliği (dönüşün kritik yan-etkisi):** B2C sepet anahtarı
+`oturum_id` (= session_id) — ID dönünce misafir sepeti yetim kalırdı.
+(a) Kullanıcı girişi/çıkışı: `Sepet_model::oturum_tasi(eski, yeni)` satırları
+yeni anahtara taşır. (b) Bayi girişi: `transfer_to_bayi($bayi_id, $eski_sid)` —
+dönüşten ÖNCEKİ anahtar açıkça verilir; çağrı `Bayi.php`'den yardımcının içine
+taşındı (sıra hatası imkânsızlaştı).
+
+**Doğrulama:** `php -l` ×6 temiz; tam regresyon **111/111 PASS** (+7:
+bayi-misafir-sepet-ekle, bayi-giris-oturum-doner [teksil_sess çerezi dönüşüyor],
+bayi-giris-sepet-transferi, admin-giris-oturum-doner, kullanici-misafir-sepet-ekle,
+kullanici-giris-oturum-doner, kullanici-giris-sepet-devredi); temizliğe
+kullanıcı-havuzu sepet satırı silme eklendi. Oturum verisi dönüşümde korunuyor
+(hesabim-200, flash mesajları; csrf_regenerate=FALSE olduğundan CSRF etkilenmiyor).
+
+**[!] Canlıya taşı:** `MY_Controller.php`, `Bayi.php`, `Hesap.php`,
+`Auth_admin.php`, `Sepet_model.php` + `tests/regresyon.php` (lansman-günü C7
+koşusu için) — DB değişikliği YOK.
+
+---
+
 ## 2026-08-16 (XVII) — Kullanıcı adı alanı + boş arama kilidi + arama-buyuk kaldırıldı + sepet AJAX kökü (tkBase) — 104/104 PASS
 
 **Kullanıcı isteği (4 madde):**

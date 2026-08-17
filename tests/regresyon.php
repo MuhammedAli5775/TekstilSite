@@ -152,8 +152,15 @@ check('bayi-onaysiz-hesabim-kapali', is_redir($c));
 // Admin onayi (Bayiler paneli durum toggle'inin DB etkisi; panel HTTP akisi
 // onceki oturumlarda testli).
 q("UPDATE bayiler SET durum=1 WHERE id=$bayiId");
+// Misafir sepeti: giriş öncesi oturum-anahtarlı satır (rotasyon + transfer provası)
+list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6));
+check('bayi-misafir-sepet-ekle', $c === 200 && strpos($r, '"ok":true') !== FALSE);
+$sessOnce = $SES['bayi']['teksil_sess'] ?? '';
 list($c, ) = post('bayi', '/bayi/giris_yap', array('email' => $E, 'sifre' => 'Reg2026x'));
 check('bayi-giris-redirect', is_redir($c));
+check('bayi-giris-oturum-doner', ($SES['bayi']['teksil_sess'] ?? '') !== $sessOnce);
+check('bayi-giris-sepet-transferi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1 AND oturum_id IS NULL") === 1);
+q("DELETE FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1"); // ana akış taze başlasın
 list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);
 // Bayi bilgilerim (çift-modlu düzenlemeden sonra bayi yolu sabit kalmalı)
 list($c, $r) = get('bayi', '/hesabim/bilgiler');
@@ -180,8 +187,10 @@ check('sepet-bosaldi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiI
 list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 200);
 
 /* ---- C) admin smoke + sipariş/fatura -------------------------------------- */
+$sessOnce = $SES['admin']['teksil_sess'] ?? '';
 list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@teksilsite.test', 'sifre' => 'Tekstil2026!'));
 check('admin-giris-redirect', is_redir($c));
+check('admin-giris-oturum-doner', ($SES['admin']['teksil_sess'] ?? '') !== $sessOnce);
 foreach (array('dashboard','urunler','kategoriler','markalar','siparisler','bayiler','stok',
                'kuponlar','bannerlar','sayfalar','faturalar','raporlar','feed','ayarlar','yetkiler','pazaryeri') as $m) {
     list($c, ) = get('admin', "/yonetim/$m");
@@ -234,8 +243,14 @@ list($c, ) = post('guest', '/kullanici/kayit_kaydet', array(
 check('kullanici-adi-alinmis', $c === 200 && (int) q1("SELECT COUNT(*) FROM kullanicilar WHERE kullanici_adi='" . esc("regkul$T") . "'") === 1);
 list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'yanlis'));
 check('kullanici-yanlis-sifre-reddi', is_redir($c));
+// Misafir sepeti (oturum-anahtarlı) — giriş rotasyonundan sonra yeni anahtara taşınmalı
+list($c, $r) = post('kullanici', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6));
+check('kullanici-misafir-sepet-ekle', $c === 200 && strpos($r, '"ok":true') !== FALSE);
+$sessOnce = $SES['kullanici']['teksil_sess'] ?? '';
 list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026x'));
 check('kullanici-giris-redirect', is_redir($c));
+check('kullanici-giris-oturum-doner', ($SES['kullanici']['teksil_sess'] ?? '') !== $sessOnce);
+check('kullanici-giris-sepet-devredi', (int) q1("SELECT COUNT(*) FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "' AND bayi_id IS NULL AND urun_id=1 AND varyant_id=1") === 1);
 list($c, $r) = get('kullanici', '/hesabim');
 check('kullanici-hesabim-200', $c === 200 && strpos($r, 'Reg Kullanici') !== FALSE);
 check('kullanici-navbar-cikis', strpos($r, 'kullanici/cikis') !== FALSE);
@@ -323,6 +338,7 @@ q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
 q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");
 q("DELETE FROM siparisler WHERE id=$siparisId");
 q("DELETE FROM sepet WHERE bayi_id=$bayiId");
+q("DELETE FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "'");
 q("DELETE FROM bayiler WHERE id=$bayiId");
 q("DELETE FROM yoneticiler WHERE email='reg2$T@test.local'");
 q("DELETE FROM kullanicilar WHERE email='" . esc($EK) . "'");

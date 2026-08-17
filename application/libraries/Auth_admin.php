@@ -38,6 +38,7 @@ class Auth_admin
             return array('ok' => FALSE, 'mesaj' => 'Hesabınız pasif. Yöneticinize başvurun.');
         }
 
+        $this->CI->session->sess_regenerate(); // oturum sabitleme koruması: yetki değişince ID döner
         $this->CI->session->set_userdata(array('yonetici_id' => (int) $y->id, 'rol_id' => (int) $y->rol_id));
         $this->CI->session->unset_userdata(array('adm_deneme', 'adm_kilit'));
         $this->CI->yonetici_model->son_giris($y->id);
@@ -49,6 +50,7 @@ class Auth_admin
     {
         $this->audit('auth', 'cikis');
         $this->CI->session->unset_userdata(array('yonetici_id', 'rol_id'));
+        $this->CI->session->sess_regenerate();
     }
 
     public function logged_in()
