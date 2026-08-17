@@ -19,6 +19,46 @@
 
 ---
 
+## 2026-08-17 (XXIX) — Mağaza çoklu dil seçici: TR varsayılan, EN/RU/AR (kabuk çevirisi + RTL) — 128/128
+
+**İstek (kullanıcı):** utility bar'da "Sipariş Takibi"nin yanına dil seçici;
+EN/RU/AR; varsayılan daima TR.
+
+**Altyapı:**
+- `application/helpers/dil_helper.php`: `aktif_dil()` (oturum → çerez → 'tr';
+  kod beyaz listeli) + `t($anahtar, $trFallback, …sprintf)`. Önce TR dosyası
+  yüklenir, aktif dil üstüne yazar → **çevrilmemiş anahtar Türkçe kalır**;
+  görünüm katmanı artımlı çevrilir, sayfa asla çevirisiz/boş kalmaz.
+- `application/language/{turkish,english,russian,arabic}/teksil_lang.php` —
+  kabuk dizgileri (~26 anahtar: utility bar, header eylemleri, arama, footer,
+  meta açıklama).
+- `Dil::cevir/{kod}` — oturum + 1 yıllık çerez (`teksil_dil`, prod Secure
+  bayrağı config'ten); geri dönüş yalnız aynı-site referer (ref_ic deseni).
+  Geçersiz kod → TR.
+- `_ortak_veri()` dil yardımcısını yükler (`$v['dil']`, `$v['dil_adi']`).
+- Seçici: `<details class="dil-sec">` — JS'siz, erişilebilir native dropdown;
+  mevcut dili gösterir, dört seçenek, aktif işaretli. Mobil gizleme kuralı
+  güncellendi (yalnız Blog gizlenir — önceki davranış korundu).
+- AR → `<html lang="ar" dir="rtl">` (head.php dinamik); `[dir="rtl"]` dropdown
+  hizası CSS'te.
+
+**Kapsam notu:** Çevrilen yüzey = mağaza kabuğu. Kategori/ürün/CMS içerikleri
+DB'den Türkçe kalır (bilinçli — artımlı çeviri yolu açık); yönetim paneli
+bilinçli olarak yalnız Türkçe.
+
+**Doğrulama:** lint ×11 + mojibake temiz (XVII'den kalma bir footer yorum
+bozulması da düzeltildi); tam regresyon +5 (`dil-varsayilan-tr`,
+`dil-secici-menusu`, `dil-gecis-redirect`, `dil-en-etkin` [EN'de 'Order
+Tracking' var, 'Sipariş Takibi' yok], `dil-gecersiz-tr-doner`) → **128/128**;
+manuel: AR çerezi → `dir="rtl"` + Arapça dizgiler, RU çerezi → Rusça,
+çerezsiz → TR/ltr.
+
+**[!] Canlıya taşı:** `dil_helper.php`, `application/language/` (4 dosya),
+`Dil.php`, `MY_Controller.php`, `header.php`, `head.php`, `footer.php`,
+`teksil.css`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-17 (XXVIII) — Denetim ajanları kapanışı: SVG yükleme kapandı + banner dosya-silme path-traversal kapatıldı + sertleştirmeler — 123/123
 
 **Kapsam:** iki paralel tarama ajanı — (1) XSS/raw-çıkış: 70 view + teksil.js,

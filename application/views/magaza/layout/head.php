@@ -1,10 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
+$_dil   = $dil ?? 'tr';
 $_title = !empty($meta_title) ? $meta_title : ($site_adi ?? 'TekstilSite');
-$_desc  = !empty($meta_desc)  ? $meta_desc  : 'Toptan kadın giyim — üretici fiyatı, kaliteli kumaş, hızlı kargo.';
+$_desc  = !empty($meta_desc)  ? $meta_desc  : t('meta_desc_default', 'Toptan kadın giyim — üretici fiyatı, kaliteli kumaş, hızlı kargo.');
 $_index = isset($indexlenebilir) ? $indexlenebilir : TRUE;
 ?>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="<?= e($_dil) ?>" dir="<?= $_dil === 'ar' ? 'rtl' : 'ltr' ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -12,11 +12,11 @@ $yil = date('Y');
                     </svg>
                     TekstilSite
                 </div>
-                <p style="font-size:14px;max-width:34ch">Toptan kadın giyimde üretici fiyatı ve kaliteli kumaş. İstanbul Merter'den Türkiye ve dünya.</p>
+                <p style="font-size:14px;max-width:34ch"><?= t('ftr_tanim', "Toptan kadın giyimde üretici fiyatı ve kaliteli kumaş. İstanbul Merter'den Türkiye ve dünya.") ?></p>
                 <p style="margin-top:14px;font-size:13px">info@teksilsite.com<br>+90 212 481 36 92</p>
             </div>
             <div>
-                <h4>Kategoriler</h4>
+                <h4><?= t('ftr_kategoriler', 'Kategoriler') ?></h4>
                 <a href="<?= site_url('katalog/ust-giyim') ?>">Üst Giyim</a>
                 <a href="<?= site_url('katalog/alt-giyim') ?>">Alt Giyim</a>
                 <a href="<?= site_url('katalog/elbise') ?>">Elbise &amp; Tulum</a>
@@ -24,25 +24,25 @@ $yil = date('Y');
                 <a href="<?= site_url('katalog/yeni') ?>">Yeni Gelenler</a>
             </div>
             <div>
-                <h4>Toptancı</h4>
-                <a href="<?= site_url('bayi/kayit') ?>">Bayi Kaydı</a>
-                <a href="<?= site_url('bayi/giris') ?>">Bayi Girişi</a>
+                <h4><?= t('ftr_toptanci', 'Toptancı') ?></h4>
+                <a href="<?= site_url('bayi/kayit') ?>"><?= t('ftr_bayi_kayit', 'Bayi Kaydı') ?></a>
+                <a href="<?= site_url('bayi/giris') ?>"><?= t('ftr_bayi_giris', 'Bayi Girişi') ?></a>
                 <a href="<?= site_url('xml-feed') ?>">XML / API Feed</a>
                 <a href="<?= site_url('toptan-sartlari') ?>">Toptan Şartlar (MOQ)</a>
-                <a href="<?= site_url('siparis-takip') ?>">Sipariş Takibi</a>
+                <a href="<?= site_url('siparis-takip') ?>"><?= t('util_siparis_takibi', 'Sipariş Takibi') ?></a>
             </div>
             <div>
-                <h4>Yardım &amp; Kurumsal</h4>
-                <a href="<?= site_url('sayfa/hakkimizda') ?>">Hakkımızda</a>
-                <a href="<?= site_url('sayfa/mesafeli-satis') ?>">Mesafeli Satış</a>
-                <a href="<?= site_url('sayfa/iade-degisim') ?>">İade &amp; Değişim</a>
-                <a href="<?= site_url('sayfa/gizlilik') ?>">Gizlilik &amp; KVKK</a>
-                <a href="<?= site_url('iletisim') ?>">İletişim</a>
+                <h4><?= t('ftr_yardim_kurumsal', 'Yardım & Kurumsal') ?></h4>
+                <a href="<?= site_url('sayfa/hakkimizda') ?>"><?= t('ftr_hakkinda', 'Hakkımızda') ?></a>
+                <a href="<?= site_url('sayfa/mesafeli-satis') ?>"><?= t('ftr_mesafeli', 'Mesafeli Satış') ?></a>
+                <a href="<?= site_url('sayfa/iade-degisim') ?>"><?= t('ftr_iade', 'İade & Değişim') ?></a>
+                <a href="<?= site_url('sayfa/gizlilik') ?>"><?= t('ftr_gizlilik', 'Gizlilik & KVKK') ?></a>
+                <a href="<?= site_url('iletisim') ?>"><?= t('ftr_iletisim', 'İletişim') ?></a>
             </div>
         </div>
         <div class="footer__bottom">
-            <span>© <?= e($yil) ?> TekstilSite. Tüm hakları saklıdır.</span>
-            <span>SSL ile korumalı · 3D Secure ödeme</span>
+            <span><?= t('ftr_telif', '© %s TekstilSite. Tüm hakları saklıdır.', (int) $yil) ?></span>
+            <span><?= t('ftr_guvenlik', 'SSL ile korumalı · 3D Secure ödeme') ?></span>
         </div>
     </div>
 </footer>
@@ -52,7 +52,7 @@ $yil = date('Y');
 <?php /* tkBase: origin-göreli uygulama kökü (php -S kökünde '/', Apache alt-dizinde '/TekstilSite/').
        DİKKAT: Windows PHP dirname('/index.php') '\' döndürür (platform ayraç normalizasyonu) —
        dirname KULLANMA; strrpos+substr ile saf dizgi hesapla. Mutlak base_url kullanılsaydı
-       sayfa başka origin'den açılınca AJAX CORS'a takılıp "Bağlantı hatası" ��retiyordu
+       sayfa başka origin'den açılınca AJAX CORS'a takılıp "Bağlantı hatası" üretiyordu
        (DEGISIKLIK XVII). */
 $tk_script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
 $tk_kes = (int) strrpos($tk_script, '/');

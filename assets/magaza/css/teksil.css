@@ -134,6 +134,20 @@ ul{margin:0;padding:0;list-style:none;}
 .utility-bar a{color:#c8d6df;}
 .utility-bar a:hover{color:#fff;}
 
+/* --- dil seçici (XXIX): utility bar içinde, Sipariş Takibi yanında --- */
+.dil-sec{position:relative;}
+.dil-sec summary{list-style:none;cursor:pointer;color:#c8d6df;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.dil-sec summary::-webkit-details-marker{display:none;}
+.dil-sec summary:hover{color:#fff;}
+.dil-sec__ok{font-size:9px;opacity:.8;}
+.dil-sec__menu{position:absolute;right:0;top:calc(100% + 8px);background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,30,43,.18);padding:6px;display:none;flex-direction:column;gap:2px;z-index:60;min-width:132px;}
+.dil-sec[open] .dil-sec__menu{display:flex;}
+.dil-sec__menu a{color:#001e2b;padding:7px 10px;border-radius:6px;font-size:13px;white-space:nowrap;text-align:left;}
+.dil-sec__menu a:hover{background:#eef4f6;color:#001e2b;}
+.dil-sec__menu a.aktif{font-weight:700;color:#00875a;}
+[dir="rtl"] .dil-sec__menu{right:auto;left:0;}
+[dir="rtl"] .dil-sec__menu a{text-align:right;}
+
 header{position:sticky;top:0;z-index:50;}
 .header-main{background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}
 .site-header__row{display:flex;align-items:center;gap:24px;height:72px;}
@@ -393,7 +407,7 @@ header{position:sticky;top:0;z-index:50;}
 @media (max-width:760px){
   :root{--oluk:18px;}
   h1{font-size:26px;}h2{font-size:22px;}.section__title{font-size:26px;}
-  .utility-bar__right a:nth-child(n+3){display:none;}
+  .utility-bar__right > *:nth-child(n+4){display:none;}
   .site-header__row{height:auto;flex-wrap:wrap;padding:12px 0;gap:12px;}
   .header-search{order:3;flex:1 1 100%;}
   .header-actions{font-size:13px;gap:12px;}

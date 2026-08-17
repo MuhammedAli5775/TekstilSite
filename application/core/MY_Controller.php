@@ -144,6 +144,10 @@ class Magaza_Controller extends MY_Controller
         $this->v['kullanici']   = $this->db_hazir() ? $this->kullanici() : NULL;
         $this->v['db_hazir']    = $this->db_hazir();
         $this->v['v_be_layout'] = TRUE;
+        // Çoklu dil (XXIX): TR varsayılan; seçici mağaza header'ındaki utility bar'da.
+        $this->load->helper('dil');
+        $this->v['dil']     = aktif_dil();
+        $this->v['dil_adi'] = dil_adi($this->v['dil']);
     }
 
     /** Tam sayfa render (head + header + view + footer). */

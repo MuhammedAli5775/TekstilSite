@@ -24,11 +24,20 @@ if (empty($menu)) {
         <div class="container">
             <div class="utility-bar__left">
                 <span>📞 +90 212 481 36 92</span>
-                <span class="pill">Toptan / B2B</span>
+                <span class="pill"><?= t('util_toptan', 'Toptan / B2B') ?></span>
             </div>
             <div class="utility-bar__right">
-                <a href="<?= site_url('siparis-takip') ?>">Sipariş Takibi</a>
-                <a href="<?= site_url('yardim') ?>">Yardım</a>
+                <details class="dil-sec">
+                    <summary title="Dil / Language"><?= e($dil_adi ?? 'Türkçe') ?> <span class="dil-sec__ok">▾</span></summary>
+                    <div class="dil-sec__menu">
+                        <a href="<?= site_url('dil/cevir/tr') ?>" class="<?= ($dil ?? 'tr') === 'tr' ? 'aktif' : '' ?>">Türkçe</a>
+                        <a href="<?= site_url('dil/cevir/en') ?>" class="<?= ($dil ?? '') === 'en' ? 'aktif' : '' ?>">English</a>
+                        <a href="<?= site_url('dil/cevir/ru') ?>" class="<?= ($dil ?? '') === 'ru' ? 'aktif' : '' ?>">Русский</a>
+                        <a href="<?= site_url('dil/cevir/ar') ?>" class="<?= ($dil ?? '') === 'ar' ? 'aktif' : '' ?>">العربية</a>
+                    </div>
+                </details>
+                <a href="<?= site_url('siparis-takip') ?>"><?= t('util_siparis_takibi', 'Sipariş Takibi') ?></a>
+                <a href="<?= site_url('yardim') ?>"><?= t('util_yardim', 'Yardım') ?></a>
                 <a href="<?= site_url('blog') ?>">Blog</a>
             </div>
         </div>
@@ -46,24 +55,24 @@ if (empty($menu)) {
                 </a>
 
                 <form class="header-search" action="<?= site_url('arama') ?>" method="get" role="search">
-                    <input type="text" name="q" placeholder="Ürün ara…" aria-label="Arama">
-                    <button type="submit" aria-label="Ara">
+                    <input type="text" name="q" placeholder="<?= t('hdr_ara', 'Ürün ara…') ?>" aria-label="<?= t('hdr_arama', 'Arama') ?>">
+                    <button type="submit" aria-label="<?= t('hdr_ara_dugme', 'Ara') ?>">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
                     </button>
                 </form>
 
                 <div class="header-actions">
-                    <a href="<?= site_url('favorilerim') ?>">♡ Favoriler</a>
+                    <a href="<?= site_url('favorilerim') ?>">♡ <?= t('hdr_favoriler', 'Favoriler') ?></a>
                     <?php if (! empty($bayi)): ?>
-                        <a href="<?= site_url('hesabim') ?>">👤 <?= e($bayi->yetkili_ad_soyad ? explode(' ', $bayi->yetkili_ad_soyad)[0] : 'Hesabım') ?></a>
-                        <a href="<?= site_url('bayi/cikis') ?>" onclick="return confirm('Çıkış yapmak istediğinizden emin misiniz?')">Çıkış</a>
+                        <a href="<?= site_url('hesabim') ?>">👤 <?= e($bayi->yetkili_ad_soyad ? explode(' ', $bayi->yetkili_ad_soyad)[0] : t('hdr_hesabim', 'Hesabım')) ?></a>
+                        <a href="<?= site_url('bayi/cikis') ?>" onclick="return confirm('<?= t('hdr_cikis_onay', 'Çıkış yapmak istediğinizden emin misiniz?') ?>')"><?= t('hdr_cikis', 'Çıkış') ?></a>
                     <?php elseif (! empty($kullanici)): ?>
-                        <a href="<?= site_url('hesabim') ?>">👤 <?= e($kullanici->ad_soyad ? explode(' ', $kullanici->ad_soyad)[0] : 'Hesabım') ?></a>
-                        <a href="<?= site_url('kullanici/cikis') ?>" onclick="return confirm('Çıkış yapmak istediğinizden emin misiniz?')">Çıkış</a>
+                        <a href="<?= site_url('hesabim') ?>">👤 <?= e($kullanici->ad_soyad ? explode(' ', $kullanici->ad_soyad)[0] : t('hdr_hesabim', 'Hesabım')) ?></a>
+                        <a href="<?= site_url('kullanici/cikis') ?>" onclick="return confirm('<?= t('hdr_cikis_onay', 'Çıkış yapmak istediğinizden emin misiniz?') ?>')"><?= t('hdr_cikis', 'Çıkış') ?></a>
                     <?php else: ?>
-                        <a href="<?= site_url('kullanici/giris') ?>">Kullanıcı Girişi</a>
+                        <a href="<?= site_url('kullanici/giris') ?>"><?= t('hdr_giris', 'Kullanıcı Girişi') ?></a>
                     <?php endif; ?>
-                    <a href="<?= site_url('sepet') ?>">Sepet <span class="cart-count" id="cartCount"><?= (int) ($sepet_adet ?? 0) ?></span></a>
+                    <a href="<?= site_url('sepet') ?>"><?= t('hdr_sepet', 'Sepet') ?> <span class="cart-count" id="cartCount"><?= (int) ($sepet_adet ?? 0) ?></span></a>
                 </div>
             </div>
 

@@ -35,7 +35,7 @@ $filtre_data = compact('liste_url', 'alt_kategoriler', 'kategori', 'facet_beden'
     <div class="container katalog-layout">
         <aside class="katalog-sidebar">
             <button class="filtre-mobil-toggle" id="filtreToggle" type="button" aria-expanded="false">⚙ Filtreler</button>
-            <div class="filtre-sarma" id="filtreSarma">
+            <div class="filtre-sarma" id="filtreSarma" style="margin-top: 18px">
                 <?php $this->load->view('magaza/partial/filtre', $filtre_data); ?>
             </div>
         </aside>

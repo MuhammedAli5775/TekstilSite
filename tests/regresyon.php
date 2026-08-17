@@ -391,6 +391,18 @@ check('kullanici-sonrasi-hesabim-kapali', is_redir($c));
 list($c, $r) = get('guest', '/');
 check('navbar-kullanici-girisi', $c === 200 && strpos($r, 'kullanici/giris') !== FALSE);
 
+/* ---- dil seçici (XXIX): TR varsayılan; EN/RU/AR geçiş; geçersiz kod → TR ---- */
+list($c, $r) = get('dil', '/');
+check('dil-varsayilan-tr', $c === 200 && strpos($r, 'Sipariş Takibi') !== FALSE);
+check('dil-secici-menusu', strpos($r, 'dil/cevir/en') !== FALSE && strpos($r, 'dil/cevir/ru') !== FALSE && strpos($r, 'dil/cevir/ar') !== FALSE);
+list($c, ) = get('dil', '/dil/cevir/en');
+check('dil-gecis-redirect', is_redir($c));
+list($c, $r) = get('dil', '/');
+check('dil-en-etkin', $c === 200 && strpos($r, 'Order Tracking') !== FALSE && strpos($r, 'Sipariş Takibi') === FALSE);
+list($c, ) = get('dil', '/dil/cevir/xyz');
+list($c, $r) = get('dil', '/');
+check('dil-gecersiz-tr-doner', $c === 200 && strpos($r, 'Sipariş Takibi') !== FALSE);
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"
