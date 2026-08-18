@@ -2,11 +2,12 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * teksil_lang — mağaza kabuk dizgileri, TÜRKÇE (varsayılan; diğer dillerde
+ * teksil_lang — mağaza dizgileri, TÜRKÇE (varsayılan; diğer dillerde
  * eksik anahtar buradaki değere düşer).
  */
 
 $lang = array(
+    // ---- kabuk: utility bar / header / meta / footer (XXIX) ----
     'util_siparis_takibi' => 'Sipariş Takibi',
     'util_yardim'         => 'Yardım',
     'util_toptan'         => 'Toptan / B2B',
@@ -36,4 +37,130 @@ $lang = array(
     'ftr_iletisim'       => 'İletişim',
     'ftr_telif'          => '© %s TekstilSite. Tüm hakları saklıdır.',
     'ftr_guvenlik'       => 'SSL ile korumalı · 3D Secure ödeme',
+
+    // ---- anasayfa (XXX) ----
+    'anasayfa_kat_ust'    => 'Üst Giyim',
+    'anasayfa_kat_alt'    => 'Alt Giyim',
+    'anasayfa_kat_elbise' => 'Elbise',
+    'anasayfa_kat_dis'    => 'Dış Giyim',
+
+    'anasayfa_yorum1' => 'Toptan fiyatlar ve kumaş kalitesi beklentimizin üzerinde. Siparişlerimiz her zaman zamanında ulaştı.',
+    'anasayfa_yorum2' => 'XML entegrasyonu sayesinde ürünleri kendi sitemize anında çekebiliyoruz. Bayi kaydı çok kolay oldu.',
+    'anasayfa_yorum3' => 'Minimum adetler esnek, fiyat basamakları toptan alımda ciddi avantaj sağlıyor. Kesinlikle tavsiye ederim.',
+    'anasayfa_rol1'   => 'Mağaza Sahibi',
+    'anasayfa_rol2'   => 'E-Ticaret Müdürü',
+    'anasayfa_rol3'   => 'Boutique Sahibi',
+
+    'anasayfa_stat_deneyim'  => 'Yıllık üretim deneyimi',
+    'anasayfa_stat_bayi'     => 'Aktif toptancı bayi',
+    'anasayfa_stat_marka'    => 'Üretici marka',
+    'anasayfa_stat_sevkiyat' => 'Hızlı sevkiyat',
+
+    'anasayfa_slider_aria' => 'Vitrin',
+    'anasayfa_onceki'      => 'Önceki slayt',
+    'anasayfa_sonraki'     => 'Sonraki slayt',
+    'anasayfa_slayt'       => 'Slayt',
+
+    'anasayfa_uretici_fiyat'   => 'Üretici Fiyatı',
+    'anasayfa_uretici_fiyat_d' => 'Aracısız, doğrudan fabrika.',
+    'anasayfa_moq'             => 'Min. Sipariş (MOQ)',
+    'anasayfa_moq_d'           => 'Esnek adet basamakları.',
+    'anasayfa_kargo'           => 'Hızlı Kargo',
+    'anasayfa_kargo_d'         => 'Aynı gün sevkiyat & dünya.',
+    'anasayfa_xml'             => 'XML / API Feed',
+    'anasayfa_xml_d'           => 'Pazaryeri & yazılım entegrasyonu.',
+
+    'anasayfa_koleksiyon' => 'Koleksiyon',
+    'anasayfa_kat_baslik' => 'Kategorilere göz atın',
+    'anasayfa_kat_lead'   => 'Her kategori taze üretim, gerçek stok ve toptan fiyat basamağı ile.',
+    'anasayfa_incele'     => 'İncele →',
+
+    'anasayfa_yorumlar'     => 'Yorumlar',
+    'anasayfa_yorum_baslik' => 'Bayilerimiz ne diyor?',
+    'anasayfa_yorum_lead'   => 'Binlerce toptancı üretici fiyatı ve hızlı sevkiyatla bizimle çalışıyor.',
+    'anasayfa_yildiz'       => '5 üzerinden 5 yıldız',
+
+    'anasayfa_cta_baslik' => 'Toptancı mısınız? Hemen başlayın.',
+    'anasayfa_cta_metin'  => "Bayi hesabınızı açın, toptan fiyatları ve XML/API feed'i açalım.",
+    'anasayfa_cta_buton'  => 'Bayi Kaydı Oluştur',
+
+    // ---- katalog + filtre/sayfalama partial (XXX) ----
+    'kat_sira_yeni'    => 'Yeni Gelenler',
+    'kat_sira_cok'     => 'Çok Satanlar',
+    'kat_sira_artan'   => 'Fiyat (Artan)',
+    'kat_sira_azalan'  => 'Fiyat (Azalan)',
+    'kat_sira_alfa'    => 'Alfabetik (A→Z)',
+    'kat_yol'          => 'Yol',
+    'kat_anasayfa'     => 'Anasayfa',
+    'kat_urun_sayisi'  => '%s ürün listeleniyor · toptan fiyatlar bayi girişinde görünür',
+    'kat_filtreler'    => 'Filtreler',
+    'kat_urun'         => 'ürün',
+    'kat_sirala'       => 'Sırala',
+    'kat_bos'          => 'Seçtiğiniz filtrelere uygun ürün bulunamadı.',
+    'kat_filtre_temizle' => 'Filtreleri temizle →',
+
+    'kat_filtre_beden' => 'Beden',
+    'kat_filtre_renk'  => 'Renk',
+    'kat_filtre_fiyat' => 'Fiyat Aralığı (₺)',
+    'kat_filtre_min'   => 'en az',
+    'kat_filtre_maks'  => 'en çok',
+
+    'kat_sayfalama'     => 'Sayfalama',
+    'kat_sayfa_onceki'  => 'Önceki',
+    'kat_sayfa_sonraki' => 'Sonraki',
+
+    // ---- sepet (XXX) ----
+    'sepet_baslik'     => 'Sepetim',
+    'sepet_bos'        => 'Sepetiniz boş.',
+    'sepet_basla'      => 'Alışverişe Başla →',
+    'sepet_th_urun'    => 'Ürün',
+    'sepet_th_varyant' => 'Varyant',
+    'sepet_th_adet'    => 'Adet',
+    'sepet_th_birim'   => 'Birim',
+    'sepet_th_tutar'   => 'Tutar',
+    'sepet_guncelle'   => 'Güncelle',
+    'sepet_moq_not'    => 'MOQ %s · adım %s',
+    'sepet_sil_onay'   => 'Ürün çıkarılsın mı?',
+    'sepet_sil'        => 'Sil',
+    'sepet_ozet'       => 'Özet',
+    'sepet_ara_toplam' => 'Ara toplam',
+    'sepet_kargo'      => 'Kargo',
+    'sepet_ucretsiz'   => 'Ücretsiz',
+    'sepet_odemede'    => 'Ödeme adımında',
+    'sepet_kargo_kalan' => '%s daha → ücretsiz kargo',
+    'sepet_toplam'     => 'Toplam',
+    'sepet_odemeye'    => 'Ödemeye Geç →',
+    'sepet_devam'      => 'Alışverişe Devam',
+
+    // ---- odeme (XXX) ----
+    'odeme_baslik'        => 'Ödeme',
+    'odeme_kirinti_sepet' => 'Sepet',
+    'odeme_teslimat'      => 'Teslimat Bilgileri',
+    'odeme_ad_soyad'      => 'Ad Soyad',
+    'odeme_adres'         => 'Adres',
+    'odeme_il'            => 'İl',
+    'odeme_ilce'          => 'İlçe',
+    'odeme_secin'         => 'Seçin',
+    'odeme_telefon'       => 'Telefon',
+    'odeme_eposta'        => 'E-posta',
+    'odeme_fatura'        => 'Fatura Bilgileri',
+    'odeme_fatura_ayni'   => 'Fatura bilgileri teslimat ile aynı',
+    'odeme_fatura_ad'     => 'Fatura Ad / Ünvan',
+    'odeme_fatura_adres'  => 'Fatura Adresi',
+    'odeme_firma_unvan'   => 'Firma Ünvanı',
+    'odeme_vergi_no'      => 'Vergi / TC No',
+    'odeme_kargo_odeme'   => 'Kargo & Ödeme',
+    'odeme_kargo_firma'   => 'Kargo Firması',
+    'odeme_yontem'        => 'Ödeme Yöntemi',
+    'odeme_ek_ucret'      => '(%s ek)',
+    'odeme_banka_hesap'   => 'Banka Hesapları (Havale/EFT için):',
+    'odeme_sozlesme'      => 'Mesafeli satış sözleşmesini okudum, onaylıyorum.',
+    'odeme_tamamla'       => 'Siparişi Tamamla',
+    'odeme_ozet'          => 'Sipariş Özeti',
+    'odeme_kupon'         => 'Kupon (%s)',
+    'odeme_kupon_kaldir'  => 'Kuponu kaldır',
+    'odeme_kupon_ph'      => 'Kupon kodu',
+    'odeme_uygula'        => 'Uygula',
+    'odeme_kargo_islem'   => 'Kargo / işlem ücreti',
+    'odeme_kargo_odemede' => 'ödemede hesaplanır',
 );

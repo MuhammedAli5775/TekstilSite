@@ -51,6 +51,8 @@ class Bannerlar extends Admin_Controller
         }
 
         $konum = $this->input->post('yazi_konum');
+        // XXX: vitrin dil filtresi — NULL = tüm diller; kod beyaz listeli.
+        $dil = trim((string) $this->input->post('dil'));
         $d = array(
             'yer'        => 'anasayfa_slider',
             'baslik'     => trim((string) $this->input->post('baslik')),
@@ -59,6 +61,7 @@ class Bannerlar extends Admin_Controller
             'link'       => trim((string) $this->input->post('link')),
             'buton_yazi' => trim((string) $this->input->post('buton_yazi')),
             'yazi_konum' => in_array($konum, array('sol', 'orta', 'sag'), TRUE) ? $konum : 'sol',
+            'dil'        => in_array($dil, array('tr', 'en', 'ru', 'ar'), TRUE) ? $dil : NULL,
             'sira'       => (int) $this->input->post('sira'),
             'durum'      => $this->input->post('durum') ? 1 : 0,
         );

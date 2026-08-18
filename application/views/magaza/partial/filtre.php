@@ -8,7 +8,7 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
 
     <?php if (! empty($facet_beden)): ?>
     <div class="filtre-grup">
-        <h4>Beden</h4>
+        <h4><?= t('kat_filtre_beden', 'Beden') ?></h4>
         <?php foreach ($facet_beden as $b): ?>
             <label class="filtre-check">
                 <input type="checkbox" name="beden[]" value="<?= e($b->beden) ?>" <?= in_array($b->beden, $secili_beden, TRUE) ? 'checked' : '' ?>>
@@ -20,7 +20,7 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
 
     <?php if (! empty($facet_renk)): ?>
     <div class="filtre-grup">
-        <h4>Renk</h4>
+        <h4><?= t('kat_filtre_renk', 'Renk') ?></h4>
         <?php foreach ($facet_renk as $r): ?>
             <label class="filtre-check">
                 <input type="checkbox" name="renk[]" value="<?= e($r->renk) ?>" <?= in_array($r->renk, $secili_renk, TRUE) ? 'checked' : '' ?>>
@@ -32,11 +32,11 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
     <?php endif; ?>
 
     <div class="filtre-grup">
-        <h4>Fiyat Aralığı (₺)</h4>
+        <h4><?= t('kat_filtre_fiyat', 'Fiyat Aralığı (₺)') ?></h4>
         <div class="filtre-fiyat">
-            <input type="number" name="min" placeholder="en az" value="<?= e($this->input->get('min')) ?>" min="0" inputmode="numeric">
+            <input type="number" name="min" placeholder="<?= t('kat_filtre_min', 'en az') ?>" value="<?= e($this->input->get('min')) ?>" min="0" inputmode="numeric">
             <span>–</span>
-            <input type="number" name="max" placeholder="en çok" value="<?= e($this->input->get('max')) ?>" min="0" inputmode="numeric">
+            <input type="number" name="max" placeholder="<?= t('kat_filtre_maks', 'en çok') ?>" value="<?= e($this->input->get('max')) ?>" min="0" inputmode="numeric">
         </div>
     </div>
 </form>

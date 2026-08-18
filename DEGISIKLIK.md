@@ -19,6 +19,62 @@
 
 ---
 
+## 2026-08-18 (XXX) — Mağaza artımlı çeviri katmanı 2: anasayfa/katalog/sepet/odeme + banner dil filtresi — 136/136
+
+**İstek (kullanıcı):** XXIX kabuk çevirisinin devamı — çalışma ağacında yarım
+kalmış işi (anasayfa/katalog/sepet t() sarmaları, odeme'de yarım satır, banner
+`dil` sorgusu) eksikleriyle tamamla: dil dosyaları, banner schema/migration,
+admin Bannerlar dil seçimi, doğrulama.
+
+**Görünüm (`application/views/magaza/`):**
+- `anasayfa.php` — kategori vitrini/yorumlar/istatistik/valuestrip/slider aria/
+  bölüm başlıkları/CTA t()'ye sarıldı; slider sorgusu `dil = aktif_dil() OR
+  dil IS NULL` (group_start ile).
+- `katalog/index.php` — sıralama seçenekleri/kirinti/ürün sayısı/topbar/boş durum.
+- `partial/filtre.php` — beden/renk/fiyat başlıkları + min/maks placeholder'ları;
+  `partial/sayfalama.php` — 3 aria etiketi (katalog sayfası bütün çevrildi).
+- `sepet/index.php` — tablo başlıkları/MOQ notu/özet satırları/düğmeler;
+  `'Toplam '` fazladan boşluğu giderildi.
+- `odeme/index.php` — dünkü yarım edit tamamlandı: kirinti, teslimat/fatura
+  alanları, kargo&ödeme, ödeme yöntemi + ek ücret `(%s ek)`, banka hesapları,
+  sözleşme, sipariş özeti, kupon bloğu (kullanıcı verisi sprintf sonrası `e()`);
+  stray `"Ara toplam "` boşluğu düzeltildi.
+
+**Dil dosyaları (`application/language/*/teksil_lang.php`):** 4 dosya × **135
+anahtar** (26 kabuk XXIX + 109 yeni: anasayfa 37, katalog+filtre+sayfalama 21,
+sepet 21, odeme 30). AR'de ileri-yönlü eylem dizgilerinde → yerine ← (RTL'de
+"ileri" solda); JS confirm dizgilerinde (`sepet_sil_onay`) apostrof yasak.
+
+**Banner dil filtresi:** `bannerlar.dil VARCHAR(2) NULL` (NULL = tüm diller).
+Admin `Bannerlar.php` kaydet beyaz listeli (`tr/en/ru/ar`, geçersiz/boş → NULL);
+formda dil selecti + listede rozet. DB: `sql/schema.sql` (taze kurulum) +
+`sql/migrate_banner_dil.sql` (mevcut kurulumlar; dev DB'de kolon zaten vardı);
+DEPLOY.md §3 listesine eklendi → **18 dosya**.
+
+**Kapsam notu:** DB içerik (kategori/ürün/CMS/banner metinleri) ve controller
+mesajları (validation/flash) bilinçli Türkçe kalır; yönetim paneli yalnız
+Türkçe. Sonraki artımlar: urun detay, arama, hesabım, bayi kayıt/giriş,
+sipariş takibi, favoriler, ödeme sonuç sayfaları.
+
+**Doğrulama:** lint ×15; mojibake byte-grep (RU/AR'ye yazarken karışan 2+2
+adet U+FFFD yakalandı + düzeltildi → 4 dosyada 0); anahtar parite kontrolü
+(4×135, view'lerdeki 135 t() çağrısının hepsi tanımlı); tam regresyon **+8**
+(`dil-en-anasayfa` [DB menüsü Türkçe kalabildiği için absent-check 'Kategorilere
+göz atın' statik dizgisi üzerinden], `dil-en-katalog`, `dil-en-sepet`,
+`banner-dil-en-gizli`, `banner-dil-ru-gorunur`, `banner-admin-kaydet-redirect`,
+`banner-admin-dil-kayitli`, `banner-admin-gecersiz-dil-null`) → **136/136**;
+manuel: AR → `dir="rtl"`+`lang="ar"`+Arapça dizgiler (anasayfa/sepet), RU →
+katalog tamamen Rusça. E2E admin banner kaydetme → DB `dil='en'`, geçersiz kod
+→ NULL (suite içinde + test verisi temizlendi).
+
+**[!] Canlıya taşı:** `application/language/` (4 dosya), `anasayfa.php`,
+`katalog/index.php`, `sepet/index.php`, `odeme/index.php`, `partial/filtre.php`,
+`partial/sayfalama.php`, `controllers/yonetim/Bannerlar.php`,
+`views/yonetim/bannerlar/index.php`, `tests/regresyon.php`, `sql/schema.sql`,
+DEPLOY.md/CLAUDE.md (§3 sayısı) + **DB: `sql/migrate_banner_dil.sql` uygula**.
+
+---
+
 ## 2026-08-17 (XXIX) — Mağaza çoklu dil seçici: TR varsayılan, EN/RU/AR (kabuk çevirisi + RTL) — 128/128
 
 **İstek (kullanıcı):** utility bar'da "Sipariş Takibi"nin yanına dil seçici;

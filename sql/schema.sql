@@ -405,6 +405,7 @@ CREATE TABLE IF NOT EXISTS bannerlar (
   link      VARCHAR(255),
   buton_yazi VARCHAR(60),
   yazi_konum ENUM('sol','orta','sag') NOT NULL DEFAULT 'sol',
+  dil       VARCHAR(2) NULL,
   sira      INT NOT NULL DEFAULT 0,
   durum     TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (id),

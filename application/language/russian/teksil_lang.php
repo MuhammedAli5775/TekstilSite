@@ -2,10 +2,11 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * teksil_lang — mağaza kabuk dizgileri, RUSÇA (eksik anahtar Türkçeye düşer).
+ * teksil_lang — mağaza dizgileri, RUSÇA (eksik anahtar Türkçeye düşer).
  */
 
 $lang = array(
+    // ---- kabuk: utility bar / header / meta / footer (XXIX) ----
     'util_siparis_takibi' => 'Отслеживание заказа',
     'util_yardim'         => 'Помощь',
     'util_toptan'         => 'Опт / B2B',
@@ -35,4 +36,130 @@ $lang = array(
     'ftr_iletisim'       => 'Контакты',
     'ftr_telif'          => '© %s TekstilSite. Все права защищены.',
     'ftr_guvenlik'       => 'Защищено SSL · Оплата 3D Secure',
+
+    // ---- anasayfa (XXX) ----
+    'anasayfa_kat_ust'    => 'Верх',
+    'anasayfa_kat_alt'    => 'Низ',
+    'anasayfa_kat_elbise' => 'Платья',
+    'anasayfa_kat_dis'    => 'Верхняя одежда',
+
+    'anasayfa_yorum1' => 'Оптовые цены и качество ткани превзошли наши ожидания. Заказы всегда приходят вовремя.',
+    'anasayfa_yorum2' => 'Благодаря XML-интеграции мы мгновенно получаем товары на свой сайт. Регистрация дилера прошла очень легко.',
+    'anasayfa_yorum3' => 'Гибкие минимальные партии и ценовые ступени — серьёзное преимущество оптовых закупок. Однозначно рекомендуем.',
+    'anasayfa_rol1'   => 'Владелец магазина',
+    'anasayfa_rol2'   => 'Руководитель интернет-магазина',
+    'anasayfa_rol3'   => 'Владелица бутика',
+
+    'anasayfa_stat_deneyim'  => 'Лет производственного опыта',
+    'anasayfa_stat_bayi'     => 'Активных оптовых дилеров',
+    'anasayfa_stat_marka'    => 'Производственных брендов',
+    'anasayfa_stat_sevkiyat' => 'Быстрая отгрузка',
+
+    'anasayfa_slider_aria' => 'Витрина',
+    'anasayfa_onceki'      => 'Предыдущий слайд',
+    'anasayfa_sonraki'     => 'Следующий слайд',
+    'anasayfa_slayt'       => 'Слайд',
+
+    'anasayfa_uretici_fiyat'   => 'Цена производителя',
+    'anasayfa_uretici_fiyat_d' => 'Без посредников, напрямую с фабрики.',
+    'anasayfa_moq'             => 'Мин. заказ (MOQ)',
+    'anasayfa_moq_d'           => 'Гибкие ступени количества.',
+    'anasayfa_kargo'           => 'Быстрая доставка',
+    'anasayfa_kargo_d'         => 'Отгрузка в день заказа и по всему миру.',
+    'anasayfa_xml'             => 'XML / API-фид',
+    'anasayfa_xml_d'           => 'Интеграция с маркетплейсами и софтом.',
+
+    'anasayfa_koleksiyon' => 'Коллекция',
+    'anasayfa_kat_baslik' => 'Просмотрите наши категории',
+    'anasayfa_kat_lead'   => 'Каждая категория: свежее производство, реальный склад и оптовые ценовые ступени.',
+    'anasayfa_incele'     => 'Смотреть →',
+
+    'anasayfa_yorumlar'     => 'Отзывы',
+    'anasayfa_yorum_baslik' => 'Что говорят наши дилеры?',
+    'anasayfa_yorum_lead'   => 'Тысячи оптовиков работают с нами ради цен производителя и быстрой отгрузки.',
+    'anasayfa_yildiz'       => '5 из 5 звёзд',
+
+    'anasayfa_cta_baslik' => 'Оптовик? Начните прямо сейчас.',
+    'anasayfa_cta_metin'  => 'Откройте дилерский аккаунт — мы откроем оптовые цены и XML/API-фид.',
+    'anasayfa_cta_buton'  => 'Создать аккаунт дилера',
+
+    // ---- katalog + filtre/sayfalama partial (XXX) ----
+    'kat_sira_yeni'    => 'Новинки',
+    'kat_sira_cok'     => 'Хиты продаж',
+    'kat_sira_artan'   => 'Цена (по возрастанию)',
+    'kat_sira_azalan'  => 'Цена (по убыванию)',
+    'kat_sira_alfa'    => 'По алфавиту (А→Я)',
+    'kat_yol'          => 'Навигация',
+    'kat_anasayfa'     => 'Главная',
+    'kat_urun_sayisi'  => '%s товаров в списке · оптовые цены видны после входа дилера',
+    'kat_filtreler'    => 'Фильтры',
+    'kat_urun'         => 'товаров',
+    'kat_sirala'       => 'Сортировать',
+    'kat_bos'          => 'По выбранным фильтрам товары не найдены.',
+    'kat_filtre_temizle' => 'Сбросить фильтры →',
+
+    'kat_filtre_beden' => 'Размер',
+    'kat_filtre_renk'  => 'Цвет',
+    'kat_filtre_fiyat' => 'Диапазон цен (₺)',
+    'kat_filtre_min'   => 'от',
+    'kat_filtre_maks'  => 'до',
+
+    'kat_sayfalama'     => 'Пагинация',
+    'kat_sayfa_onceki'  => 'Предыдущая',
+    'kat_sayfa_sonraki' => 'Следующая',
+
+    // ---- sepet (XXX) ----
+    'sepet_baslik'     => 'Моя корзина',
+    'sepet_bos'        => 'Ваша корзина пуста.',
+    'sepet_basla'      => 'Начать покупки →',
+    'sepet_th_urun'    => 'Товар',
+    'sepet_th_varyant' => 'Вариант',
+    'sepet_th_adet'    => 'Кол-во',
+    'sepet_th_birim'   => 'Цена за шт.',
+    'sepet_th_tutar'   => 'Сумма',
+    'sepet_guncelle'   => 'Обновить',
+    'sepet_moq_not'    => 'MOQ %s · шаг %s',
+    'sepet_sil_onay'   => 'Удалить этот товар?',
+    'sepet_sil'        => 'Удалить',
+    'sepet_ozet'       => 'Сводка',
+    'sepet_ara_toplam' => 'Подытог',
+    'sepet_kargo'      => 'Доставка',
+    'sepet_ucretsiz'   => 'Бесплатно',
+    'sepet_odemede'    => 'Рассчитывается при оформлении',
+    'sepet_kargo_kalan' => 'Ещё %s → бесплатная доставка',
+    'sepet_toplam'     => 'Итого',
+    'sepet_odemeye'    => 'К оформлению →',
+    'sepet_devam'      => 'Продолжить покупки',
+
+    // ---- odeme (XXX) ----
+    'odeme_baslik'        => 'Оформление заказа',
+    'odeme_kirinti_sepet' => 'Корзина',
+    'odeme_teslimat'      => 'Данные доставки',
+    'odeme_ad_soyad'      => 'ФИО',
+    'odeme_adres'         => 'Адрес',
+    'odeme_il'            => 'Провинция',
+    'odeme_ilce'          => 'Район',
+    'odeme_secin'         => 'Выберите',
+    'odeme_telefon'       => 'Телефон',
+    'odeme_eposta'        => 'E-mail',
+    'odeme_fatura'        => 'Данные для счёта',
+    'odeme_fatura_ayni'   => 'Данные счёта совпадают с доставкой',
+    'odeme_fatura_ad'     => 'Имя / название для счёта',
+    'odeme_fatura_adres'  => 'Адрес для счёта',
+    'odeme_firma_unvan'   => 'Название компании',
+    'odeme_vergi_no'      => 'Налоговый № / ИНН',
+    'odeme_kargo_odeme'   => 'Доставка и оплата',
+    'odeme_kargo_firma'   => 'Перевозчик',
+    'odeme_yontem'        => 'Способ оплаты',
+    'odeme_ek_ucret'      => '(%s доп.)',
+    'odeme_banka_hesap'   => 'Банковские счета (для перевода/EFT):',
+    'odeme_sozlesme'      => 'Я прочитал(а) и принимаю договор дистанционной продажи.',
+    'odeme_tamamla'       => 'Оформить заказ',
+    'odeme_ozet'          => 'Сводка заказа',
+    'odeme_kupon'         => 'Купон (%s)',
+    'odeme_kupon_kaldir'  => 'Убрать купон',
+    'odeme_kupon_ph'      => 'Код купона',
+    'odeme_uygula'        => 'Применить',
+    'odeme_kargo_islem'   => 'Доставка / сборы',
+    'odeme_kargo_odemede' => 'рассчитывается при оформлении',
 );

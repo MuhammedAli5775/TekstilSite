@@ -17,6 +17,7 @@ $d = $duzenle ?? NULL;
                             <b><?= e($b->baslik ?: '(başlıksız)') ?></b>
                             <small class="rozet rozet-gri">sıra: <?= (int) $b->sira ?></small>
                             <small class="rozet rozet-gri"><?= e($b->yazi_konum) ?></small>
+                            <small class="rozet rozet-gri"><?= $b->dil ? e(strtoupper((string) $b->dil)) : 'tümü' ?></small>
                             <?php if ((int) $b->durum !== 1): ?><small class="rozet" style="background:var(--surface-soft);color:var(--steel)">pasif</small><?php endif; ?>
                         </div>
                         <?php if ($b->alt_baslik): ?><small class="text-steel" style="display:block;margin-top:2px"><?= e($b->alt_baslik) ?></small><?php endif; ?>
@@ -60,6 +61,18 @@ $d = $duzenle ?? NULL;
             <div class="fld-row">
                 <div class="fld"><label>Buton yazısı</label><input type="text" name="buton_yazi" value="<?= e($d->buton_yazi ?? '') ?>" placeholder="Kataloğu İncele"></div>
                 <div class="fld"><label>Buton linki</label><input type="text" name="link" value="<?= e($d->link ?? '') ?>" placeholder="katalog veya https://..."></div>
+            </div>
+
+            <div class="fld">
+                <label>Dil (vitrin filtresi)</label>
+                <select name="dil">
+                    <option value="" <?= ($d->dil ?? '') === '' ? 'selected' : '' ?>>Tüm diller</option>
+                    <option value="tr" <?= ($d->dil ?? '') === 'tr' ? 'selected' : '' ?>>Türkçe</option>
+                    <option value="en" <?= ($d->dil ?? '') === 'en' ? 'selected' : '' ?>>English</option>
+                    <option value="ru" <?= ($d->dil ?? '') === 'ru' ? 'selected' : '' ?>>Русский</option>
+                    <option value="ar" <?= ($d->dil ?? '') === 'ar' ? 'selected' : '' ?>>العربية</option>
+                </select>
+                <small class="text-steel">Yalnız seçili dildeki mağaza vitrininde görünür; boş = her dilde.</small>
             </div>
 
             <div class="fld-row">

@@ -7,8 +7,8 @@ $sonraki = min($sayfa_sayisi, $sayfa + 1);
 $bas = max(1, $sayfa - 2);
 $son = min($sayfa_sayisi, $sayfa + 2);
 ?>
-<nav class="sayfalama" aria-label="Sayfalama">
-    <a class="sayfa-link<?= $sayfa == 1 ? ' pasif' : '' ?>" rel="prev" href="<?= e(qs_url(array('sayfa' => $onceki))) ?>" aria-label="Önceki">‹</a>
+<nav class="sayfalama" aria-label="<?= t('kat_sayfalama', 'Sayfalama') ?>">
+    <a class="sayfa-link<?= $sayfa == 1 ? ' pasif' : '' ?>" rel="prev" href="<?= e(qs_url(array('sayfa' => $onceki))) ?>" aria-label="<?= t('kat_sayfa_onceki', 'Önceki') ?>">‹</a>
     <?php if ($bas > 1): ?>
         <a class="sayfa-link" href="<?= e(qs_url(array('sayfa' => 1))) ?>">1</a>
         <?php if ($bas > 2): ?><span class="sayfa-ellipsis">…</span><?php endif; ?>
@@ -24,5 +24,5 @@ $son = min($sayfa_sayisi, $sayfa + 2);
         <?php if ($son < $sayfa_sayisi - 1): ?><span class="sayfa-ellipsis">…</span><?php endif; ?>
         <a class="sayfa-link" href="<?= e(qs_url(array('sayfa' => $sayfa_sayisi))) ?>"><?= $sayfa_sayisi ?></a>
     <?php endif; ?>
-    <a class="sayfa-link<?= $sayfa == $sayfa_sayisi ? ' pasif' : '' ?>" rel="next" href="<?= e(qs_url(array('sayfa' => $sonraki))) ?>" aria-label="Sonraki">›</a>
+    <a class="sayfa-link<?= $sayfa == $sayfa_sayisi ? ' pasif' : '' ?>" rel="next" href="<?= e(qs_url(array('sayfa' => $sonraki))) ?>" aria-label="<?= t('kat_sayfa_sonraki', 'Sonraki') ?>">›</a>
 </nav>

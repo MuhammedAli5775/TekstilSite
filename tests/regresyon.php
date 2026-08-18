@@ -403,6 +403,34 @@ list($c, ) = get('dil', '/dil/cevir/xyz');
 list($c, $r) = get('dil', '/');
 check('dil-gecersiz-tr-doner', $c === 200 && strpos($r, 'Sipariş Takibi') !== FALSE);
 
+/* ---- XXX: artımlı çeviri (anasayfa/katalog/sepet/odeme) + banner dil filtresi ---- */
+list($c, ) = get('dil', '/dil/cevir/en');
+list($c, $r) = get('dil', '/');
+check('dil-en-anasayfa', $c === 200 && strpos($r, 'Tops') !== FALSE && strpos($r, 'Kategorilere göz atın') === FALSE);
+list($c, $r) = get('dil', '/katalog');
+check('dil-en-katalog', $c === 200 && strpos($r, 'New Arrivals') !== FALSE && strpos($r, 'Fiyat (Artan)') === FALSE);
+list($c, $r) = get('dil', '/sepet');
+check('dil-en-sepet', $c === 200 && strpos($r, 'Your cart is empty.') !== FALSE);
+
+// Banner dil filtresi: RU'ya özel banner RU vitrininde görünür, EN'de gizli.
+q("INSERT INTO bannerlar (yer, baslik, gorsel, link, yazi_konum, dil, sira, durum) VALUES ('anasayfa_slider', 'REGXXX RU BANNER', 'https://picsum.photos/seed/regxxxru/1600/700', 'katalog', 'sol', 'ru', 99, 1)");
+$regBannerId = (int) $db->insert_id;
+list($c, $r) = get('dil', '/');
+check('banner-dil-en-gizli', $c === 200 && strpos($r, 'REGXXX RU BANNER') === FALSE);
+list($c, ) = get('dil', '/dil/cevir/ru');
+list($c, $r) = get('dil', '/');
+check('banner-dil-ru-gorunur', $c === 200 && strpos($r, 'REGXXX RU BANNER') !== FALSE);
+q("DELETE FROM bannerlar WHERE id = $regBannerId");
+
+// Admin Bannerlar dil alanı (E2E): geçerli kod kaydolur; geçersiz kod NULL'a düşer.
+list($c) = post('admin', '/yonetim/bannerlar/kaydet', array('baslik' => 'REGXXX DILBANNER', 'gorsel_url' => 'https://picsum.photos/seed/regxxxdil/1600/700', 'yazi_konum' => 'sol', 'dil' => 'en', 'sira' => 98, 'durum' => 1));
+check('banner-admin-kaydet-redirect', is_redir($c));
+$regB = (int) q1("SELECT id FROM bannerlar WHERE baslik = 'REGXXX DILBANNER'");
+check('banner-admin-dil-kayitli', $regB > 0 && q1("SELECT dil FROM bannerlar WHERE id = $regB") === 'en');
+list($c) = post('admin', '/yonetim/bannerlar/kaydet', array('id' => $regB, 'baslik' => 'REGXXX DILBANNER', 'gorsel_url' => 'https://picsum.photos/seed/regxxxdil/1600/700', 'yazi_konum' => 'sol', 'dil' => 'zz', 'sira' => 98, 'durum' => 1));
+check('banner-admin-gecersiz-dil-null', is_redir($c) && q1("SELECT dil FROM bannerlar WHERE id = $regB") === NULL);
+q("DELETE FROM bannerlar WHERE id = $regB");
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

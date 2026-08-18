@@ -2,10 +2,11 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * teksil_lang — mağaza kabuk dizgileri, İNGİLİZCE (eksik anahtar Türkçeye düşer).
+ * teksil_lang — mağaza dizgileri, İNGİLİZCE (eksik anahtar Türkçeye düşer).
  */
 
 $lang = array(
+    // ---- kabuk: utility bar / header / meta / footer (XXIX) ----
     'util_siparis_takibi' => 'Order Tracking',
     'util_yardim'         => 'Help',
     'util_toptan'         => 'Wholesale / B2B',
@@ -35,4 +36,130 @@ $lang = array(
     'ftr_iletisim'       => 'Contact',
     'ftr_telif'          => '© %s TekstilSite. All rights reserved.',
     'ftr_guvenlik'       => 'Secured with SSL · 3D Secure payment',
+
+    // ---- anasayfa (XXX) ----
+    'anasayfa_kat_ust'    => 'Tops',
+    'anasayfa_kat_alt'    => 'Bottoms',
+    'anasayfa_kat_elbise' => 'Dresses',
+    'anasayfa_kat_dis'    => 'Outerwear',
+
+    'anasayfa_yorum1' => 'Wholesale prices and fabric quality exceeded our expectations. Our orders have always arrived on time.',
+    'anasayfa_yorum2' => 'Thanks to the XML integration we can pull products to our own site instantly. Dealer registration was very easy.',
+    'anasayfa_yorum3' => 'Flexible minimums and price tiers are a real advantage in wholesale buying. Definitely recommended.',
+    'anasayfa_rol1'   => 'Store Owner',
+    'anasayfa_rol2'   => 'E-Commerce Manager',
+    'anasayfa_rol3'   => 'Boutique Owner',
+
+    'anasayfa_stat_deneyim'  => 'Years of manufacturing experience',
+    'anasayfa_stat_bayi'     => 'Active wholesale dealers',
+    'anasayfa_stat_marka'    => 'Manufacturer brands',
+    'anasayfa_stat_sevkiyat' => 'Fast dispatch',
+
+    'anasayfa_slider_aria' => 'Showcase',
+    'anasayfa_onceki'      => 'Previous slide',
+    'anasayfa_sonraki'     => 'Next slide',
+    'anasayfa_slayt'       => 'Slide',
+
+    'anasayfa_uretici_fiyat'   => 'Factory Price',
+    'anasayfa_uretici_fiyat_d' => 'No middlemen, straight from the factory.',
+    'anasayfa_moq'             => 'Min. Order (MOQ)',
+    'anasayfa_moq_d'           => 'Flexible quantity tiers.',
+    'anasayfa_kargo'           => 'Fast Shipping',
+    'anasayfa_kargo_d'         => 'Same-day dispatch & worldwide.',
+    'anasayfa_xml'             => 'XML / API Feed',
+    'anasayfa_xml_d'           => 'Marketplace & software integration.',
+
+    'anasayfa_koleksiyon' => 'Collection',
+    'anasayfa_kat_baslik' => 'Browse the categories',
+    'anasayfa_kat_lead'   => 'Every category: fresh production, real stock and wholesale price tiers.',
+    'anasayfa_incele'     => 'View →',
+
+    'anasayfa_yorumlar'     => 'Reviews',
+    'anasayfa_yorum_baslik' => 'What do our dealers say?',
+    'anasayfa_yorum_lead'   => 'Thousands of wholesalers work with us for factory prices and fast dispatch.',
+    'anasayfa_yildiz'       => '5 out of 5 stars',
+
+    'anasayfa_cta_baslik' => 'Wholesaler? Get started now.',
+    'anasayfa_cta_metin'  => 'Open a dealer account — we will unlock wholesale prices and the XML/API feed.',
+    'anasayfa_cta_buton'  => 'Create Dealer Account',
+
+    // ---- katalog + filtre/sayfalama partial (XXX) ----
+    'kat_sira_yeni'    => 'New Arrivals',
+    'kat_sira_cok'     => 'Best Sellers',
+    'kat_sira_artan'   => 'Price (Low to High)',
+    'kat_sira_azalan'  => 'Price (High to Low)',
+    'kat_sira_alfa'    => 'Alphabetical (A→Z)',
+    'kat_yol'          => 'Breadcrumb',
+    'kat_anasayfa'     => 'Home',
+    'kat_urun_sayisi'  => '%s products listed · wholesale prices visible after dealer login',
+    'kat_filtreler'    => 'Filters',
+    'kat_urun'         => 'products',
+    'kat_sirala'       => 'Sort',
+    'kat_bos'          => 'No products match your filters.',
+    'kat_filtre_temizle' => 'Clear filters →',
+
+    'kat_filtre_beden' => 'Size',
+    'kat_filtre_renk'  => 'Color',
+    'kat_filtre_fiyat' => 'Price range (₺)',
+    'kat_filtre_min'   => 'min',
+    'kat_filtre_maks'  => 'max',
+
+    'kat_sayfalama'     => 'Pagination',
+    'kat_sayfa_onceki'  => 'Previous',
+    'kat_sayfa_sonraki' => 'Next',
+
+    // ---- sepet (XXX) ----
+    'sepet_baslik'     => 'My Cart',
+    'sepet_bos'        => 'Your cart is empty.',
+    'sepet_basla'      => 'Start Shopping →',
+    'sepet_th_urun'    => 'Product',
+    'sepet_th_varyant' => 'Variant',
+    'sepet_th_adet'    => 'Qty',
+    'sepet_th_birim'   => 'Unit',
+    'sepet_th_tutar'   => 'Total',
+    'sepet_guncelle'   => 'Update',
+    'sepet_moq_not'    => 'MOQ %s · step %s',
+    'sepet_sil_onay'   => 'Remove this item?',
+    'sepet_sil'        => 'Remove',
+    'sepet_ozet'       => 'Summary',
+    'sepet_ara_toplam' => 'Subtotal',
+    'sepet_kargo'      => 'Shipping',
+    'sepet_ucretsiz'   => 'Free',
+    'sepet_odemede'    => 'Calculated at checkout',
+    'sepet_kargo_kalan' => '%s more → free shipping',
+    'sepet_toplam'     => 'Total',
+    'sepet_odemeye'    => 'Checkout →',
+    'sepet_devam'      => 'Continue Shopping',
+
+    // ---- odeme (XXX) ----
+    'odeme_baslik'        => 'Checkout',
+    'odeme_kirinti_sepet' => 'Cart',
+    'odeme_teslimat'      => 'Delivery Details',
+    'odeme_ad_soyad'      => 'Full Name',
+    'odeme_adres'         => 'Address',
+    'odeme_il'            => 'Province',
+    'odeme_ilce'          => 'District',
+    'odeme_secin'         => 'Select',
+    'odeme_telefon'       => 'Phone',
+    'odeme_eposta'        => 'Email',
+    'odeme_fatura'        => 'Invoice Details',
+    'odeme_fatura_ayni'   => 'Invoice details same as delivery',
+    'odeme_fatura_ad'     => 'Invoice Name / Title',
+    'odeme_fatura_adres'  => 'Invoice Address',
+    'odeme_firma_unvan'   => 'Company Name',
+    'odeme_vergi_no'      => 'Tax / ID No',
+    'odeme_kargo_odeme'   => 'Shipping & Payment',
+    'odeme_kargo_firma'   => 'Carrier',
+    'odeme_yontem'        => 'Payment Method',
+    'odeme_ek_ucret'      => '(%s extra)',
+    'odeme_banka_hesap'   => 'Bank Accounts (for Wire/EFT):',
+    'odeme_sozlesme'      => 'I have read and accept the distance sales agreement.',
+    'odeme_tamamla'       => 'Complete Order',
+    'odeme_ozet'          => 'Order Summary',
+    'odeme_kupon'         => 'Coupon (%s)',
+    'odeme_kupon_kaldir'  => 'Remove coupon',
+    'odeme_kupon_ph'      => 'Coupon code',
+    'odeme_uygula'        => 'Apply',
+    'odeme_kargo_islem'   => 'Shipping / handling fee',
+    'odeme_kargo_odemede' => 'calculated at checkout',
 );
