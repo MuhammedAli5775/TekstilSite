@@ -18,9 +18,19 @@ CREATE TABLE IF NOT EXISTS yazilar (
   UNIQUE KEY uq_yazi_slug (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rol 2 "Yönetici" tam erişim (migrate_yetkiler deseni; süper rol 1 matriste yer almaz).
-INSERT IGNORE INTO yetkiler (rol_id, modul, goruntule, duzenle, sil) VALUES
-  (2, 'yazilar', 1, 1, 1);
+-- Rol 2 "Yönetici" tam erişim (süper rol 1 matriste yer almaz).
+-- İdempotent + sıra-bağımsız (XXXVI): §3'te yetkiler tablosu migrate_yetkiler'le
+-- (seed'den SONRA) oluşur — taze kurulumda bu INSERT o ana değin tablo yoktur;
+-- guard'la atlanır ve satır migrate_yetkiler tohumundan düşer. Mevcut kurulumda
+-- (yetkiler mevcut) burada eklenir.
+SET @yetki_tablo = (SELECT COUNT(*) FROM information_schema.TABLES
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'yetkiler');
+SET @sql = IF(@yetki_tablo > 0,
+              'INSERT IGNORE INTO yetkiler (rol_id, modul, goruntule, duzenle, sil) VALUES (2, ''yazilar'', 1, 1, 1)',
+              'SELECT ''yetkiler tablosu sonra gelir — satir migrate_yetkiler tohumundan duser'' AS bilgi');
+PREPARE st FROM @sql;
+EXECUTE st;
+DEALLOCATE PREPARE st;
 
 -- Demo yazılar (mevcut satırları ezmez).
 INSERT IGNORE INTO yazilar (slug, baslik, ozet, icerik, gorsel, durum, yayin_tarihi) VALUES

@@ -25,8 +25,10 @@ INSERT INTO bayi_gruplari (id, ad, indirim_yuzde) VALUES
 TRUNCATE TABLE ayarlar;
 INSERT INTO ayarlar (anahtar, deger, grup) VALUES
   ('site_adi',          'TekstilSite', 'genel'),
-  ('meta_title',        'TekstilSite — Toptan Kadın Giyim', 'seo'),
-  ('meta_description',  'Toptan kadın giyimde üretici fiyatı, kaliteli kumaş ve hızlı kargo. Bayi hesabıyla minimum sipariş ve toptan fiyatlandırma.', 'seo'),
+  -- XXXVI: meta değerleri boş tohumlanır — boş = vitrinde dile göre çevrilmiş
+  -- varsayılan (t('meta_title/desc_default')); admin doldurursa tüm dillerde override olur.
+  ('meta_title',        '', 'seo'),
+  ('meta_description',  '', 'seo'),
   ('iletisim_telefon',  '+90 212 481 36 92', 'iletisim'),
   ('iletisim_eposta',   'info@teksilsite.com', 'iletisim'),
   ('iletisim_adres',    'Merter Giyim Merkezi, Zeytinburnu / İstanbul', 'iletisim'),

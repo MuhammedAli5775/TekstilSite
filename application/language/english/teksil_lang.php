@@ -22,6 +22,7 @@ $lang = array(
     'hdr_sepet'      => 'Cart',
 
     'meta_desc_default' => 'Wholesale womens clothing — factory prices, quality fabrics, fast shipping.',
+    'meta_title_default' => 'TekstilSite — Wholesale Womens Clothing',
 
     'ftr_tanim'          => 'Wholesale womens clothing at factory prices with quality fabrics. From Istanbul Merter to Türkiye and the world.',
     'ftr_kategoriler'    => 'Categories',

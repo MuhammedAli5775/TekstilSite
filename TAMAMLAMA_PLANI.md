@@ -7,7 +7,9 @@
 >
 > **Durum (2026-08-18):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
 > (ayrıntılar maddelerin altında); regresyon **160/160 PASS** (dev) + yerel prod ve
-> sıfır-DB kurulum provası 74/74. Mağaza çoklu dil katmanı tamamlandı (XXIX kabuk +
+> sıfır-DB kurulum provası **160/160** (2026-08-18 XXXVI yenilemesi — §3 artık 21
+> dosya; provanın bulduğu 4 §3 hatası + meta çoklu dil gap'i kapatıldı). Mağaza çoklu
+> dil katmanı tamamlandı (XXIX kabuk +
 > XXX ana sayfalar + XXXI tüm kalan yüzeyler + kategori adları çoklu dil + XXXII
 > doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer + XXXIV teslimat
 > ülkesi → para birimi) + D3 blog ✓ (XXXV). Kalan gap'in tamamı **İş/Ops

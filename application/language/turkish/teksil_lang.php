@@ -23,6 +23,7 @@ $lang = array(
     'hdr_sepet'      => 'Sepet',
 
     'meta_desc_default' => 'Toptan kadın giyim — üretici fiyatı, kaliteli kumaş, hızlı kargo.',
+    'meta_title_default' => 'TekstilSite — Toptan Kadın Giyim',
 
     'ftr_tanim'          => "Toptan kadın giyimde üretici fiyatı ve kaliteli kumaş. İstanbul Merter'den Türkiye ve dünya.",
     'ftr_kategoriler'    => 'Kategoriler',

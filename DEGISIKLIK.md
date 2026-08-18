@@ -19,6 +19,54 @@
 
 ---
 
+## 2026-08-18 (XXXVI) — Sıfır-DB provası: §3 dizisinde 4 hata kapatıldı + meta çoklu dil gap'i + test self-sufficiency — 160/160 (sıfır-DB ve dev)
+
+**Bağlam:** §3 kurulum listesi bu oturumda 17→21 dosyaya büyüdü (4 yeni
+migration + yeniden yazılan seed_slider); son sıfır-DB provası çoklu dil
+işlerinden önceydi (74/74). Scratch DB'ye tam §3 dizisi uygulanıp 160 testlik
+regresyon ona karşı koşuldu — **prova 7 bulgu verdi, hepsi kapatıldı:**
+
+1. `migrate_banner_dil.sql` — taze §3'te "Duplicate column 'dil'" (kolon
+   schema.sql'de zaten var; ALTER koşulsuzdu) → information_schema + PREPARE
+   guard'ı (ALTER yalnız eksikse koşar).
+2. `migrate_kategori_dil.sql` — aynı sorun (ad_en/ad_ru/ad_ar) → aynı guard.
+3. `migrate_yazilar.sql` — yetkiler INSERT'i §3'te henüz OLMAYAN tabloya
+   yazıyordu (migrate_yetkiler seed'den SONRA koşar) → tablo-var guard'ı +
+   satır migrate_yetkiler tohumuna da eklendi (taze kurulum yolu).
+4. §3 sırası — migrate_kategori_dil'in UPDATE'leri seed'in kategorilerine
+   işler; 14. sırada koşunca tablo boştu → 12 çeviri hiç yazılmıyordu →
+   DEPLOY.md §3'te seed'den sonraya taşındı (dev DB'de kategoriler zaten
+   vardı, o yüzden yakalanmamıştı).
+5. PayTR testleri — `UPDATE ayarlar … paytr_*` scratch'te olmayan satırları
+   güncelliyordu (seed etmez) → UPDATE 0 satır → hash 'bad hash'e düşerdi →
+   INSERT … ON DUPLICATE KEY UPDATE (test artık her DB'de self-sufficient).
+6. **Meta çoklu dil gap'i (ürün hatası):** seed.sql meta_title/
+   meta_description'ı TR metinle tohumluyordu → taze kurulumda HER DİL
+   Türkçe meta alıyordu (dev'de satırlar tarihsel olarak boşaldığından
+   görünmüyordu). Anasayfa artık DB override'u boşsa
+   `t('meta_title_default')` / `t('meta_desc_default')` ile dile göre düşer;
+   seed değerleri boş tohumlanır (admin doldurursa tüm dillerde override);
+   `meta_title_default` anahtarı ×4 eklendi.
+7. **Koşum dersi:** REGRESYON_DB env'i verilmeden koşulursa q()/q1()
+   varsayılan `teksilsite`'e bakar — sunucu scratch'i gösterirken 37 yanıltıcı
+   FAIL üretir. Prova komutu: `REGRESYON_DB=<scratch> php tests/regresyon.php`
+   (dosya başlığında zaten belgeliydi; uygulama unutulmuş).
+
+**Sonuç:** §3 (21 dosya) scratch DB'ye temiz kuruluyor (40 tablo; 12 banner ×
+4 dil, 6 para birimi ₺=E282BA, 12 kategori çevirisi, 3 demo yazı, rol-2
+yazilar yetkisi, footer+hukuki sayfalar); **sıfır-DB provası 160/160**; config
+geri alınınca **dev 160/160**. Yetim süreç, scratch DB ve geçici dosyalar
+temizlendi.
+
+**[!] Canlıya taşı:** `sql/migrate_banner_dil.sql`, `sql/migrate_kategori_dil.sql`,
+`sql/migrate_yazilar.sql`, `sql/migrate_yetkiler.sql`, `sql/seed.sql`,
+`application/controllers/Anasayfa.php`, `application/language/` (4),
+`tests/regresyon.php`, `DEPLOY.md` (§3 sırası). Mevcut canlı kurulumlarda ek
+işlem gerekmez (guard'lar idempotent; meta seed'i yalnız taze kurulumu
+etkiler — canlıda meta doluysa override olarak kalır).
+
+---
+
 ## 2026-08-18 (XXXV) — D3 blog: yazilar tablosu + admin CRUD + vitrin liste/detay — 160/160
 
 **İstek (kullanıcı):** "Bilinçli ertelenmişlerden birine geçebilirsin." —

@@ -35,6 +35,7 @@ INSERT IGNORE INTO yetkiler (rol_id, modul, goruntule, duzenle, sil) VALUES
   (2, 'feed',       1, 1, 1),
   (2, 'raporlar',   1, 1, 1),
   (2, 'bannerlar',  1, 1, 1),
+  (2, 'yazilar',    1, 1, 1),
   (2, 'sayfalar',   1, 1, 1),
   (2, 'kuponlar',   1, 1, 1),
   (2, 'ayarlar',    1, 1, 1);

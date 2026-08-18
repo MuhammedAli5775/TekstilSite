@@ -41,7 +41,8 @@ Gerçek rehberler:
 
 ## Durum özeti (2026-08-18)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 160/160 (dev).
+Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 160/160 (dev) +
+sıfır-DB provası 160/160 (XXXVI).
 Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
 yüzeyleri + kategori adları + doğrulama mesajları + dil-bazlı slider
 setleri (XXIX–XXXIII); teslimat ülkesi seçici → ülkeye göre ürün para

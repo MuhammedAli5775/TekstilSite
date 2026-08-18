@@ -6,10 +6,16 @@
 
 SET NAMES utf8mb4;
 
-ALTER TABLE kategoriler
-  ADD COLUMN ad_en VARCHAR(120) NULL AFTER ad,
-  ADD COLUMN ad_ru VARCHAR(120) NULL AFTER ad_en,
-  ADD COLUMN ad_ar VARCHAR(120) NULL AFTER ad_ru;
+-- İdempotent (XXXVI): taze §3 kurulumunda sütunlar schema.sql'den zaten gelir —
+-- ALTER yalnız eksikse koşar (banner_dil ile aynı gerekçe; prova bulgusu).
+SET @kolon_var = (SELECT COUNT(*) FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kategoriler' AND COLUMN_NAME = 'ad_en');
+SET @sql = IF(@kolon_var = 0,
+              'ALTER TABLE kategoriler ADD COLUMN ad_en VARCHAR(120) NULL AFTER ad, ADD COLUMN ad_ru VARCHAR(120) NULL AFTER ad_en, ADD COLUMN ad_ar VARCHAR(120) NULL AFTER ad_ru',
+              'SELECT ''kategoriler.ad_* mevcut — ALTER atlandi'' AS bilgi');
+PREPARE st FROM @sql;
+EXECUTE st;
+DEALLOCATE PREPARE st;
 
 -- Standart demo kategorileri için hazır çeviriler (slug yoksa etkisiz).
 UPDATE kategoriler SET ad_en='New Arrivals',         ad_ru='Новинки',                ad_ar='وصل حديثاً'       WHERE slug='yeni';

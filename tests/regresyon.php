@@ -238,9 +238,11 @@ list($c, ) = get('guest', "/paytr/basarili/$siparisId"); check('paytr-basarili-y
 
 // PayTR callback provası (XXVII): test anahtarlarıyla — geçerli hash + YANLIŞ tutar
 // → 'tutar uyusmazligi' (ödendi işaretlenmez); DOĞRU tutar (kuruş) → 'OK' + odendi.
-q("UPDATE ayarlar SET deger='TKEY123' WHERE anahtar='paytr_merchant_key'");
-q("UPDATE ayarlar SET deger='TSALT123' WHERE anahtar='paytr_merchant_salt'");
-q("UPDATE ayarlar SET deger='TID123' WHERE anahtar='paytr_merchant_id'");
+// XXXVI: INSERT ODKU — taze §3 kurulumunda paytr_* satırları yoktur (seed etmez),
+// UPDATE 0 satır etkiler ve hash 'bad hash'e düşerdi (sıfır-DB provasında bulundu).
+q("INSERT INTO ayarlar (anahtar, deger) VALUES ('paytr_merchant_key','TKEY123') ON DUPLICATE KEY UPDATE deger=VALUES(deger)");
+q("INSERT INTO ayarlar (anahtar, deger) VALUES ('paytr_merchant_salt','TSALT123') ON DUPLICATE KEY UPDATE deger=VALUES(deger)");
+q("INSERT INTO ayarlar (anahtar, deger) VALUES ('paytr_merchant_id','TID123') ON DUPLICATE KEY UPDATE deger=VALUES(deger)");
 $no = q1("SELECT siparis_no FROM siparisler WHERE id=$siparisId");
 list($ttop, $tkur) = array_map('floatval', explode('|', q1("SELECT CONCAT(toplam,'|',kur) FROM siparisler WHERE id=$siparisId")));
 $kurus = (string) (int) round($ttop * $tkur * 100);
