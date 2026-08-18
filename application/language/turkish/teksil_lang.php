@@ -425,4 +425,9 @@ $lang = array(
     'val_sozlesme_uyelik' => 'Üyelik ve mesafeli satış sözleşmesini onaylayın.',
     'val_kuladi_kural'    => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.',
     'val_sozlesme_odeme'  => 'Mesafeli satış sözleşmesini onaylamanız gerekir.',
+
+    // ---- footer ek (XXXIII) ----
+    'ftr_toptan_sartlar' => 'Toptan Şartlar (MOQ)',
+    'ftr_yukari_aria'    => 'Sayfanın başına dön',
+    'ftr_yukari'         => 'Yukarı çık',
 );

@@ -41,9 +41,10 @@ Gerçek rehberler:
 
 ## Durum özeti (2026-08-18)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 147/147 (dev).
+Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 150/150 (dev).
 Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
-yüzeyleri + kategori adları + doğrulama mesajları (XXIX–XXXII).
+yüzeyleri + kategori adları + doğrulama mesajları + dil-bazlı slider
+setleri (XXIX–XXXIII).
 Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
 (`FAZ_A_REHBERI.md`), **Ops** Faz B hosting (`DEPLOY.md`), hukuki yer tutucular
 (E4). Bilinçli ertelenmişler: D1 pazaryeri adapter'ları, D2 cila, D3 blog,

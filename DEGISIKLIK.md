@@ -19,6 +19,41 @@
 
 ---
 
+## 2026-08-18 (XXXIII) — Dil-bazlı slider setleri (demo seed ×4) + footer kategoriler DB'den + kalan footer dizgileri — 150/150
+
+**İstek (kullanıcı):** (1) "there are the same sliders for every language and
+I don't want that. I want there to be sliders for each language" — demo
+slider'lar dil=NULL'du → her dilde aynı Türkçe set görünüyordu. (2) Footer'ın
+`footer__grid` 2. div'i (Kategoriler sütunu) İngilizce'de hâlâ Türkçe.
+
+**Slider:** `sql/seed_slider.sql` yeniden yazıldı — 3 slayt × 4 dil
+(tr/en/ru/ar; başlık/alt başlık/buton metni çevrili, sira her dilde 0-1-2).
+Dev DB'ye uygulandı (4 dil × 3 banner doğrulandı). NULL = "tüm diller"
+davranışı admin için bilinçli seçenek olarak kalır; vitrin sorgusu değişmedi
+(XXX'ten: `dil = aktif_dil() OR dil IS NULL`).
+
+**Footer:**
+- Kategoriler sütunu artık DB menüsünden render ediliyor (`$menu` →
+  `mg_menu()` → `kategori_ad()`) — adminin kategori adı değişikliği ve dil
+  çevirileri footer'a otomatik yansır; eskiden 5 link elle sabitti.
+- `Toptan Şartlar (MOQ)` → `ftr_toptan_sartlar`; yukarı-çık düğmesi
+  aria-label/title → `ftr_yukari_aria` / `ftr_yukari`.
+
+**Dil dosyaları:** 4 dosya × **374 anahtar** (+3).
+
+**Doğrulama:** lint + parite (4×374, 0 FFFD); seed dev DB'de 4×3 doğrulandı;
+tam regresyon +3 (`slider-en-kendi-seti` [EN vitrinde EN slayt başlığı VAR,
+TR başlık YOK], `slider-tr-kendi-seti` [TR vitrinde TR VAR, EN YOK],
+`ftr-en-cevrildi` [EN footer'da 'Wholesale Terms (MOQ)' VAR, 'Toptan
+Şartlar' YOK]) → **150/150**.
+
+**[!] Canlıya taşı:** `sql/seed_slider.sql` (yeniden uygula — eski NULL seti
+silip dil-bazlı setleri kurar), `views/magaza/layout/footer.php`,
+`application/language/` (4), `tests/regresyon.php`. DB şema değişikliği YOK
+(migrate_banner_dil XXX'ten zaten var).
+
+---
+
 ## 2026-08-18 (XXXII) — CI3 doğrulama mesajları çoklu dil: form_validation ×4 + etiketler t() — 147/147
 
 **İstek (kullanıcı):** XXXI kapanışında not edilen son çeviri boşluğu — form

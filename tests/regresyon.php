@@ -464,6 +464,13 @@ check('validation-en-mesaj', $c === 200 && strpos($r, 'The Full Name field is re
 list($c, $r) = post('guest', '/bayi/kayit_kaydet', array());
 check('validation-tr-mesaj', $c === 200 && strpos($r, 'Ad Soyad alanı zorunludur.') !== FALSE && strpos($r, 'field is required') === FALSE);
 
+/* ---- XXXIII: dil-bazlı slider setleri + footer çevirisi ---- */
+list($c, $r) = get('dil', '/');
+check('slider-en-kendi-seti', $c === 200 && strpos($r, 'Factory prices in wholesale womens clothing') !== FALSE && strpos($r, 'Toptan kadın giyimde üretici fiyatı') === FALSE);
+check('ftr-en-cevrildi', strpos($r, 'Wholesale Terms (MOQ)') !== FALSE && strpos($r, 'Toptan Şartlar') === FALSE);
+list($c, $r) = get('guest', '/');
+check('slider-tr-kendi-seti', $c === 200 && strpos($r, 'Toptan kadın giyimde üretici fiyatı') !== FALSE && strpos($r, 'Factory prices in wholesale womens clothing') === FALSE);
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

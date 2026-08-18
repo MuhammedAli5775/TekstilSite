@@ -424,4 +424,9 @@ $lang = array(
     'val_sozlesme_uyelik' => 'Please accept the membership and distance selling agreement.',
     'val_kuladi_kural'    => 'Username may contain only letters, digits, hyphen (-) and underscore (_).',
     'val_sozlesme_odeme'  => 'You must accept the distance sales agreement.',
+
+    // ---- footer ek (XXXIII) ----
+    'ftr_toptan_sartlar' => 'Wholesale Terms (MOQ)',
+    'ftr_yukari_aria'    => 'Back to top',
+    'ftr_yukari'         => 'Go to top',
 );

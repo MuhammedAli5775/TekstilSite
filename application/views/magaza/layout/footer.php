@@ -17,18 +17,17 @@ $yil = date('Y');
             </div>
             <div>
                 <h4><?= t('ftr_kategoriler', 'Kategoriler') ?></h4>
-                <a href="<?= site_url('katalog/ust-giyim') ?>">Üst Giyim</a>
-                <a href="<?= site_url('katalog/alt-giyim') ?>">Alt Giyim</a>
-                <a href="<?= site_url('katalog/elbise') ?>">Elbise &amp; Tulum</a>
-                <a href="<?= site_url('katalog/dis-giyim') ?>">Dış Giyim</a>
-                <a href="<?= site_url('katalog/yeni') ?>">Yeni Gelenler</a>
+                <?php /* XXXIII: DB menüsünden — kategori adları aktif dilde (mg_menu/kategori_ad) */ ?>
+                <?php foreach ((array) ($menu ?? array()) as $ftr_k): ?>
+                    <a href="<?= e($ftr_k['url']) ?>"><?= e($ftr_k['baslik']) ?></a>
+                <?php endforeach; ?>
             </div>
             <div>
                 <h4><?= t('ftr_toptanci', 'Toptancı') ?></h4>
                 <a href="<?= site_url('bayi/kayit') ?>"><?= t('ftr_bayi_kayit', 'Bayi Kaydı') ?></a>
                 <a href="<?= site_url('bayi/giris') ?>"><?= t('ftr_bayi_giris', 'Bayi Girişi') ?></a>
                 <a href="<?= site_url('xml-feed') ?>">XML / API Feed</a>
-                <a href="<?= site_url('toptan-sartlari') ?>">Toptan Şartlar (MOQ)</a>
+                <a href="<?= site_url('toptan-sartlari') ?>"><?= t('ftr_toptan_sartlar', 'Toptan Şartlar (MOQ)') ?></a>
                 <a href="<?= site_url('siparis-takip') ?>"><?= t('util_siparis_takibi', 'Sipariş Takibi') ?></a>
             </div>
             <div>
@@ -46,7 +45,7 @@ $yil = date('Y');
         </div>
     </div>
 </footer>
-<button type="button" id="yukariBtn" class="yukari-btn" aria-label="Sayfanın başına dön" title="Yukarı çık">
+<button type="button" id="yukariBtn" class="yukari-btn" aria-label="<?= t('ftr_yukari_aria', 'Sayfanın başına dön') ?>" title="<?= t('ftr_yukari', 'Yukarı çık') ?>">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
 </button>
 <?php /* tkBase: origin-göreli uygulama kökü (php -S kökünde '/', Apache alt-dizinde '/TekstilSite/').
