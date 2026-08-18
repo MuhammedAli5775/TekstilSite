@@ -36,6 +36,12 @@ $d = $duzenle ?? NULL;
             <?= csrf_field() ?>
             <?php if ($d): ?><input type="hidden" name="id" value="<?= (int) $d->id ?>"><?php endif; ?>
             <div class="fld"><label>Ad <span class="zor">*</span></label><input type="text" name="ad" value="<?= e($d->ad ?? '') ?>" required></div>
+            <div class="fld-row">
+                <div class="fld"><label>Ad — English</label><input type="text" name="ad_en" value="<?= e($d->ad_en ?? '') ?>"></div>
+                <div class="fld"><label>Ad — Русский</label><input type="text" name="ad_ru" value="<?= e($d->ad_ru ?? '') ?>"></div>
+                <div class="fld"><label>Ad — العربية</label><input type="text" name="ad_ar" value="<?= e($d->ad_ar ?? '') ?>"></div>
+            </div>
+            <small class="text-steel">Boş çeviri bırakılırsa mağazada Türkçe ad gösterilir.</small>
             <div class="fld"><label>Slug (boş bırakılırsa ad'dan üret)</label><input type="text" name="slug" value="<?= e($d->slug ?? '') ?>"></div>
             <div class="fld"><label>Üst Kategori</label>
                 <select name="ust_id"><option value="">— Üst kategori (root) —</option>

@@ -18,7 +18,7 @@ class Hesap extends Magaza_Controller
     private function _giris_zorunlu()
     {
         if (! $this->bayi() && ! $this->kullanici()) {
-            $this->session->set_flashdata('hata', 'Bu sayfa için giriş yapmalısınız.');
+            $this->session->set_flashdata('hata', t('flash_giris_gerekli', 'Bu sayfa için giriş yapmalısınız.'));
             redirect('kullanici/giris?donus=' . urlencode(ltrim($this->uri->uri_string(), '/')));
         }
     }
@@ -32,7 +32,7 @@ class Hesap extends Magaza_Controller
     private function _bayi_ozel()
     {
         if (! $this->_bayi_modu()) {
-            $this->session->set_flashdata('hata', 'Bu bölüm yalnızca bayi hesapları içindir.');
+            $this->session->set_flashdata('hata', t('flash_sadece_bayi', 'Bu bölüm yalnızca bayi hesapları içindir.'));
             redirect('hesabim');
         }
     }
@@ -41,7 +41,7 @@ class Hesap extends Magaza_Controller
     private function _kullanici_ozel()
     {
         if (! $this->kullanici()) {
-            $this->session->set_flashdata('hata', 'Bu bölüm yalnızca kullanıcı hesapları içindir.');
+            $this->session->set_flashdata('hata', t('flash_sadece_kul', 'Bu bölüm yalnızca kullanıcı hesapları içindir.'));
             redirect('hesabim');
         }
     }
@@ -66,7 +66,7 @@ class Hesap extends Magaza_Controller
             'aktif_sayi'    => $this->_aktif_sayi($siparisler),
             'menu_aktif'    => 'dashboard',
         );
-        $this->v['meta_title']     = 'Hesabım — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_baslik', 'Hesabım') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/dashboard', $data);
     }
@@ -86,7 +86,7 @@ class Hesap extends Magaza_Controller
             'siparisler' => $siparisler,
             'menu_aktif' => 'siparisler',
         );
-        $this->v['meta_title']     = 'Siparişlerim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_siparisler_b', 'Siparişlerim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/siparisler', $data);
     }
@@ -109,7 +109,7 @@ class Hesap extends Magaza_Controller
             'faturalar' => $this->fatura_model->siparis_faturalari($s->id),
             'menu_aktif'=> 'siparisler',
         );
-        $this->v['meta_title']     = 'Sipariş #' . $s->siparis_no . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_siparis_b', 'Sipariş %s', '#' . $s->siparis_no) . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/siparis_detay', $data);
     }
@@ -130,7 +130,7 @@ class Hesap extends Magaza_Controller
             'faturalar'  => $faturalar,
             'menu_aktif' => 'faturalar',
         );
-        $this->v['meta_title']     = 'Faturalarım — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_faturalar_b', 'Faturalarım') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/faturalar', $data);
     }
@@ -139,7 +139,7 @@ class Hesap extends Magaza_Controller
     {
         if (! $this->_bayi_modu()) { $this->_kullanici_bilgiler(); return; }
         $data = array('b' => $this->bayi(), 'menu_aktif' => 'bilgiler');
-        $this->v['meta_title']     = 'Bilgilerim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/bilgiler', $data);
     }
@@ -148,7 +148,7 @@ class Hesap extends Magaza_Controller
     private function _kullanici_bilgiler($menu_aktif = 'bilgiler')
     {
         $data = array('b' => $this->_kullanici_kart(), 'menu_aktif' => $menu_aktif);
-        $this->v['meta_title']     = 'Bilgilerim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/kullanici_bilgiler', $data);
     }
@@ -180,7 +180,7 @@ class Hesap extends Magaza_Controller
             $this->load->model('kullanici_model');
             $kadi = $this->input->post('kullanici_adi');
             if ($kadi !== NULL && ! $this->kullanici_model->kullanici_adi_musait($kadi, $k->id)) {
-                $this->session->set_flashdata('hata', 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.');
+                $this->session->set_flashdata('hata', t('flash_kuladi_alinmis', 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.'));
                 redirect('hesabim/bilgiler');
             }
             $veri = array(
@@ -191,7 +191,7 @@ class Hesap extends Magaza_Controller
             $this->kullanici_model->bilgiler_guncelle($k->id, $veri);
             $this->kullanici_cache = NULL;
         }
-        $this->session->set_flashdata('bilgi', 'Bilgileriniz güncellendi.');
+        $this->session->set_flashdata('bilgi', t('flash_bilgiler_guncellendi', 'Bilgileriniz güncellendi.'));
         redirect('hesabim/bilgiler');
     }
 
@@ -199,7 +199,7 @@ class Hesap extends Magaza_Controller
     {
         $b = $this->_bayi_modu() ? $this->bayi() : $this->_kullanici_kart();
         $data = array('b' => $b, 'menu_aktif' => 'sifre');
-        $this->v['meta_title']     = 'Şifre Değiştir — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_sifre_b', 'Şifre Değiştir') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/sifre', $data);
     }
@@ -217,7 +217,7 @@ class Hesap extends Magaza_Controller
             $b = $this->bayi();
             $taze = $this->bayi_model->get($b->id);
             if (! password_verify($this->input->post('eski'), $taze->sifre)) {
-                $this->session->set_flashdata('hata', 'Eski şifre yanlış.');
+                $this->session->set_flashdata('hata', t('flash_eski_sifre_hata', 'Eski şifre yanlış.'));
                 redirect('hesabim/sifre');
             }
             $this->bayi_model->sifre_guncelle($b->id, $this->input->post('yeni'));
@@ -226,13 +226,13 @@ class Hesap extends Magaza_Controller
             $this->load->model('kullanici_model');
             $taze = $this->kullanici_model->get($k->id);
             if (! password_verify($this->input->post('eski'), $taze->sifre)) {
-                $this->session->set_flashdata('hata', 'Eski şifre yanlış.');
+                $this->session->set_flashdata('hata', t('flash_eski_sifre_hata', 'Eski şifre yanlış.'));
                 redirect('hesabim/sifre');
             }
             $this->kullanici_model->sifre_guncelle($k->id, $this->input->post('yeni'));
         }
         $this->_oturum_dondur(); // şifre değişti — oturum ID'si de dönsün
-        $this->session->set_flashdata('bilgi', 'Şifreniz güncellendi.');
+        $this->session->set_flashdata('bilgi', t('flash_sifre_guncellendi', 'Şifreniz güncellendi.'));
         redirect('hesabim');
     }
 
@@ -249,7 +249,7 @@ class Hesap extends Magaza_Controller
             'duzenlenen' => $duzenle ? $this->kullanici_model->adres_getir($k->id, $duzenle) : NULL,
             'menu_aktif' => 'adresler',
         );
-        $this->v['meta_title']     = 'Adreslerim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_adresler_b', 'Adreslerim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/adresler', $data);
     }
@@ -279,7 +279,7 @@ class Hesap extends Magaza_Controller
             'varsayilan' => $this->input->post('varsayilan'),
         ), $id ?: NULL);
 
-        $this->session->set_flashdata('bilgi', $id ? 'Adres güncellendi.' : 'Adres eklendi.');
+        $this->session->set_flashdata('bilgi', $id ? t('flash_adres_guncellendi', 'Adres güncellendi.') : t('flash_adres_eklendi', 'Adres eklendi.'));
         redirect('hesabim/adresler');
     }
 
@@ -288,7 +288,7 @@ class Hesap extends Magaza_Controller
         $this->_kullanici_ozel();
         $this->load->model('kullanici_model');
         $this->kullanici_model->adres_sil($this->kullanici()->id, (int) $id);
-        $this->session->set_flashdata('bilgi', 'Adres silindi.');
+        $this->session->set_flashdata('bilgi', t('flash_adres_silindi', 'Adres silindi.'));
         redirect('hesabim/adresler');
     }
 

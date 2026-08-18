@@ -109,7 +109,10 @@ if ( ! function_exists('durum_etiket'))
             'iade_talep'    => array('İade talebi', 'turuncu'),
             'iade_edildi'   => array('İade edildi', 'kirmizi'),
         );
-        return isset($map[$durum]) ? $map[$durum] : array($durum, 'gri');
+        if (! isset($map[$durum])) { return array($durum, 'gri'); }
+        // XXXI: mağaza bağlamında çevirilir; dil yardımcısı yoksa (admin) Türkçe kalır.
+        $map[$durum][0] = function_exists('t') ? t('durum_' . $durum, $map[$durum][0]) : $map[$durum][0];
+        return $map[$durum];
     }
 }
 

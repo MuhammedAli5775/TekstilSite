@@ -6,13 +6,13 @@ class Katalog extends Magaza_Controller
     /** Tüm ürünler. */
     public function index()
     {
-        $this->_liste(null, 'Tüm Ürünler', 'katalog');
+        $this->_liste(null, t('kat_tum_urunler', 'Tüm Ürünler'), 'katalog');
     }
 
     /** Yeni gelenler (en yeni eklenenler). */
     public function yeni()
     {
-        $this->_liste(null, 'Yeni Gelenler', 'katalog/yeni', array('sira' => 'yeni'));
+        $this->_liste(null, t('kat_sira_yeni', 'Yeni Gelenler'), 'katalog/yeni', array('sira' => 'yeni'));
     }
 
     /** Kategori (üst veya alt). URL: katalog/{slug} veya katalog/{ust}/{alt}. */
@@ -28,7 +28,7 @@ class Katalog extends Magaza_Controller
             $idler = array_merge($idler, $this->kategori_model->mg_alt_idler($kat->id));
         }
 
-        $this->_liste($kat, $kat->ad, 'katalog/' . $kat->slug, array('kategori_idler' => $idler));
+        $this->_liste($kat, kategori_ad($kat), 'katalog/' . $kat->slug, array('kategori_idler' => $idler));
     }
 
     /** Ortak liste render. */
@@ -71,7 +71,7 @@ class Katalog extends Magaza_Controller
         );
 
         $this->v['meta_title'] = $baslik . ' — ' . ayar('site_adi', 'TekstilSite');
-        $this->v['meta_desc']  = $baslik . ' — toptan kadın giyim, üretici fiyatı, gerçek stok.';
+        $this->v['meta_desc']  = t('kat_meta_desc', '%s — toptan kadın giyim, üretici fiyatı, gerçek stok.', $baslik);
 
         $this->render('magaza/katalog/index', $data);
     }

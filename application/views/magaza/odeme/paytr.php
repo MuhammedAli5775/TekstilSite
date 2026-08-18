@@ -3,11 +3,11 @@
     <div class="container center">
         <?php if (! empty($bekle)): ?>
             <div class="basari-daire">&#10003;</div>
-            <h1 class="kat-baslik">Ödemeniz Alınıyor</h1>
-            <p class="kat-alt">Sipariş no: <b>#<?= e($s->siparis_no) ?></b> · Kartlı ödemeniz onaylanıyor.</p>
+            <h1 class="kat-baslik"><?= t('paytr_aliniyor', 'Ödemeniz Alınıyor') ?></h1>
+            <p class="kat-alt"><?= t('sonuc_siparis_no', 'Sipariş no:') ?> <b>#<?= e($s->siparis_no) ?></b> · <?= t('paytr_onaylaniyor', 'Kartlı ödemeniz onaylanıyor.') ?></p>
         <?php else: ?>
-            <h1 class="kat-baslik">Kartla Ödeme</h1>
-            <p class="kat-alt">Sipariş no: <b>#<?= e($s->siparis_no) ?></b> · Toplam: <b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></p>
+            <h1 class="kat-baslik"><?= t('paytr_kartla', 'Kartla Ödeme') ?></h1>
+            <p class="kat-alt"><?= t('sonuc_siparis_no', 'Sipariş no:') ?> <b>#<?= e($s->siparis_no) ?></b> · <?= t('detay_toplam', 'Toplam:') ?> <b><?= para_formatla($s->toplam, $s->para_birimi) ?></b></p>
         <?php endif; ?>
     </div>
 </section>
@@ -22,14 +22,14 @@
             </div>
         <?php elseif (! empty($hata)): ?>
             <div class="card card--feature" style="max-width:520px;margin:auto">
-                <h3>Kartlı ödeme kullanılamıyor</h3>
+                <h3><?= t('paytr_kullanilamaz', 'Kartlı ödeme kullanılamıyor') ?></h3>
                 <p class="text-steel"><?= e($hata) ?></p>
-                <p>Siparişiniz <b>#<?= e($s->siparis_no) ?></b> alındı (beklemede). Havale/EFT ile ödeyebilir veya bizimle iletişime geçebilirsiniz.</p>
-                <a class="btn btn-primary" href="<?= site_url('katalog') ?>">Alışverişe Devam Et</a>
+                <p><?= t('paytr_hata_not', 'Siparişiniz #%s alındı (beklemede). Havale/EFT ile ödeyebilir veya bizimle iletişime geçebilirsiniz.', e($s->siparis_no)) ?></p>
+                <a class="btn btn-primary" href="<?= site_url('katalog') ?>"><?= t('paytr_devam', 'Alışverişe Devam Et') ?></a>
             </div>
         <?php else: ?>
             <div class="card card--feature" style="max-width:520px;margin:auto">
-                <p class="text-steel">Siparişiniz <b>#<?= e($s->siparis_no) ?></b> için ödeme işleniyor. Onaylandığında e-posta/SMS ile bilgilendirileceksiniz.</p>
+                <p class="text-steel"><?= t('paytr_isleniyor', 'Siparişiniz #%s için ödeme işleniyor. Onaylandığında e-posta/SMS ile bilgilendirileceksiniz.', e($s->siparis_no)) ?></p>
             </div>
         <?php endif; ?>
     </div>

@@ -9,6 +9,12 @@ class Urun extends Magaza_Controller
         $u = $this->urun_model->mg_detay($slug);
         if (! $u) { show_404(); }
 
+        // XXXI: kategori adı aktif dilde gösterilir (çeviri yoksa modelin TR join'i kalır).
+        if (! empty($u->kategori_slug)) {
+            $kat = $this->kategori_model->mg_by_slug($u->kategori_slug);
+            if ($kat) { $u->kategori_adi = kategori_ad($kat); }
+        }
+
         $varyantlar = $this->urun_model->mg_varyantlar($u->id);
 
         // renk → beden → stok haritası (JS varyant seçimi için)

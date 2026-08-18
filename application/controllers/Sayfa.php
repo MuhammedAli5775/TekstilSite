@@ -13,7 +13,7 @@ class Sayfa extends Magaza_Controller
     /** Yardım / SSS + iletişim. */
     public function yardim()
     {
-        $this->v['meta_title']     = 'Yardım — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_yardim_b', 'Yardım') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/yardim');
     }
@@ -21,7 +21,7 @@ class Sayfa extends Magaza_Controller
     /** Blog (stub — ileride içerik). */
     public function blog()
     {
-        $this->v['meta_title']     = 'Blog — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_blog_b', 'Blog') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/blog');
     }
@@ -37,7 +37,7 @@ class Sayfa extends Magaza_Controller
             $urunler = $this->urun_model->seri_ekle($urunler);
         }
         $data = array('urunler' => $urunler);
-        $this->v['meta_title']     = 'Favorilerim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_favoriler_b', 'Favorilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/favorilerim', $data);
     }
@@ -100,7 +100,7 @@ class Sayfa extends Magaza_Controller
                 $data['hata'] = 'Sipariş bulunamadı. Sipariş no ve e-postayı kontrol edin.';
             }
         }
-        $this->v['meta_title']     = 'Sipariş Takibi — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_takip_b', 'Sipariş Takibi') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/siparis_takip', $data);
     }

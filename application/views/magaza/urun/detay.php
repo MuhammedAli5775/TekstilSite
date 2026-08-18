@@ -7,8 +7,8 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 ?>
 <section class="pd-hero">
     <div class="container">
-        <nav class="kirinti" aria-label="Yol">
-            <a href="<?= site_url() ?>">Anasayfa</a>
+        <nav class="kirinti" aria-label="<?= t('kat_yol', 'Yol') ?>">
+            <a href="<?= site_url() ?>"><?= t('kat_anasayfa', 'Anasayfa') ?></a>
             <?php if (! empty($u->kategori_slug)): ?>
                 <span class="ayrac">/</span>
                 <a href="<?= e(site_url('katalog/' . $u->kategori_slug)) ?>"><?= e($u->kategori_adi) ?></a>
@@ -49,12 +49,12 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
                     <?php if (! empty($u->eski_fiyat) && $u->eski_fiyat > $u->fiyat): ?>
                         <span class="pd-fiyat-eski"><?= para_tr($u->eski_fiyat) ?></span>
                     <?php endif; ?>
-                    <span class="badge badge--green-soft">Adet başı toptan</span>
+                    <span class="badge badge--green-soft"><?= t('detay_toptan', 'Adet başı toptan') ?></span>
                 </div>
 
                 <?php if (! empty($renkler)): ?>
                 <div class="pd-opt">
-                    <div class="pd-opt-label">Renk: <b id="renkSecili"><?= e($renk_secili) ?></b></div>
+                    <div class="pd-opt-label"><?= t('detay_renk', 'Renk') ?>: <b id="renkSecili"><?= e($renk_secili) ?></b></div>
                     <div class="pd-renkler">
                         <?php foreach ($renkler as $r): ?>
                             <button type="button" class="renk-sw<?= $r === $renk_secili ? ' aktif' : '' ?>" data-renk="<?= e($r) ?>" style="background:<?= e(renk_hex($r)) ?>" title="<?= e($r) ?>" aria-label="<?= e($r) ?>"></button>
@@ -65,7 +65,7 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 
                 <?php if (! empty($bedenler)): ?>
                 <div class="pd-opt">
-                    <div class="pd-opt-label">Beden</div>
+                    <div class="pd-opt-label"><?= t('detay_beden', 'Beden') ?></div>
                     <div class="pd-bedenler" id="bedenGrup">
                         <?php foreach ($bedenler as $b): ?>
                             <button type="button" class="beden-btn" data-beden="<?= e($b) ?>"><?= e($b) ?></button>
@@ -78,44 +78,44 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
                 <!-- ADET + basamak -->
                 <div class="pd-adet-satir">
                     <div class="pd-stepper">
-                        <button type="button" id="adetEksi" aria-label="Azalt">−</button>
+                        <button type="button" id="adetEksi" aria-label="<?= t('detay_azalt', 'Azalt') ?>">−</button>
                         <input type="number" id="adetInput" value="<?= $moq ?>" min="<?= $moq ?>" step="<?= $adim ?>" inputmode="numeric">
-                        <button type="button" id="adetArti" aria-label="Artır">+</button>
+                        <button type="button" id="adetArti" aria-label="<?= t('detay_artir', 'Artır') ?>">+</button>
                     </div>
-                    <div class="pd-adet-bilgi">Min. <b><?= $moq ?></b> adet · <?= $adim ?>'li katlar</div>
+                    <div class="pd-adet-bilgi"><?= t('detay_adet_min', "Min. %s adet · %s'li katlar", '<b>' . $moq . '</b>', $adim) ?></div>
                 </div>
 
                 <?php if (! empty($basamaklar)): ?>
                 <div class="pd-basamak">
-                    <div class="pd-basamak-baslik">Adet basamağı indirimi</div>
+                    <div class="pd-basamak-baslik"><?= t('detay_basamak_baslik', 'Adet basamağı indirimi') ?></div>
                     <div class="pd-basamak-liste">
                         <?php foreach ($basamaklar as $b): ?>
-                            <span class="pd-basamak-item"><?= (int) $b->min_adet ?>+ adet <b>%<?= e(number_format($b->indirim_yuzde, 0)) ?></b></span>
+                            <span class="pd-basamak-item"><?= t('detay_basamak_adet', '%s+ adet', (int) $b->min_adet) ?> <b>%<?= e(number_format($b->indirim_yuzde, 0)) ?></b></span>
                         <?php endforeach; ?>
                     </div>
                 </div>
                 <?php endif; ?>
 
                 <div class="pd-toplam">
-                    <span>Toplam:</span>
+                    <span><?= t('detay_toplam', 'Toplam:') ?></span>
                     <b id="toplamTutar"><?= para_tr($u->fiyat * $moq) ?></b>
-                    <span class="pd-toplam-birim" id="toplamBirim">(<?= para_tr($u->fiyat) ?> / adet)</span>
+                    <span class="pd-toplam-birim" id="toplamBirim"><?= t('detay_toplam_birim', '(%s / adet)', para_tr($u->fiyat)) ?></span>
                 </div>
 
                 <div class="pd-sepet-satir">
-                    <button type="button" class="btn btn-primary btn--lg pd-sepet" id="pdSepet">Sepete Ekle</button>
-                    <a class="btn btn-secondary btn--lg" href="<?= e(site_url('bayi/kayit')) ?>">Bayi Fiyatları</a>
+                    <button type="button" class="btn btn-primary btn--lg pd-sepet" id="pdSepet"><?= t('detay_sepete', 'Sepete Ekle') ?></button>
+                    <a class="btn btn-secondary btn--lg" href="<?= e(site_url('bayi/kayit')) ?>"><?= t('detay_bayi_fiyat', 'Bayi Fiyatları') ?></a>
                     <?php if (! empty($favorilerde)): ?>
-                    <a class="btn btn-secondary btn--lg pd-favoride" href="<?= site_url('favoriler/sil/' . $u->id) ?>" title="Favorilerden çıkar">♥ Favorilerde</a>
+                    <a class="btn btn-secondary btn--lg pd-favoride" href="<?= site_url('favoriler/sil/' . $u->id) ?>" title="<?= t('detay_favori_cikar', 'Favorilerden çıkar') ?>">♥ <?= t('detay_favorilerde', 'Favorilerde') ?></a>
                     <?php else: ?>
-                    <a class="btn btn-secondary btn--lg" href="<?= site_url('favoriler/ekle/' . $u->id) ?>">♡ Favorilere Ekle</a>
+                    <a class="btn btn-secondary btn--lg" href="<?= site_url('favoriler/ekle/' . $u->id) ?>"><?= t('detay_favori_ekle', '♡ Favorilere Ekle') ?></a>
                     <?php endif; ?>
                 </div>
 
                 <ul class="pd-deger">
-                    <li><span>✓</span> Üretici garantisi · gerçek stok</li>
-                    <li><span>✓</span> <?= ayar('ucretsiz_kargo_esik', '2000') ?> ₺ üzeri ücretsiz kargo</li>
-                    <li><span>✓</span> Hızlı sevkiyat (Merter, İstanbul)</li>
+                    <li><span>✓</span> <?= t('detay_deger_1', 'Üretici garantisi · gerçek stok') ?></li>
+                    <li><span>✓</span> <?= t('detay_deger_2', '%s üzeri ücretsiz kargo', ayar('ucretsiz_kargo_esik', '2000') . ' ₺') ?></li>
+                    <li><span>✓</span> <?= t('detay_deger_3', 'Hızlı sevkiyat (Merter, İstanbul)') ?></li>
                 </ul>
             </div>
         </div>
@@ -125,23 +125,23 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 <section class="section">
     <div class="container">
         <div class="pd-tabs">
-            <button class="pd-tab aktif" data-tab="aciklama">Açıklama</button>
-            <button class="pd-tab" data-tab="kumas">Kumaş &amp; Bakım</button>
-            <button class="pd-tab" data-tab="teslimat">Teslimat</button>
+            <button class="pd-tab aktif" data-tab="aciklama"><?= t('detay_tab_1', 'Açıklama') ?></button>
+            <button class="pd-tab" data-tab="kumas"><?= t('detay_tab_2', 'Kumaş & Bakım') ?></button>
+            <button class="pd-tab" data-tab="teslimat"><?= t('detay_tab_3', 'Teslimat') ?></button>
         </div>
         <div class="pd-tab-panel aktif" data-panel="aciklama">
             <div class="prose">
-                <?= ! empty($u->aciklama) ? $u->aciklama : '<p>Bu ürün için detaylı açıklama hazırlanıyor.</p>' ?>
+                <?= ! empty($u->aciklama) ? $u->aciklama : '<p>' . t('detay_aciklama_yok', 'Bu ürün için detaylı açıklama hazırlanıyor.') . '</p>' ?>
             </div>
         </div>
         <div class="pd-tab-panel" data-panel="kumas">
             <div class="prose">
-                <p>Ürün kumaş ve bakım bilgileri ürün ekleme sırasında girilir. Genel bakım önerisi: 30°de yıkayın, ağartıcı kullanmayın, düşük ısıda ütüleyin.</p>
+                <p><?= t('detay_kumas_not', 'Ürün kumaş ve bakım bilgileri ürün ekleme sırasında girilir. Genel bakım önerisi: 30°de yıkayın, ağartıcı kullanmayın, düşük ısıda ütüleyin.') ?></p>
             </div>
         </div>
         <div class="pd-tab-panel" data-panel="teslimat">
             <div class="prose">
-                <p>Siparişler aynı iş günü hazırlanır ve anlaşmalı kargo firmalarıyla gönderilir. <?= ayar('ucretsiz_kargo_esik', '2000') ?> ₺ üzeri siparişlerde kargo ücretsizdir.</p>
+                <p><?= t('detay_teslimat_not', 'Siparişler aynı iş günü hazırlanır ve anlaşmalı kargo firmalarıyla gönderilir. %s üzeri siparişlerde kargo ücretsizdir.', ayar('ucretsiz_kargo_esik', '2000') . ' ₺') ?></p>
             </div>
         </div>
     </div>
@@ -151,8 +151,8 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 <section class="section section--tight" style="background:var(--surface)">
     <div class="container">
         <div class="section__head">
-            <span class="section__eyebrow">Benzer Ürünler</span>
-            <h2 class="section__title">Bunları da beğenebilirsiniz</h2>
+            <span class="section__eyebrow"><?= t('detay_benzer', 'Benzer Ürünler') ?></span>
+            <h2 class="section__title"><?= t('detay_benzer_alt', 'Bunları da beğenebilirsiniz') ?></h2>
         </div>
         <div class="prodgrid">
             <?php foreach ($benzer as $b): ?>

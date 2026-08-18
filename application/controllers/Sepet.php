@@ -15,7 +15,7 @@ class Sepet extends Magaza_Controller
         $data = $this->sepet_model->liste();
         $data['esik'] = (float) ayar('ucretsiz_kargo_esik', 2000);
 
-        $this->v['meta_title']     = 'Sepetim — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('sepet_baslik', 'Sepetim') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/sepet/index', $data);
@@ -39,7 +39,7 @@ class Sepet extends Magaza_Controller
         if (! $sepet_id) { redirect('sepet'); }
         $adet = (int) $this->input->post('adet');
         $this->sepet_model->guncelle($sepet_id, $adet);
-        $this->session->set_flashdata('bilgi', 'Adet güncellendi.');
+        $this->session->set_flashdata('bilgi', t('flash_adet_guncellendi', 'Adet güncellendi.'));
         redirect('sepet');
     }
 
@@ -48,7 +48,7 @@ class Sepet extends Magaza_Controller
     {
         if (! $sepet_id) { redirect('sepet'); }
         $this->sepet_model->sil($sepet_id);
-        $this->session->set_flashdata('bilgi', 'Ürün sepetten çıkarıldı.');
+        $this->session->set_flashdata('bilgi', t('flash_urun_cikarildi', 'Ürün sepetten çıkarıldı.'));
         redirect('sepet');
     }
 }

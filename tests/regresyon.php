@@ -431,6 +431,33 @@ list($c) = post('admin', '/yonetim/bannerlar/kaydet', array('id' => $regB, 'basl
 check('banner-admin-gecersiz-dil-null', is_redir($c) && q1("SELECT dil FROM bannerlar WHERE id = $regB") === NULL);
 q("DELETE FROM bannerlar WHERE id = $regB");
 
+/* ---- XXXI: kalan yüzeyler + kategori adları çoklu dil ---- */
+$urunSlug = (string) q1("SELECT slug FROM urunler WHERE deleted_at IS NULL AND durum = 1 ORDER BY id ASC LIMIT 1");
+list($c, ) = get('dil', '/dil/cevir/en');   // dil havuzu RU'dan geliyordu
+list($c, $r) = get('dil', '/katalog/ust-giyim');
+check('dil-en-kategori-baslik', $c === 200 && strpos($r, '<h1 class="kat-baslik">Tops</h1>') !== FALSE);
+list($c, $r) = get('dil', '/urun/' . $urunSlug);
+check('dil-en-urun-detay', $c === 200 && strpos($r, 'Add to Cart') !== FALSE && strpos($r, 'Sepete Ekle') === FALSE);
+list($c, $r) = get('dil', '/arama?q=ti');
+check('dil-en-arama', $c === 200 && (strpos($r, 'results found') !== FALSE || strpos($r, 'No results found') !== FALSE));
+list($c, $r) = get('dil', '/bayi/giris');
+check('dil-en-bayi-giris', $c === 200 && strpos($r, 'Dealer Login') !== FALSE && strpos($r, 'Bayi Girişi') === FALSE);
+list($c, $r) = get('dil', '/');
+check('dil-en-header-menu', $c === 200 && strpos($r, '>Tops<') !== FALSE);
+
+// Kategori admin E2E: ad_en kaydolur → EN vitrinde EN ad, TR vitrinde TR ad (fallback).
+$regKatAd = 'REGXXXI' . $T;
+list($c) = post('admin', '/yonetim/kategoriler/kaydet', array('ad' => $regKatAd . ' TR', 'ad_en' => $regKatAd . ' EN', 'ust_id' => '', 'durum' => 1, 'sira' => 99));
+check('kategori-admin-kaydet-redirect', is_redir($c));
+$regKatId = (int) q1("SELECT id FROM kategoriler WHERE ad = '" . esc($regKatAd . ' TR') . "'");
+$regKatSlug = (string) q1("SELECT slug FROM kategoriler WHERE id = $regKatId");
+check('kategori-admin-dil-kayitli', $regKatId > 0 && q1("SELECT ad_en FROM kategoriler WHERE id = $regKatId") === $regKatAd . ' EN');
+list($c, $r) = get('dil', '/katalog/' . $regKatSlug);
+check('kategori-vitrin-en-baslik', $c === 200 && strpos($r, $regKatAd . ' EN') !== FALSE);
+list($c, $r) = get('guest', '/katalog/' . $regKatSlug);
+check('kategori-vitrin-tr-baslik', $c === 200 && strpos($r, $regKatAd . ' TR') !== FALSE && strpos($r, $regKatAd . ' EN') === FALSE);
+q("DELETE FROM kategoriler WHERE id = $regKatId");
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

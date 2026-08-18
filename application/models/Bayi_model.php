@@ -29,8 +29,8 @@ class Bayi_model extends CI_Model
     /** Kayıt oluşturma. durum=0: onay admin panelinden (Bayiler > durum) verilir. */
     public function kayit($d)
     {
-        if (! $this->db->table_exists('bayiler')) { return array('ok' => FALSE, 'mesaj' => 'Veritabanı hazır değil.'); }
-        if ($this->by_email($d['email'])) { return array('ok' => FALSE, 'mesaj' => 'Bu e-posta adresi zaten kayıtlı.'); }
+        if (! $this->db->table_exists('bayiler')) { return array('ok' => FALSE, 'mesaj' => (function_exists('t') ? t('flash_db_hazir_degil', 'Veritabanı hazır değil.') : 'Veritabanı hazır değil.')); }
+        if ($this->by_email($d['email'])) { return array('ok' => FALSE, 'mesaj' => (function_exists('t') ? t('flash_eposta_kayitli', 'Bu e-posta adresi zaten kayıtlı.') : 'Bu e-posta adresi zaten kayıtlı.')); }
 
         $ins = array(
             'grup_id'          => 1,

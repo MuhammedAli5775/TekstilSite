@@ -14,6 +14,7 @@ class Kategori_model extends CI_Model
         if (! $this->db->table_exists('kategoriler')) {
             return array();
         }
+        $this->load->helper('dil');   // XXXI: kategori adları aktif dilde (çeviri yoksa TR)
         $ust = $this->db->where('ust_id', NULL)
                         ->where('durum', 1)
                         ->order_by('sira', 'ASC')
@@ -30,9 +31,9 @@ class Kategori_model extends CI_Model
                              ->get('kategoriler')
                              ->result();
             foreach ($subs as $s) {
-                $altlar[] = array('baslik' => $s->ad, 'url' => site_url('katalog/' . $s->slug));
+                $altlar[] = array('baslik' => kategori_ad($s), 'url' => site_url('katalog/' . $s->slug));
             }
-            $menu[] = array('baslik' => $k->ad, 'url' => site_url('katalog/' . $k->slug), 'altlar' => $altlar);
+            $menu[] = array('baslik' => kategori_ad($k), 'url' => site_url('katalog/' . $k->slug), 'altlar' => $altlar);
         }
         return $menu;
     }
@@ -63,12 +64,13 @@ class Kategori_model extends CI_Model
     /** Üst yol (breadcrumb): kök → kategori, [ {ad, slug}, ... ] (object). */
     public function mg_ust_yol($kat)
     {
+        $this->load->helper('dil');   // XXXI: kirinti adları aktif dilde
         $yol = array();
         $cur = $kat;
         $guvenlik = 0;
         while ($cur && $guvenlik++ < 10) {
             $o = new stdClass();
-            $o->ad   = isset($cur->ad) ? $cur->ad : '';
+            $o->ad   = isset($cur->ad) ? kategori_ad($cur) : '';
             $o->slug = isset($cur->slug) ? $cur->slug : '';
             array_unshift($yol, $o);
             if (! empty($cur->ust_id)) {

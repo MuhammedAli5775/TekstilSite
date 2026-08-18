@@ -15,7 +15,7 @@ class Odeme extends Magaza_Controller
     {
         $liste = $this->sepet_model->liste();
         if (empty($liste['satirlar'])) {
-            $this->session->set_flashdata('bilgi', 'Ödemeye geçmek için önce sepete ürün ekleyin.');
+            $this->session->set_flashdata('bilgi', t('flash_odeme_sepet_bos_a', 'Ödemeye geçmek için önce sepete ürün ekleyin.'));
             redirect('sepet');
         }
 
@@ -39,7 +39,7 @@ class Odeme extends Magaza_Controller
             if (! $kr['ok']) { $data['kupon_mesaj'] = $kr['mesaj']; }
         }
 
-        $this->v['meta_title']     = 'Ödeme — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('odeme_baslik', 'Ödeme') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/odeme/index', $data);
@@ -50,7 +50,7 @@ class Odeme extends Magaza_Controller
     {
         $liste = $this->sepet_model->liste();
         if (empty($liste['satirlar'])) {
-            $this->session->set_flashdata('bilgi', 'Sepetiniz boş.');
+            $this->session->set_flashdata('bilgi', t('flash_odeme_sepet_bos_b', 'Sepetiniz boş.'));
             redirect('sepet');
         }
 
@@ -69,7 +69,7 @@ class Odeme extends Magaza_Controller
         $this->form_validation->set_rules('sozlesme', 'Sözleşme onayı', 'trim|required', array('required' => 'Mesafeli satış sözleşmesini onaylamanız gerekir.'));
 
         if ($this->form_validation->run() === FALSE) {
-            $this->session->set_flashdata('bilgi', 'Lütfen zorunlu alanları doldurun.');
+            $this->session->set_flashdata('bilgi', t('flash_zorunlu_alan', 'Lütfen zorunlu alanları doldurun.'));
             $this->index();
             return;
         }
@@ -128,7 +128,7 @@ class Odeme extends Magaza_Controller
         $r = $this->kupon_model->dogrula($kod, (float) ($liste['ara_toplam'] ?? 0));
         if ($r['ok']) {
             $this->session->set_userdata('kupon', $r['kupon']->kod);
-            $this->session->set_flashdata('bilgi', 'Kupon uygulandı: -' . para_tr($r['indirim']) . ' (' . e($r['kupon']->kod) . ').');
+            $this->session->set_flashdata('bilgi', t('flash_kupon_uygulandi', 'Kupon uygulandı: -%s (%s).', para_tr($r['indirim']), e($r['kupon']->kod)));
         } else {
             $this->session->set_flashdata('hata', $r['mesaj']);
         }
@@ -139,7 +139,7 @@ class Odeme extends Magaza_Controller
     public function kupon_kaldir()
     {
         $this->session->unset_userdata('kupon');
-        $this->session->set_flashdata('bilgi', 'Kupon kaldırıldı.');
+        $this->session->set_flashdata('bilgi', t('flash_kupon_kaldirildi', 'Kupon kaldırıldı.'));
         redirect('odeme');
     }
 
@@ -151,7 +151,7 @@ class Odeme extends Magaza_Controller
         if (! $sip) { redirect(''); }
         $this->session->unset_userdata('son_siparis_id');
 
-        $this->v['meta_title']     = 'Sipariş Alındı — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('sonuc_title', 'Sipariş Alındı') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/odeme/basarili', array('sip' => $sip));

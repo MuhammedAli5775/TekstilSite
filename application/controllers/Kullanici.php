@@ -11,7 +11,7 @@ class Kullanici extends Magaza_Controller
     public function kayit()
     {
         if ($this->kullanici()) { redirect('hesabim'); }
-        $this->v['meta_title']     = 'Kullanıcı Kaydı — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('kul_kayit_title', 'Kullanıcı Kaydı') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/kullanici/kayit');
     }
@@ -44,14 +44,14 @@ class Kullanici extends Magaza_Controller
         }
 
         // Kullanıcı hesabı onay kuyruğu yok — direkt giriş akışına yönlendir.
-        $this->session->set_flashdata('bilgi', 'Hesabınız oluşturuldu. E-posta ve şifrenizle giriş yapabilirsiniz.');
+        $this->session->set_flashdata('bilgi', t('flash_kul_kayit_ok', 'Hesabınız oluşturuldu. E-posta ve şifrenizle giriş yapabilirsiniz.'));
         redirect('kullanici/giris');
     }
 
     public function giris()
     {
         if ($this->kullanici()) { redirect('hesabim'); }
-        $this->v['meta_title']     = 'Kullanıcı Girişi — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('kul_giris_baslik', 'Kullanıcı Girişi') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->v['donus']          = $this->input->get('donus');
         $this->render('magaza/kullanici/giris');
@@ -67,7 +67,7 @@ class Kullanici extends Magaza_Controller
         $kilit = (int) $this->session->userdata('kullanici_kilit');
         if ($kilit && time() < $kilit) {
             $kalan = max(1, (int) ceil(($kilit - time()) / 60));
-            $this->session->set_flashdata('hata', 'Çok fazla başarısız deneme. Lütfen ' . $kalan . ' dk sonra tekrar deneyin.');
+            $this->session->set_flashdata('hata', t('flash_limit', 'Çok fazla başarısız deneme. Lütfen %s dk sonra tekrar deneyin.', $kalan));
             redirect('kullanici/giris');
         }
 
@@ -82,11 +82,11 @@ class Kullanici extends Magaza_Controller
                 $this->session->set_userdata('kullanici_kilit', time() + 900); // 15 dk kilit
                 $this->session->unset_userdata('kullanici_deneme');
             }
-            $this->session->set_flashdata('hata', 'E-posta veya şifre hatalı.');
+            $this->session->set_flashdata('hata', t('flash_giris_hatali', 'E-posta veya şifre hatalı.'));
             redirect('kullanici/giris');
         }
         if ((int) $k->durum !== 1) {
-            $this->session->set_flashdata('hata', 'Hesabınız devre dışı bırakılmış. Lütfen bizimle iletişime geçin.');
+            $this->session->set_flashdata('hata', t('flash_kul_devre_disi', 'Hesabınız devre dışı bırakılmış. Lütfen bizimle iletişime geçin.'));
             redirect('kullanici/giris');
         }
 
@@ -101,7 +101,7 @@ class Kullanici extends Magaza_Controller
     public function cikis()
     {
         $this->kullanici_cikis();
-        $this->session->set_flashdata('bilgi', 'Çıkış yapıldı.');
+        $this->session->set_flashdata('bilgi', t('flash_cikis_ok', 'Çıkış yapıldı.'));
         redirect('');
     }
 

@@ -19,6 +19,68 @@
 
 ---
 
+## 2026-08-18 (XXXI) — Mağaza çeviri katmanı 3: kalan tüm yüzeyler + kategori adları çoklu dil — 145/145
+
+**İstek (kullanıcı):** "some parts aren't translated" — XXX'ten sonra mağazada
+hâlâ Türkçe kalan tüm yüzeyler (ürün detayı, arama, giriş/kayıt, hesabım, ödeme
+sonuç sayfaları, yardım/takip/favoriler/blog, flash mesajları, sayfa başlıkları)
+ve DB kategori adları (üst menü).
+
+**Kategoriler çoklu dil (DB):**
+- `kategoriler` + `ad_en/ad_ru/ad_ar VARCHAR(120) NULL` — `sql/schema.sql` +
+  `sql/migrate_kategori_dil.sql` (standart 12 kategoriye hazır çeviriler; dev
+  DB'ye uygulandı). DEPLOY.md §3 → **19 dosya**.
+- `dil_helper::kategori_ad($k)` — aktif dilin kolonu; boşsa/kolonsa TR fallback.
+- `kategori_model`: `mg_menu()` + `mg_ust_yol()` çevirili ad döner (dil
+  yardımcısı metod içinde yüklenir); `Katalog::_liste` başlık+meta,
+  `Urun::detay` `$u->kategori_adi` override.
+- Admin Kategoriler formunda EN/RU/AR ad alanları (boşsa mağazada TR).
+
+**Görünüm (t() sarması, ~25 dosya):** `urun/detay.php`, `partial/urun_karti.php`,
+`arama/index.php`, `bayi/giris+kayit`, `kullanici/giris+kayit`, `hesabim/*` (9
+dosya), `odeme/basarili+paytr+paytr_basarisiz`, `sayfa/yardim+siparis_takip+
+favorilerim+blog+sayfa`, `layout/header.php` statik fallback menü. Bağlam içi
+linkli cümleler printf %1$s/%2$s kalıbıyla (sözleşme onayı, SSS cevapları).
+
+**Controller/model katmanı:**
+- Flash mesajları (26 anahtar): Sepet/Odeme/Bayi/Kullanici/Hesap + bayi_model/
+  kullanici_model kayıt mesajları (modellerde function_exists('t') guard'ı).
+- Sayfa başlıkları: 9 controller'daki 19 sabit `meta_title` t()'ye sarıldı
+  (sekme başlığı + SEO). Anasayfa/ürün/CMS başlıkları ayar/DB kaynaklı — TR kalır.
+- `teksil_helper::durum_etiket()`: 8 sipariş durumu çevrilir (guard'lı — admin'de
+  TR); fatura durumları view-side `fdurum_*`. `siparis_takip` ödeme durumu
+  `t('odurum_' . değer, değer)` dinamik fallback.
+
+**Dil dosyaları:** 4 dosya × **368 anahtar** (135 + 233 yeni). AR'de ileri-yönlü
+dizgilerde ←.
+
+**Doğrulama:** lint (dokunulan her dosya) + anahtar parite (4×368; koddaki 359
+statik anahtarın hepsi tanımlı; `durum_`/`odurum_` dinamik önekler bilinçli);
+mojibake byte-grep — yazım sırasında karışan 4+6+1 U+FFFD + 1 bozuk anahtar adı
+(`hesap_merhabا`→`hesap_merhaba`) yakalanıp düzeltildi (4 dosyada 0 FFFD);
+printf→sprintf hatası (dönüş uzunluğu sayfaya sızıyordu) 5 view'da düzeltildi.
+Tam regresyon **+9** (`dil-en-kategori-baslik`, `dil-en-urun-detay`,
+`dil-en-arama`, `dil-en-bayi-giris`, `dil-en-header-menu`,
+`kategori-admin-kaydet-redirect`, `kategori-admin-dil-kayitli`,
+`kategori-vitrin-en-baslik`, `kategori-vitrin-tr-baslik`) → **145/145**; E2E
+kategori admin kaydetme (ad_en DB'ye, EN vitrinde EN ad, TR vitrinde TR ad;
+test verisi temizlendi); manuel AR: kategori h1 DB `ad_ar` ile birebir + ürün
+detayı Arapça.
+
+**Kapsam notu:** DB içerik (ürün adları/açıklamaları, CMS sayfaları, ayarlardan
+gelen anasayfa title/meta) ve yönetim paneli bilinçli TR kalır. CI3 validation
+hata mesajları (set_rules etiketleri) TR — sonraki artım adayı.
+
+**[!] Canlıya taşı:** `application/language/` (4), `dil_helper.php`,
+`teksil_helper.php`, `kategori_model.php`, controllers (Katalog, Urun, Sepet,
+Odeme, Bayi, Kullanici, Hesap, Arama, Sayfa, yonetim/Kategoriler), models
+(bayi_model, kullanici_model), `views/magaza/` (urun, partial, arama, bayi,
+kullanici, hesabim, odeme, sayfa, layout/header), `views/yonetim/kategoriler/`,
+`tests/regresyon.php`, `sql/schema.sql` + **DB: `sql/migrate_kategori_dil.sql`
+uygula**.
+
+---
+
 ## 2026-08-18 (XXX) — Mağaza artımlı çeviri katmanı 2: anasayfa/katalog/sepet/odeme + banner dil filtresi — 136/136
 
 **İstek (kullanıcı):** XXIX kabuk çevirisinin devamı — çalışma ağacında yarım

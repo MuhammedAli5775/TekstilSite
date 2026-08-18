@@ -79,3 +79,20 @@ if (! function_exists('t'))
         return $args ? vsprintf($satir, $args) : $satir;
     }
 }
+
+if (! function_exists('kategori_ad'))
+{
+    /** Kategori satırından aktif dildeki ad (kategoriler.ad_{en|ru|ar});
+     *  çeviri boşsa ya da kolon yoksa Türkçe ada düşer (XXXI). */
+    function kategori_ad($k)
+    {
+        if (! is_object($k) && ! is_array($k)) { return ''; }
+        $kod = aktif_dil();
+        if ($kod !== 'tr') {
+            $alan = 'ad_' . $kod;
+            $v = is_array($k) ? (isset($k[$alan]) ? $k[$alan] : NULL) : (isset($k->$alan) ? $k->$alan : NULL);
+            if ($v !== NULL && $v !== '') { return $v; }
+        }
+        return is_array($k) ? (string) (isset($k['ad']) ? $k['ad'] : '') : (string) (isset($k->ad) ? $k->ad : '');
+    }
+}

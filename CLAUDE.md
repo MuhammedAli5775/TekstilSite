@@ -21,7 +21,7 @@ Gerçek rehberler:
 - Dev sunucu: `npm run dev` → http://localhost:8000 (`scripts/dev.js`, php -S + router.php)
 - Tam regresyon (sunucu açıkken): `C:/xampp/php/php.exe tests/regresyon.php` — 112 test,
   localhost dışı hedefte `--force` guard'ı var
-- Sıfır-DB provası: scratch DB'ye DEPLOY.md §3 (18 dosya, SIRASI ŞART) uygula →
+- Sıfır-DB provası: scratch DB'ye DEPLOY.md §3 (19 dosya, SIRASI ŞART) uygula →
   `npm run dev:testing` (CI_ENV=testing → `teksilsite_rehearsal`) →
   `REGRESYON_DB=teksilsite_rehearsal C:/xampp/php/php.exe tests/regresyon.php`
 - Dev DB: `127.0.0.1` / root / mysql1234 / `teksilsite`

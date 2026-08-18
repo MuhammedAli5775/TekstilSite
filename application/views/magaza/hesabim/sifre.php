@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <section class="kat-hero">
     <div class="container">
-        <nav class="kirinti"><a href="<?= site_url() ?>">Anasayfa</a> <span class="ayrac">/</span> <a href="<?= site_url('hesabim') ?>">Hesabım</a> <span class="ayrac">/</span> <span class="simdiki">Şifre Değiştir</span></nav>
-        <h1 class="kat-baslik">Şifre Değiştir</h1>
+        <nav class="kirinti"><a href="<?= site_url() ?>"><?= t('kat_anasayfa', 'Anasayfa') ?></a> <span class="ayrac">/</span> <a href="<?= site_url('hesabim') ?>"><?= t('hesap_baslik', 'Hesabım') ?></a> <span class="ayrac">/</span> <span class="simdiki"><?= t('hesap_sifre_b', 'Şifre Değiştir') ?></span></nav>
+        <h1 class="kat-baslik"><?= t('hesap_sifre_b', 'Şifre Değiştir') ?></h1>
     </div>
 </section>
 
@@ -15,11 +15,11 @@
 
             <form class="odeme-kart" action="<?= site_url('hesabim/sifre/kaydet') ?>" method="post" style="margin:0;max-width:460px">
                 <?= csrf_field() ?>
-                <legend style="padding:0 0 12px;font-weight:600;font-size:16px">Yeni Şifre Belirle</legend>
-                <div class="odeme-alan"><label>Mevcut Şifre <span class="zor">*</span></label><input type="password" name="eski" required></div>
-                <div class="odeme-alan"><label>Yeni Şifre <span class="zor">*</span></label><input type="password" name="yeni" required minlength="6"><small class="text-steel">En az 6 karakter.</small></div>
-                <div class="odeme-alan"><label>Yeni Şifre (tekrar) <span class="zor">*</span></label><input type="password" name="yeni2" required></div>
-                <button type="submit" class="btn btn-primary" style="margin-top:16px">Şifreyi Güncelle</button>
+                <legend style="padding:0 0 12px;font-weight:600;font-size:16px"><?= t('hesap_sifre_yeni_b', 'Yeni Şifre Belirle') ?></legend>
+                <div class="odeme-alan"><label><?= t('hesap_sifre_mevcut', 'Mevcut Şifre') ?> <span class="zor">*</span></label><input type="password" name="eski" required></div>
+                <div class="odeme-alan"><label><?= t('hesap_sifre_yeni_l', 'Yeni Şifre') ?> <span class="zor">*</span></label><input type="password" name="yeni" required minlength="6"><small class="text-steel"><?= t('hesap_sifre_min', 'En az 6 karakter.') ?></small></div>
+                <div class="odeme-alan"><label><?= t('hesap_sifre_yeni2', 'Yeni Şifre (tekrar)') ?> <span class="zor">*</span></label><input type="password" name="yeni2" required></div>
+                <button type="submit" class="btn btn-primary" style="margin-top:16px"><?= t('hesap_sifre_guncelle', 'Şifreyi Güncelle') ?></button>
             </form>
         </div>
     </div>

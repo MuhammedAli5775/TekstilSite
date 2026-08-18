@@ -1,21 +1,21 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-// DB yoksa statik fallback menü (kaktusmoda B2B yapısı)
+// DB yoksa statik fallback menü (kaktusmoda B2B yapısı) — XXXI: dizgiler t() ile
 if (empty($menu)) {
     $menu = array(
-        array('baslik' => 'Yeni Gelenler', 'url' => site_url('katalog/yeni'), 'altlar' => array()),
-        array('baslik' => 'Üst Giyim',     'url' => site_url('katalog/ust-giyim'), 'altlar' => array(
-            array('baslik' => 'Tişört & Body', 'url' => site_url('katalog/ust-giyim/tisort')),
-            array('baslik' => 'Bluz & Gömlek', 'url' => site_url('katalog/ust-giyim/bluz')),
-            array('baslik' => 'Sweatshirt',    'url' => site_url('katalog/ust-giyim/sweatshirt')),
-            array('baslik' => 'Triko & Hırka', 'url' => site_url('katalog/ust-giyim/triko')),
+        array('baslik' => t('kat_sira_yeni', 'Yeni Gelenler'), 'url' => site_url('katalog/yeni'), 'altlar' => array()),
+        array('baslik' => t('anasayfa_kat_ust', 'Üst Giyim'),     'url' => site_url('katalog/ust-giyim'), 'altlar' => array(
+            array('baslik' => t('menu_tisort', 'Tişört & Body'), 'url' => site_url('katalog/ust-giyim/tisort')),
+            array('baslik' => t('menu_bluz', 'Bluz & Gömlek'), 'url' => site_url('katalog/ust-giyim/bluz')),
+            array('baslik' => t('menu_sweatshirt', 'Sweatshirt'), 'url' => site_url('katalog/ust-giyim/sweatshirt')),
+            array('baslik' => t('menu_triko', 'Triko & Hırka'), 'url' => site_url('katalog/ust-giyim/triko')),
         )),
-        array('baslik' => 'Alt Giyim', 'url' => site_url('katalog/alt-giyim'), 'altlar' => array(
-            array('baslik' => 'Etek',       'url' => site_url('katalog/alt-giyim/etek')),
-            array('baslik' => 'Pantolon',   'url' => site_url('katalog/alt-giyim/pantolon')),
-            array('baslik' => 'Eşofman',    'url' => site_url('katalog/alt-giyim/esofman')),
+        array('baslik' => t('anasayfa_kat_alt', 'Alt Giyim'), 'url' => site_url('katalog/alt-giyim'), 'altlar' => array(
+            array('baslik' => t('menu_etek', 'Etek'),       'url' => site_url('katalog/alt-giyim/etek')),
+            array('baslik' => t('menu_pantolon', 'Pantolon'),   'url' => site_url('katalog/alt-giyim/pantolon')),
+            array('baslik' => t('menu_esofman', 'Eşofman'),    'url' => site_url('katalog/alt-giyim/esofman')),
         )),
-        array('baslik' => 'Elbise & Tulum', 'url' => site_url('katalog/elbise'), 'altlar' => array()),
-        array('baslik' => 'Dış Giyim',      'url' => site_url('katalog/dis-giyim'), 'altlar' => array()),
+        array('baslik' => t('menu_elbise_tulum', 'Elbise & Tulum'), 'url' => site_url('katalog/elbise'), 'altlar' => array()),
+        array('baslik' => t('anasayfa_kat_dis', 'Dış Giyim'),      'url' => site_url('katalog/dis-giyim'), 'altlar' => array()),
     );
 }
 ?>

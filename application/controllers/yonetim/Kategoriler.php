@@ -28,6 +28,9 @@ class Kategoriler extends Admin_Controller
         $id = (int) $this->input->post('id');
         $d = array(
             'ad'    => trim((string) $this->input->post('ad')),
+            'ad_en' => trim((string) $this->input->post('ad_en')),   // XXXI: menü çevirisi; boşsa TR fallback
+            'ad_ru' => trim((string) $this->input->post('ad_ru')),
+            'ad_ar' => trim((string) $this->input->post('ad_ar')),
             'slug'  => trim((string) $this->input->post('slug')),
             'ust_id'=> $this->input->post('ust_id') ? (int) $this->input->post('ust_id') : NULL,
             'durum' => $this->input->post('durum') ? 1 : 0,

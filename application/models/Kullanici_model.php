@@ -37,9 +37,9 @@ class Kullanici_model extends CI_Model
     /** Kayıt oluşturma. durum=1: kullanıcı hesabı onay kuyruğu olmadan aktif. */
     public function kayit($d)
     {
-        if (! $this->db->table_exists('kullanicilar')) { return array('ok' => FALSE, 'mesaj' => 'Veritabanı hazır değil.'); }
-        if ($this->by_email($d['email'])) { return array('ok' => FALSE, 'mesaj' => 'Bu e-posta adresi zaten kayıtlı.'); }
-        if (! empty($d['kullanici_adi']) && $this->by_kullanici_adi($d['kullanici_adi'])) { return array('ok' => FALSE, 'mesaj' => 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.'); }
+        if (! $this->db->table_exists('kullanicilar')) { return array('ok' => FALSE, 'mesaj' => (function_exists('t') ? t('flash_db_hazir_degil', 'Veritabanı hazır değil.') : 'Veritabanı hazır değil.')); }
+        if ($this->by_email($d['email'])) { return array('ok' => FALSE, 'mesaj' => (function_exists('t') ? t('flash_eposta_kayitli', 'Bu e-posta adresi zaten kayıtlı.') : 'Bu e-posta adresi zaten kayıtlı.')); }
+        if (! empty($d['kullanici_adi']) && $this->by_kullanici_adi($d['kullanici_adi'])) { return array('ok' => FALSE, 'mesaj' => (function_exists('t') ? t('flash_kuladi_alinmis', 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.') : 'Bu kullanıcı adı alınmış. Farklı bir ad deneyin.')); }
 
         $ins = array(
             'ad_soyad'     => $d['ad_soyad'],

@@ -100,6 +100,7 @@ mysql -u teksil_app -p teksilsite < sql/migrate_feed_rate_limit.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_perf_index.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_kullanicilar.sql     # kullanıcı (B2C) hesap tablosu
 mysql -u teksil_app -p teksilsite < sql/migrate_banner_dil.sql      # bannerlar.dil (çoklu dil slider filtresi)
+mysql -u teksil_app -p teksilsite < sql/migrate_kategori_dil.sql    # kategoriler.ad_{en,ru,ar} (menü çevirileri)
 mysql -u teksil_app -p teksilsite < sql/seed.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_yetkiler.sql       # seed'den SONRA (FK roller'a bağlı)
 mysql -u teksil_app -p teksilsite < sql/seed_hukuki_sayfalar.sql   # hukuki taslaklar (yer tutucu doldur, adım 8)

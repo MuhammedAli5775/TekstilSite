@@ -9,7 +9,7 @@ class Bayi extends Magaza_Controller
     public function kayit()
     {
         if ($this->bayi()) { redirect('hesabim'); }
-        $this->v['meta_title']     = 'Bayi Kaydı — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('ftr_bayi_kayit', 'Bayi Kaydı') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/bayi/kayit');
     }
@@ -47,14 +47,14 @@ class Bayi extends Magaza_Controller
 
         // Kayıt alındı — durum=0, admin onayı beklenir (Bayiler panelinden).
         // Otomatik giriş YOK: onaylanmamış hesap kapıyı aşamaz (girişte durum kontrolü).
-        $this->session->set_flashdata('bilgi', 'Kaydınız alındı. Hesabınız onaylandıktan sonra e-posta ve şifrenizle giriş yapabilirsiniz.');
+        $this->session->set_flashdata('bilgi', t('flash_bayi_kayit_ok', 'Kaydınız alındı. Hesabınız onaylandıktan sonra e-posta ve şifrenizle giriş yapabilirsiniz.'));
         redirect('bayi/giris');
     }
 
     public function giris()
     {
         if ($this->bayi()) { redirect('hesabim'); }
-        $this->v['meta_title']     = 'Bayi Girişi — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('bayi_giris_baslik', 'Bayi Girişi') . ' — ' . ayar('site_adi', 'TekstilSite');
         $this->v['indexlenebilir'] = FALSE;
         $this->v['donus']          = $this->input->get('donus');
         $this->render('magaza/bayi/giris');
@@ -70,7 +70,7 @@ class Bayi extends Magaza_Controller
         $kilit = (int) $this->session->userdata('bayi_kilit');
         if ($kilit && time() < $kilit) {
             $kalan = max(1, (int) ceil(($kilit - time()) / 60));
-            $this->session->set_flashdata('hata', 'Çok fazla başarısız deneme. Lütfen ' . $kalan . ' dk sonra tekrar deneyin.');
+            $this->session->set_flashdata('hata', t('flash_limit', 'Çok fazla başarısız deneme. Lütfen %s dk sonra tekrar deneyin.', $kalan));
             redirect('bayi/giris');
         }
 
@@ -85,11 +85,11 @@ class Bayi extends Magaza_Controller
                 $this->session->set_userdata('bayi_kilit', time() + 900); // 15 dk kilit
                 $this->session->unset_userdata('bayi_deneme');
             }
-            $this->session->set_flashdata('hata', 'E-posta veya şifre hatalı.');
+            $this->session->set_flashdata('hata', t('flash_giris_hatali', 'E-posta veya şifre hatalı.'));
             redirect('bayi/giris');
         }
         if ((int) $b->durum !== 1) {
-            $this->session->set_flashdata('hata', 'Hesabınız henüz onaylanmamış. Lütfen bizimle iletişime geçin.');
+            $this->session->set_flashdata('hata', t('flash_bayi_onaysiz', 'Hesabınız henüz onaylanmamış. Lütfen bizimle iletişime geçin.'));
             redirect('bayi/giris');
         }
 
@@ -104,7 +104,7 @@ class Bayi extends Magaza_Controller
     public function cikis()
     {
         $this->bayi_cikis();
-        $this->session->set_flashdata('bilgi', 'Çıkış yapıldı.');
+        $this->session->set_flashdata('bilgi', t('flash_cikis_ok', 'Çıkış yapıldı.'));
         redirect('');
     }
 

@@ -17,7 +17,7 @@ $tag   = $u['etiket']    ?? null; // ['renk'=>'green','metin'=>'Yeni']
         <?php if ($gorsel): ?>
             <img src="<?= e(gorsel_url($gorsel)) ?>" alt="<?= e($ad) ?>" loading="lazy" decoding="async">
         <?php else: ?>
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px">görsel yok</div>
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px"><?= t('kart_gorsel_yok', 'görsel yok') ?></div>
         <?php endif; ?>
         <?php if (!empty($tag['metin'])): ?>
             <span class="prodcard__tag badge badge--<?= e($tag['renk'] ?? 'green') ?>"><?= e($tag['metin']) ?></span>
@@ -33,12 +33,12 @@ $tag   = $u['etiket']    ?? null; // ['renk'=>'green','metin'=>'Yeni']
             <?php else: ?>
                 <span class="now"><?= para_tr($fiyat) ?></span>
             <?php endif; ?>
-            <span class="prodcard__adet-etiket">/ adet</span>
+            <span class="prodcard__adet-etiket"><?= t('kart_adet', '/ adet') ?></span>
         </div>
         <?php $seriFiyat = (float) ($u['seri_fiyat'] ?? 0); $seriAdet = (int) ($u['seri_adet'] ?? 0); ?>
         <?php if ($seriFiyat > 0 && $seriFiyat < $fiyat): ?>
-        <div class="prodcard__seri">Seri <b><?= para_tr($seriFiyat) ?></b> <small><?= $seriAdet ?>+ adette</small></div>
+        <div class="prodcard__seri"><?= t('kart_seri', 'Seri') ?> <b><?= para_tr($seriFiyat) ?></b> <small><?= t('kart_seri_adet', '%s+ adette', $seriAdet) ?></small></div>
         <?php endif; ?>
-        <div class="prodcard__moq">Min. <b><?= $moq ?></b> adet · toptan</div>
+        <div class="prodcard__moq"><?= t('kart_moq', 'Min. %s adet · toptan', $moq) ?></div>
     </div>
 </article>

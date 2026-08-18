@@ -7,8 +7,8 @@ $donus = isset($donus) ? $donus : '';
             <svg class="brand__leaf" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2C9 6 5 12 5 19a11 11 0 0 0 22 0c0-7-4-13-11-17Z" fill="#00ed64"/><path d="M16 8c-4 3-6 7-6 11a6 6 0 0 0 12 0c0-4-2-8-6-11Z" fill="#001e2b"/></svg>
             <span>TekstilSite</span>
         </a>
-        <h1 class="auth-baslik">Bayi Girişi</h1>
-        <p class="auth-alt">Toptan hesabınıza giriş yapın.</p>
+        <h1 class="auth-baslik"><?= t('bayi_giris_baslik', 'Bayi Girişi') ?></h1>
+        <p class="auth-alt"><?= t('bayi_giris_alt', 'Toptan hesabınıza giriş yapın.') ?></p>
 
         <?php if ($hata = $this->session->flashdata('hata')): ?><div class="notice notice--warn"><?= e($hata) ?></div><?php endif; ?>
         <?= validation_errors() ? '<div class="notice notice--warn">' . strip_tags(validation_errors()) . '</div>' : '' ?>
@@ -16,10 +16,10 @@ $donus = isset($donus) ? $donus : '';
         <form action="<?= site_url('bayi/giris_yap') ?>" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="donus" value="<?= e($donus) ?>">
-            <div class="odeme-alan"><label>E-posta</label><input type="email" name="email" value="<?= set_value('email') ?>" required></div>
-            <div class="odeme-alan"><label>Şifre</label><input type="password" name="sifre" required></div>
-            <button type="submit" class="btn btn-primary btn--lg" style="width:100%;margin-top:8px">Giriş Yap</button>
+            <div class="odeme-alan"><label><?= t('odeme_eposta', 'E-posta') ?></label><input type="email" name="email" value="<?= set_value('email') ?>" required></div>
+            <div class="odeme-alan"><label><?= t('auth_sifre', 'Şifre') ?></label><input type="password" name="sifre" required></div>
+            <button type="submit" class="btn btn-primary btn--lg" style="width:100%;margin-top:8px"><?= t('auth_giris_btn', 'Giriş Yap') ?></button>
         </form>
-        <p class="auth-link">Hesabın yok mu? <a href="<?= site_url('bayi/kayit') ?>">Bayi ol →</a></p>
+        <p class="auth-link"><?= t('auth_hesap_yok', 'Hesabın yok mu?') ?> <a href="<?= site_url('bayi/kayit') ?>"><?= t('bayi_ol', 'Bayi ol →') ?></a></p>
     </div>
 </section>
