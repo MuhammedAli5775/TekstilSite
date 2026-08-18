@@ -21,6 +21,7 @@ class Yetki_model extends CI_Model
         'feed'       => 'API / Feed',
         'raporlar'   => 'Raporlar',
         'bannerlar'  => 'Bannerlar',
+        'yazilar'    => 'Blog Yazıları',
         'sayfalar'   => 'Sayfalar',
         'kuponlar'   => 'Kuponlar',
         'ayarlar'    => 'Ayarlar & Para Birimi',

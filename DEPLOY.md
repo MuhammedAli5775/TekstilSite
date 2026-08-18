@@ -102,6 +102,7 @@ mysql -u teksil_app -p teksilsite < sql/migrate_kullanicilar.sql     # kullanıc
 mysql -u teksil_app -p teksilsite < sql/migrate_banner_dil.sql      # bannerlar.dil (çoklu dil slider filtresi)
 mysql -u teksil_app -p teksilsite < sql/migrate_kategori_dil.sql    # kategoriler.ad_{en,ru,ar} (menü çevirileri)
 mysql -u teksil_app -p teksilsite < sql/migrate_ulke_para.sql       # para_birimleri +GBP/RUB/AED (teslimat ülkesi → para birimi, XXXIV)
+mysql -u teksil_app -p teksilsite < sql/migrate_yazilar.sql         # yazilar tablosu + yetki + demo yazılar (blog, XXXV)
 mysql -u teksil_app -p teksilsite < sql/seed.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_yetkiler.sql       # seed'den SONRA (FK roller'a bağlı)
 mysql -u teksil_app -p teksilsite < sql/seed_hukuki_sayfalar.sql   # hukuki taslaklar (yer tutucu doldur, adım 8)

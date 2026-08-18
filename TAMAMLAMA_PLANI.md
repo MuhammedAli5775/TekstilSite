@@ -6,13 +6,13 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-18):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **154/154 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **160/160 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Mağaza çoklu dil katmanı tamamlandı (XXIX kabuk +
 > XXX ana sayfalar + XXXI tüm kalan yüzeyler + kategori adları çoklu dil + XXXII
 > doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer + XXXIV teslimat
-> ülkesi → para birimi). Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
-> (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli
-> ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
+> ülkesi → para birimi) + D3 blog ✓ (XXXV). Kalan gap'in tamamı **İş/Ops
+> tarafında**: kimlikler (Faz A), hosting+deploy (Faz B), hukuki metin kararı —
+> artı bilinçli ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila).
 
 ---
 
@@ -136,7 +136,9 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **D1.** Pazaryeri adapter'ları: Hepsiburada, N11, Amazon (yalnız trendyol var) — her biri L (API başına).
   *Erteleme uygundur* — Trendyol tek başına ilk lansman için yeter.
 - **D2.** Rapor/SEO cilası (ihtiyaç halinde) — M
-- **D3.** Blog (`Sayfa.php` stub) — **ertele**, çekirdek dışı.
+- **D3.** Blog (`Sayfa.php` stub) — **✓ 2026-08-18 (XXXV):** yazilar tablosu + admin
+  CRUD (yetki matrisi sözlüğü dahil) + vitrin liste/detay (`blog/(:any)`), 3 demo
+  yazı; 160/160.
 
 ---
 

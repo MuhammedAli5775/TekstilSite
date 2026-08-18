@@ -485,6 +485,26 @@ list($c, $r) = get('dil', '/katalog');
 check('ulke-gecersiz-tr-geri', $c === 200 && strpos($r, ' ₺') !== FALSE);
 get('dil', '/ulke/sec/tr');   // sonraki bölümler için ülkeyi sıfırla
 
+/* ---- XXXV: blog (D3) ---- */
+list($c, $r) = get('guest', '/blog');
+check('blog-liste-dolu', $c === 200 && strpos($r, 'Devamını Oku') !== FALSE && strpos($r, 'yeni-sezon-2026-trendleri') !== FALSE);
+$blogSlug = (string) q1("SELECT slug FROM yazilar WHERE durum = 1 ORDER BY yayin_tarihi DESC, id DESC LIMIT 1");
+list($c, $r) = get('guest', '/blog/' . $blogSlug);
+check('blog-detay-200', $c === 200 && strpos($r, 'class="prose"') !== FALSE);
+list($c, ) = get('guest', '/blog/olmayan-yazi-xyz');
+check('blog-detay-404', $c === 404);
+$regYazi = 'REGXXXV' . $T . ' Yazısı';
+list($c) = post('admin', '/yonetim/yazilar/kaydet', array('baslik' => $regYazi, 'icerik' => '<p>Test icerik REGXXXV</p>', 'durum' => '1'));
+check('yazi-admin-kaydet-redirect', is_redir($c));
+$regYaziId = (int) q1("SELECT id FROM yazilar WHERE baslik = '" . esc($regYazi) . "'");
+$regYaziSlug = (string) q1("SELECT slug FROM yazilar WHERE id = $regYaziId");
+list($c, $r) = get('guest', '/blog/' . $regYaziSlug);
+check('yazi-admin-vitrinde', $c === 200 && strpos($r, 'Test icerik REGXXXV') !== FALSE);
+list($c) = post('admin', '/yonetim/yazilar/kaydet', array('id' => (string) $regYaziId, 'baslik' => $regYazi, 'icerik' => '<p>x</p>'));
+list($c, ) = get('guest', '/blog/' . $regYaziSlug);
+check('yazi-pasif-404', $c === 404);
+q("DELETE FROM yazilar WHERE id = $regYaziId");
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

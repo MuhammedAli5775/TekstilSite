@@ -98,6 +98,7 @@ $route['yonetim']                    = 'yonetim/giris';
 // CMS / misafir sayfaları (Sayfa controller)
 $route['yardim']                     = 'sayfa/yardim';
 $route['blog']                       = 'sayfa/blog';
+$route['blog/(:any)']                = 'sayfa/yazi/$1';
 $route['favorilerim']                = 'sayfa/favorilerim';
 $route['siparis-takip']              = 'sayfa/siparis_takip';
 $route['favoriler/ekle/(:num)']      = 'sayfa/favoriler_ekle/$1';

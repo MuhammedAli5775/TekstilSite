@@ -153,6 +153,15 @@ ul{margin:0;padding:0;list-style:none;}
 .dil-sec__menu a.dil-sec__ulke{display:flex;align-items:center;gap:6px;}
 .dil-sec__menu a.dil-sec__ulke small{margin-left:auto;color:#7d94a0;font-weight:600;}
 
+/* Blog (XXXV) */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.blog-kart{overflow:hidden;display:flex;flex-direction:column;}
+.blog-kart__gorsel img{width:100%;height:180px;object-fit:cover;display:block;}
+.blog-kart__govde{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.blog-kart__govde h3{font-size:17px;letter-spacing:-.01em;}
+.blog-kart__govde h3 a{color:inherit;}
+.blog-kart__govde p{font-size:14px;flex:1;}
+
 header{position:sticky;top:0;z-index:50;}
 .header-main{background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}
 .site-header__row{display:flex;align-items:center;gap:24px;height:72px;}

@@ -19,6 +19,53 @@
 
 ---
 
+## 2026-08-18 (XXXV) — D3 blog: yazilar tablosu + admin CRUD + vitrin liste/detay — 160/160
+
+**İstek (kullanıcı):** "Bilinçli ertelenmişlerden birine geçebilirsin." —
+TAMAMLAMA_PLANI D3 (Blog — Sayfa.php stub) seçildi; D2 cilalar ihtiyaç
+halinde, C6/D1 canlı kimlik gerektiriyor (İş tarafı).
+
+**DB:** `yazilar` tablosu (slug UNIQUE, baslik, ozet, icerik MEDIUMTEXT,
+gorsel, durum, yayin_tarihi) — `sql/schema.sql` + `sql/migrate_yazilar.sql`
+(rol-2 "Yönetici" yetkisi + 3 demo yazı; INSERT IGNORE ile re-çalıştırma
+güvenli). DEPLOY.md §3 → **21 dosya**. Dev DB'ye uygulandı.
+
+**Admin:** `yonetim/Yazilar.php` — index (?duzenle) / kaydet / sil; Bannerlar
+deseni. Slug boşsa başlıktan `slug_tr()` ile; benzersiz değilse -2, -3…
+(kendisi hariç). Özet boşsa içerikten ilk 500 karakter. Kapak görseli yalnız
+dış https URL (banner XXVIII kuralı — dosya yükleme bu modülde yok). İçerik
+admin HTML'idir (CMS sayfaları deseni — vitrinde raw, güvenilir kaynak).
+Menüye "Blog Yazıları" + `Yetki_model::$MODULLER` sözlüğüne eklendi (yetki
+matrisi satırı otomatik belirir).
+
+**Vitrin:** `Sayfa::blog()` — yayındaki yazılar (yayin_tarihi DESC, NULL'lar
+sonda; db_hazir + table_exists guard). `Sayfa::yazi($slug)` — yalnız
+yayındakiler, CMS deseni show_404 + meta_desc = özet (ilk 300); blog liste ve
+detay artık indexlenebilir (stub'daki noindex kalktı — SEO). Yeni rota
+`blog/(:any)`; utility bardaki mevcut Blog linki listeye, kartlar detaya
+bağlanır. Görünüm: kart grid'i (blog-grid/blog-kart stilleri) + detay (prose,
+kapak, kırıntı). 4 yeni dil anahtarı ×4 (yazi_oku/yok/yayin/bloga_don; AR'de
+yön oku ←).
+
+**Doğrulama:** lint (dokunulan her dosya); parite 4×389 (yazımda karışan 1
+U+FFFD AR 'yazi_yok'ta yakalandı+düzeltildi); tam regresyon +6
+(`blog-liste-dolu`, `blog-detay-200`, `blog-detay-404`,
+`yazi-admin-kaydet-redirect`, `yazi-admin-vitrinde`, `yazi-pasif-404` —
+admin E2E: kaydet → vitrinde → pasifleştir → 404 → test verisi silindi) →
+**160/160**.
+
+**Kapsam notu:** yazı başlıkları/içerikleri DB'de TR kalır (ürün/CMS deseni);
+çoklu dil içerik girişi gerekirse kategoriler gibi ad_en/… kolonlu artım olur.
+
+**[!] Canlıya taşı:** `yonetim/Yazilar.php` (yeni), `views/yonetim/yazilar/`
+(yeni), `views/magaza/sayfa/{blog,yazi}.php`, `controllers/Sayfa.php`,
+`config/routes.php`, `core/MY_Controller.php`, `models/Yetki_model.php`,
+`assets/magaza/css/teksil.css`, `application/language/` (4),
+`tests/regresyon.php`, `sql/schema.sql` + **DB: `sql/migrate_yazilar.sql`
+uygula**.
+
+---
+
 ## 2026-08-18 (XXXIV) — Teslimat ülkesi seçici: dil menüsü altında ülke → ürün para birimi — 154/154
 
 **İstek (kullanıcı):** "div.dil-sec__menu'nun en altında kullanıcı teslimat

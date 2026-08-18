@@ -443,4 +443,10 @@ $lang = array(
     'ulke_gb'     => 'Birleşik Krallık',
     'ulke_ru'     => 'Rusya',
     'ulke_ae'     => 'BAE',
+
+    // ---- blog (XXXV) ----
+    'yazi_oku'       => 'Devamını Oku →',
+    'yazi_yok'       => 'Henüz blog yazısı yok.',
+    'yazi_yayin'     => 'Yayın: %s',
+    'yazi_bloga_don' => '← Blog\'a Dön',
 );

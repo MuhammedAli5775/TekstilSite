@@ -18,12 +18,31 @@ class Sayfa extends Magaza_Controller
         $this->render('magaza/sayfa/yardim');
     }
 
-    /** Blog (stub — ileride içerik). */
+    /** Blog — yayındaki yazılar (D3/XXXV; yazilar tablosu). */
     public function blog()
     {
+        $yazilar = array();
+        if ($this->db_hazir() && $this->db->table_exists('yazilar')) {
+            $yazilar = $this->db->where('durum', 1)
+                ->order_by('yayin_tarihi', 'DESC')->order_by('id', 'DESC')
+                ->limit(24)->get('yazilar')->result();
+        }
         $this->v['meta_title']     = t('syf_blog_b', 'Blog') . ' — ' . ayar('site_adi', 'TekstilSite');
-        $this->v['indexlenebilir'] = FALSE;
-        $this->render('magaza/sayfa/blog');
+        $this->render('magaza/sayfa/blog', array('yazilar' => $yazilar));
+    }
+
+    /** Blog yazısı detayı (slug; yalnız yayındakiler — CMS deseni, indexlenebilir). */
+    public function yazi($slug = '')
+    {
+        $slug = trim((string) $slug);
+        $yazi = NULL;
+        if ($slug !== '' && $this->db_hazir() && $this->db->table_exists('yazilar')) {
+            $yazi = $this->db->where('slug', $slug)->where('durum', 1)->limit(1)->get('yazilar')->row();
+        }
+        if (! $yazi) { show_404(); }
+        $this->v['meta_title'] = $yazi->baslik . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_desc']  = mb_substr(trim(strip_tags($yazi->ozet)), 0, 300);
+        $this->render('magaza/sayfa/yazi', array('yazi' => $yazi));
     }
 
     /** Favorilerim (session tabanlı wishlist). */

@@ -449,3 +449,19 @@ CREATE TABLE IF NOT EXISTS kuponlar (
   PRIMARY KEY (id),
   UNIQUE KEY uq_kupon_kod (kod)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Blog yazıları (D3/XXXV — demo verisi migrate_yazilar.sql'de)
+CREATE TABLE IF NOT EXISTS yazilar (
+  id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  slug         VARCHAR(160)  NOT NULL,
+  baslik       VARCHAR(200)  NOT NULL,
+  ozet         VARCHAR(500)  NOT NULL DEFAULT '',
+  icerik       MEDIUMTEXT    NULL,
+  gorsel       VARCHAR(500)  NOT NULL DEFAULT '',
+  durum        TINYINT       NOT NULL DEFAULT 1,
+  yayin_tarihi DATE          NULL,
+  created_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_yazi_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

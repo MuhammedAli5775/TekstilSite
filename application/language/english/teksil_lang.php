@@ -442,4 +442,10 @@ $lang = array(
     'ulke_gb'     => 'United Kingdom',
     'ulke_ru'     => 'Russia',
     'ulke_ae'     => 'UAE',
+
+    // ---- blog (XXXV) ----
+    'yazi_oku'       => 'Read More →',
+    'yazi_yok'       => 'No blog posts yet.',
+    'yazi_yayin'     => 'Published: %s',
+    'yazi_bloga_don' => '← Back to Blog',
 );
