@@ -12,6 +12,14 @@ $_index = isset($indexlenebilir) ? $indexlenebilir : TRUE;
 <title><?= e($_title) ?></title>
 <meta name="description" content="<?= e($_desc) ?>">
 <?php if (! $_index): ?><meta name="robots" content="noindex,nofollow"><?php endif; ?>
+<?php
+// Kanonik URL (XXXVII): filtre/sıralama parametreleri atılır, sayfalama (sayfa)
+// korunur — filtreli görünümler temiz kategori URL'sine, sayfa 2 kendine işaret eder.
+$_kanonik_qs = $_GET;
+unset($_kanonik_qs['beden'], $_kanonik_qs['renk'], $_kanonik_qs['min'], $_kanonik_qs['max'], $_kanonik_qs['sira']);
+$_kanonik = site_url(uri_string() === '' ? '' : uri_string()) . ($_kanonik_qs ? '?' . http_build_query($_kanonik_qs) : '');
+?>
+<link rel="canonical" href="<?= e($_kanonik) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">

@@ -174,3 +174,30 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
     'adim'     => $adim,
     'basamak'  => array_map(function ($x) { return array('min' => (int) $x->min_adet, 'yuzde' => (float) $x->indirim_yuzde); }, $basamaklar),
 ), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
+
+<?php
+// Yapısal veri (XXXVII): schema.org Product — arama motoru zengin sonuçları.
+// Fiyat daima TRY bazlıdır (vitrin para birimi oturum bazlı görüntü dönüşümüdür).
+$_ld_gorsel = (string) $ilk_gorsel;
+if ($_ld_gorsel !== '' && strpos($_ld_gorsel, 'http') !== 0) {
+    $_ld_gorsel = rtrim((string) base_url(), '/') . '/' . ltrim($_ld_gorsel, '/');
+}
+$_ld = array(
+    '@context'    => 'https://schema.org',
+    '@type'       => 'Product',
+    'name'        => (string) $u->ad,
+    'image'       => $_ld_gorsel !== '' ? array($_ld_gorsel) : NULL,
+    'sku'         => 'U' . (int) $u->id,
+    'offers'      => array(
+        '@type'         => 'Offer',
+        'url'           => site_url('urun/' . $u->slug),
+        'priceCurrency' => 'TRY',
+        'price'         => number_format((float) $u->fiyat, 2, '.', ''),
+        'availability'  => (int) ($u->stok ?? 1) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    ),
+);
+if (trim(strip_tags((string) ($u->aciklama ?? ''))) !== '') {
+    $_ld['description'] = mb_substr(trim(strip_tags((string) $u->aciklama)), 0, 500);
+}
+?>
+<script type="application/ld+json"><?= json_encode($_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>

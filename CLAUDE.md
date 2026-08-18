@@ -41,12 +41,13 @@ Gerçek rehberler:
 
 ## Durum özeti (2026-08-18)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 160/160 (dev) +
+Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 167/167 (dev) +
 sıfır-DB provası 160/160 (XXXVI).
 Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
 yüzeyleri + kategori adları + doğrulama mesajları + dil-bazlı slider
 setleri (XXIX–XXXIII); teslimat ülkesi seçici → ülkeye göre ürün para
-birimi (XXXIV); blog admin CRUD + vitrin (D3/XXXV).
+birimi (XXXIV); blog admin CRUD + vitrin (D3/XXXV); SEO cilası — sitemap'e
+blog+CMS + canonical + Product JSON-LD (D2-SEO/XXXVII).
 Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
 (`FAZ_A_REHBERI.md`), **Ops** Faz B hosting (`DEPLOY.md`), hukuki yer tutucular
 (E4). Bilinçli ertelenmişler: D1 pazaryeri adapter'ları, D2 cila, D3 blog,

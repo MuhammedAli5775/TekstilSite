@@ -507,6 +507,22 @@ list($c, ) = get('guest', '/blog/' . $regYaziSlug);
 check('yazi-pasif-404', $c === 404);
 q("DELETE FROM yazilar WHERE id = $regYaziId");
 
+/* ---- XXXVII: SEO cilası (sitemap blog+CMS + canonical + JSON-LD) ---- */
+list($c, $r) = get('guest', '/sitemap.xml');
+check('seo-sitemap-200', $c === 200 && strpos($r, '<urlset') !== FALSE);
+check('seo-sitemap-blog', strpos($r, '/blog</loc>') !== FALSE && strpos($r, '/blog/yeni-sezon-2026-trendleri') !== FALSE);
+check('seo-sitemap-cms', strpos($r, '/iletisim</loc>') !== FALSE && strpos($r, '/sayfa/hakkimizda') !== FALSE);
+$regSeoSlug = 'seo-pasif-' . $T;
+q("INSERT INTO urunler (ad, slug, stok_kodu, kategori_id, fiyat, durum) VALUES ('SEO pasif', '" . esc($regSeoSlug) . "', 'SEO-" . $T . "', 1, 100, 0)");
+list($c, $r) = get('guest', '/sitemap.xml');
+check('seo-sitemap-pasif-urun-yok', strpos($r, $regSeoSlug) === FALSE);
+q("DELETE FROM urunler WHERE slug = '" . esc($regSeoSlug) . "'");
+list($c, $r) = get('guest', '/urun/' . $urunSlug);
+check('seo-kanonik-detay', $c === 200 && strpos($r, '<link rel="canonical" href="' . $BASE . '/urun/' . $urunSlug . '"') !== FALSE);
+check('seo-detay-jsonld', strpos($r, '"@type":"Product"') !== FALSE && strpos($r, '"priceCurrency":"TRY"') !== FALSE);
+list($c, $r) = get('guest', '/katalog?sira=artan&sayfa=2');
+check('seo-kanonik-filtre-atilir', strpos($r, 'rel="canonical" href="' . $BASE . '/katalog?sayfa=2"') !== FALSE);
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

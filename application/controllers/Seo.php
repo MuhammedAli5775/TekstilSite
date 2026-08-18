@@ -34,6 +34,20 @@ class Seo extends CI_Controller
             foreach ($this->db->select('slug, olusturma_zaman')->where('durum', 1)->where('slug IS NOT NULL', NULL, FALSE)->order_by('id')->get('urunler')->result() as $u) {
                 $urls[] = array('loc' => $base . '/urun/' . $u->slug, 'priority' => '0.7', 'lastmod' => $u->olusturma_zaman);
             }
+            // Blog (XXXVII) — liste + yayındaki yazılar
+            if ($this->db->table_exists('yazilar')) {
+                $urls[] = array('loc' => $base . '/blog', 'priority' => '0.6');
+                foreach ($this->db->select('slug, yayin_tarihi, updated_at')->where('durum', 1)->order_by('id')->get('yazilar')->result() as $y) {
+                    $urls[] = array('loc' => $base . '/blog/' . $y->slug, 'priority' => '0.6',
+                                    'lastmod' => $y->updated_at ?: $y->yayin_tarihi);
+                }
+            }
+            // CMS sayfaları (XXXVII) — footer'ın bağladığı kanonik biçimde
+            // (pretty route'u olanlar onunla, diğerleri sayfa/{slug} ile).
+            foreach ($this->db->select('slug')->where('durum', 1)->order_by('id')->get('sayfalar')->result() as $s) {
+                $yol = in_array($s->slug, array('iletisim', 'toptan-sartlari', 'xml-feed'), TRUE) ? $s->slug : 'sayfa/' . $s->slug;
+                $urls[] = array('loc' => $base . '/' . $yol, 'priority' => '0.4');
+            }
         }
 
         header('Content-Type: application/xml; charset=utf-8');

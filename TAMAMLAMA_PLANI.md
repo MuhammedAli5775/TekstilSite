@@ -6,7 +6,7 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-18):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **160/160 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **167/167 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası **160/160** (2026-08-18 XXXVI yenilemesi — §3 artık 21
 > dosya; provanın bulduğu 4 §3 hatası + meta çoklu dil gap'i kapatıldı). Mağaza çoklu
 > dil katmanı tamamlandı (XXIX kabuk +
@@ -14,7 +14,7 @@
 > doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer + XXXIV teslimat
 > ülkesi → para birimi) + D3 blog ✓ (XXXV). Kalan gap'in tamamı **İş/Ops
 > tarafında**: kimlikler (Faz A), hosting+deploy (Faz B), hukuki metin kararı —
-> artı bilinçli ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila).
+> artı bilinçli ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2'nin rapor yarısı — SEO yarısı ✓ XXXVII).
 
 ---
 
@@ -138,6 +138,9 @@ o zamana kadar elle DB'ye (`ayarlar` tablosu: `anahtar`/`deger`). Lansman için 
 - **D1.** Pazaryeri adapter'ları: Hepsiburada, N11, Amazon (yalnız trendyol var) — her biri L (API başına).
   *Erteleme uygundur* — Trendyol tek başına ilk lansman için yeter.
 - **D2.** Rapor/SEO cilası (ihtiyaç halinde) — M
+  **✓ SEO yarısı 2026-08-18 (XXXVII):** sitemap'e blog+CMS, tüm sayfalarda canonical
+  (filtre parametreleri atılır, sayfalama korunur), ürün detayda Product JSON-LD;
+  167/167. Rapor yarısı ihtiyaç halinde bekler.
 - **D3.** Blog (`Sayfa.php` stub) — **✓ 2026-08-18 (XXXV):** yazilar tablosu + admin
   CRUD (yetki matrisi sözlüğü dahil) + vitrin liste/detay (`blog/(:any)`), 3 demo
   yazı; 160/160.

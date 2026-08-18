@@ -19,6 +19,44 @@
 
 ---
 
+## 2026-08-18 (XXXVII) — D2 SEO cilası: sitemap'e blog+CMS + canonical + Product JSON-LD — 167/167
+
+**Bağlam:** "sonraki adıma geç" — TAMAMLAMA_PLANI D2 (Rapor/SEO cilası) altından
+somut SEO bitişi. Mevcut durum: sitemap.xml (anasayfa/katalog/kategori/ürün) ve
+robots.txt (Disallow kuralları + Sitemap direktifi + arama_index duyarlılığı)
+zaten vardı; blog (XXXV) sitemap'te yoktu, canonical ve yapısal veri hiç yoktu.
+
+**Parçalar:**
+- `Seo::sitemap()` — blog listesi + yayındaki yazılar (lastmod: updated_at →
+  yayin_tarihi; table_exists guard) ve CMS sayfaları eklendi. CMS URL'leri
+  footer'ın bağladığı kanonik biçimde: pretty route'u olanlar (iletisim,
+  toptan-sartlari, xml-feed) kendi yolunda, diğerleri sayfa/{slug} — sitemap
+  ile iç linkler tutarlı.
+- `head.php` — tüm mağaza sayfalarında `<link rel="canonical">`:
+  filtre/sıralama parametreleri (beden/renk/min/max/sira) atılır, sayfalama
+  (sayfa) korunur — filtreli görünümler temiz kategori URL'sine, sayfa 2
+  kendine işaret eder.
+- `detay.php` — schema.org Product JSON-LD: ad, görsel (mutlak URL'e
+  çözülür), sku, Offer (TRY bazlı fiyat — oturum para birimi yalnız görüntü
+  dönüşümüdür, yapısal veri gerçek satış para biriminde), stok durumuna göre
+  InStock/OutOfStock, açıklama varsa (500 karakter).
+- robots.txt'e dokunulmadı — Sitemap direktifi zaten vardı.
+
+**Bilinen sınır:** dil seçimi URL değil oturum/çerez tabanlı olduğundan
+hreflang alternatifleri uygulanabilir değil — arama motorları varsayılan dili
+(TR) indeksler. URL tabanlı locale gerekirse ileride ayrı artım.
+
+**Doğrulama:** lint; tam regresyon +7 (`seo-sitemap-200`, `seo-sitemap-blog`,
+`seo-sitemap-cms`, `seo-sitemap-pasif-urun-yok`, `seo-kanonik-detay`,
+`seo-detay-jsonld`, `seo-kanonik-filtre-atilir`) → **167/167**. Test INSERT'i
+ilk koşuda `stok_kodu` (NOT NULL, defaultsuz) yüzünden fatal attı — kolon
+eklendi.
+
+**[!] Canlıya taşı:** `controllers/Seo.php`, `views/magaza/layout/head.php`,
+`views/magaza/urun/detay.php`, `tests/regresyon.php`. DB değişikliği yok.
+
+---
+
 ## 2026-08-18 (XXXVI) — Sıfır-DB provası: §3 dizisinde 4 hata kapatıldı + meta çoklu dil gap'i + test self-sufficiency — 160/160 (sıfır-DB ve dev)
 
 **Bağlam:** §3 kurulum listesi bu oturumda 17→21 dosyaya büyüdü (4 yeni
