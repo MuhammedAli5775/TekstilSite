@@ -157,12 +157,12 @@ class Hesap extends Magaza_Controller
     {
         $this->load->library('form_validation');
         if ($this->_bayi_modu()) {
-            $this->form_validation->set_rules('yetkili_ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
+            $this->form_validation->set_rules('yetkili_ad_soyad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[120]');
         } else {
-            $this->form_validation->set_rules('ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
-            $this->form_validation->set_rules('kullanici_adi', 'Kullanıcı Adı', 'trim|required|alpha_dash|min_length[3]|max_length[30]', array('alpha_dash' => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.'));
+            $this->form_validation->set_rules('ad_soyad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[120]');
+            $this->form_validation->set_rules('kullanici_adi', t('kul_kullanici_adi', 'Kullanıcı Adı'), 'trim|required|alpha_dash|min_length[3]|max_length[30]', array('alpha_dash' => t('val_kuladi_kural', 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.')));
         }
-        $this->form_validation->set_rules('telefon', 'Telefon', 'trim|required|max_length[30]');
+        $this->form_validation->set_rules('telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[30]');
         if ($this->form_validation->run() === FALSE) { $this->bilgiler(); return; }
 
         if ($this->_bayi_modu()) {
@@ -207,9 +207,9 @@ class Hesap extends Magaza_Controller
     public function sifre_kaydet()
     {
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('eski', 'Eski şifre', 'trim|required');
-        $this->form_validation->set_rules('yeni', 'Yeni şifre', 'trim|required|min_length[6]|max_length[60]');
-        $this->form_validation->set_rules('yeni2', 'Yeni şifre tekrar', 'trim|required|matches[yeni]');
+        $this->form_validation->set_rules('eski', t('hesap_sifre_mevcut', 'Mevcut Şifre'), 'trim|required');
+        $this->form_validation->set_rules('yeni', t('hesap_sifre_yeni_l', 'Yeni Şifre'), 'trim|required|min_length[6]|max_length[60]');
+        $this->form_validation->set_rules('yeni2', t('hesap_sifre_yeni2', 'Yeni Şifre (tekrar)'), 'trim|required|matches[yeni]');
 
         if ($this->form_validation->run() === FALSE) { $this->sifre(); return; }
 
@@ -258,11 +258,11 @@ class Hesap extends Magaza_Controller
     {
         $this->_kullanici_ozel();
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
-        $this->form_validation->set_rules('adres', 'Adres', 'trim|required|max_length[255]');
-        $this->form_validation->set_rules('il', 'İl', 'trim|required|max_length[60]');
-        $this->form_validation->set_rules('ilce', 'İlçe', 'trim|required|max_length[90]');
-        $this->form_validation->set_rules('telefon', 'Telefon', 'trim|max_length[30]');
+        $this->form_validation->set_rules('ad_soyad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[120]');
+        $this->form_validation->set_rules('adres', t('odeme_adres', 'Adres'), 'trim|required|max_length[255]');
+        $this->form_validation->set_rules('il', t('odeme_il', 'İl'), 'trim|required|max_length[60]');
+        $this->form_validation->set_rules('ilce', t('odeme_ilce', 'İlçe'), 'trim|required|max_length[90]');
+        $this->form_validation->set_rules('telefon', t('odeme_telefon', 'Telefon'), 'trim|max_length[30]');
         $id = (int) $this->input->post('id');
 
         if ($this->form_validation->run() === FALSE) { redirect('hesabim/adresler' . ($id ? "?duzenle=$id" : '')); return; }

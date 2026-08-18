@@ -148,6 +148,9 @@ class Magaza_Controller extends MY_Controller
         $this->load->helper('dil');
         $this->v['dil']     = aktif_dil();
         $this->v['dil_adi'] = dil_adi($this->v['dil']);
+        // XXXII: CI3 çekirdek mesajları (form_validation) aktif dile yüklensin;
+        // yönetim paneli config varsayılanıyla (turkish) kalır.
+        $this->config->set_item('language', dil_klasor($this->v['dil']));
     }
 
     /** Tam sayfa render (head + header + view + footer). */

@@ -420,4 +420,9 @@ $lang = array(
     'kul_kayit_title' => 'Kullanıcı Kaydı',
     'sonuc_title'     => 'Sipariş Alındı',
     'arama_title_q'   => 'Arama: %s',
+
+    // ---- validation özel mesajları (XXXII) ----
+    'val_sozlesme_uyelik' => 'Üyelik ve mesafeli satış sözleşmesini onaylayın.',
+    'val_kuladi_kural'    => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.',
+    'val_sozlesme_odeme'  => 'Mesafeli satış sözleşmesini onaylamanız gerekir.',
 );

@@ -39,10 +39,12 @@ Gerçek rehberler:
 - Her değişiklik DEGISIKLIK.md'e kaydolur (dosya + DB + doğrulama); commit
   mesajı kısa Türkçe + test sayısı (örn. "… — 112/112")
 
-## Durum özeti (2026-08-17)
+## Durum özeti (2026-08-18)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 112/112 (dev +
-sıfır-DB provası). Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
+Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 147/147 (dev).
+Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
+yüzeyleri + kategori adları + doğrulama mesajları (XXIX–XXXII).
+Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
 (`FAZ_A_REHBERI.md`), **Ops** Faz B hosting (`DEPLOY.md`), hukuki yer tutucular
 (E4). Bilinçli ertelenmişler: D1 pazaryeri adapter'ları, D2 cila, D3 blog,
 C6 canlı Trendyol testi. Güncel ayrıntı: TAMAMLAMA_PLANI.md.

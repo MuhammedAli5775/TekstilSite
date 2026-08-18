@@ -17,15 +17,15 @@ class Bayi extends Magaza_Controller
     public function kayit_kaydet()
     {
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('yetkili_ad_soyad', 'Ad Soyad', 'trim|required|max_length[120]');
-        $this->form_validation->set_rules('firma_adi', 'Firma ünvanı', 'trim|required|max_length[160]');
-        $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email|max_length[150]');
-        $this->form_validation->set_rules('telefon', 'Telefon', 'trim|required|max_length[30]');
-        $this->form_validation->set_rules('vergi_no', 'Vergi / TC no', 'trim|max_length[30]');
-        $this->form_validation->set_rules('vergi_dairesi', 'Vergi dairesi', 'trim|max_length[120]');
-        $this->form_validation->set_rules('sifre', 'Şifre', 'trim|required|min_length[6]|max_length[60]');
-        $this->form_validation->set_rules('sifre2', 'Şifre tekrar', 'trim|required|matches[sifre]');
-        $this->form_validation->set_rules('sozlesme', 'Sözleşme', 'trim|required', array('required' => 'Üyelik ve mesafeli satış sözleşmesini onaylayın.'));
+        $this->form_validation->set_rules('yetkili_ad_soyad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[120]');
+        $this->form_validation->set_rules('firma_adi', t('odeme_firma_unvan', 'Firma Ünvanı'), 'trim|required|max_length[160]');
+        $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email|max_length[150]');
+        $this->form_validation->set_rules('telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[30]');
+        $this->form_validation->set_rules('vergi_no', t('odeme_vergi_no', 'Vergi / TC No'), 'trim|max_length[30]');
+        $this->form_validation->set_rules('vergi_dairesi', t('bayi_vergi_dairesi', 'Vergi Dairesi'), 'trim|max_length[120]');
+        $this->form_validation->set_rules('sifre', t('auth_sifre', 'Şifre'), 'trim|required|min_length[6]|max_length[60]');
+        $this->form_validation->set_rules('sifre2', t('auth_sifre_tekrar', 'Şifre Tekrar'), 'trim|required|matches[sifre]');
+        $this->form_validation->set_rules('sozlesme', 'Sözleşme', 'trim|required', array('required' => t('val_sozlesme_uyelik', 'Üyelik ve mesafeli satış sözleşmesini onaylayın.')));
 
         if ($this->form_validation->run() === FALSE) { $this->kayit(); return; }
 
@@ -63,8 +63,8 @@ class Bayi extends Magaza_Controller
     public function giris_yap()
     {
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email');
-        $this->form_validation->set_rules('sifre', 'Şifre', 'trim|required');
+        $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email');
+        $this->form_validation->set_rules('sifre', t('auth_sifre', 'Şifre'), 'trim|required');
 
         // brute-force kilidi (session tabanlı)
         $kilit = (int) $this->session->userdata('bayi_kilit');

@@ -458,6 +458,12 @@ list($c, $r) = get('guest', '/katalog/' . $regKatSlug);
 check('kategori-vitrin-tr-baslik', $c === 200 && strpos($r, $regKatAd . ' TR') !== FALSE && strpos($r, $regKatAd . ' EN') === FALSE);
 q("DELETE FROM kategoriler WHERE id = $regKatId");
 
+/* ---- XXXII: CI3 validation mesajları aktif dilde ---- */
+list($c, $r) = post('dil', '/bayi/kayit_kaydet', array());
+check('validation-en-mesaj', $c === 200 && strpos($r, 'The Full Name field is required.') !== FALSE && strpos($r, 'alanı zorunludur') === FALSE);
+list($c, $r) = post('guest', '/bayi/kayit_kaydet', array());
+check('validation-tr-mesaj', $c === 200 && strpos($r, 'Ad Soyad alanı zorunludur.') !== FALSE && strpos($r, 'field is required') === FALSE);
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

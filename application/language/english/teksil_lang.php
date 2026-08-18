@@ -419,4 +419,9 @@ $lang = array(
     'kul_kayit_title' => 'Customer Sign-Up',
     'sonuc_title'     => 'Order Received',
     'arama_title_q'   => 'Search: %s',
+
+    // ---- validation özel mesajları (XXXII) ----
+    'val_sozlesme_uyelik' => 'Please accept the membership and distance selling agreement.',
+    'val_kuladi_kural'    => 'Username may contain only letters, digits, hyphen (-) and underscore (_).',
+    'val_sozlesme_odeme'  => 'You must accept the distance sales agreement.',
 );

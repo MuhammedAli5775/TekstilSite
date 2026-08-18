@@ -38,7 +38,7 @@ $config['url_suffix'] = '';
 | Default Language and Character Set                                       |
 |--------------------------------------------------------------------------|
 */
-$config['language']	= 'english';
+$config['language']	= 'turkish';
 $config['charset'] = 'UTF-8';
 
 /*

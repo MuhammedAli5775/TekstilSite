@@ -423,4 +423,9 @@ $lang = array(
     'kul_kayit_title' => 'تسجيل العميل',
     'sonuc_title'     => 'تم استلام الطلب',
     'arama_title_q'   => 'البحث: %s',
+
+    // ---- validation özel mesajları (XXXII) ----
+    'val_sozlesme_uyelik' => 'يرجى الموافقة على اتفاقية العضوية والبيع عن بعد.',
+    'val_kuladi_kural'    => 'يمكن أن يحتوي اسم المستخدم على حروف وأرقام وشرطة (-) وشرطة سفلية (_) فقط.',
+    'val_sozlesme_odeme'  => 'يجب الموافقة على اتفاقية البيع عن بعد.',
 );

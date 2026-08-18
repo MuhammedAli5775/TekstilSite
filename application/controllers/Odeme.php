@@ -55,18 +55,18 @@ class Odeme extends Magaza_Controller
         }
 
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('teslimat_ad', 'Teslimat adı', 'trim|required|max_length[150]');
-        $this->form_validation->set_rules('teslimat_adres', 'Teslimat adresi', 'trim|required|max_length[500]');
-        $this->form_validation->set_rules('teslimat_il', 'İl', 'trim|required');
-        $this->form_validation->set_rules('teslimat_telefon', 'Telefon', 'trim|required|max_length[30]');
+        $this->form_validation->set_rules('teslimat_ad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[150]');
+        $this->form_validation->set_rules('teslimat_adres', t('odeme_adres', 'Adres'), 'trim|required|max_length[500]');
+        $this->form_validation->set_rules('teslimat_il', t('odeme_il', 'İl'), 'trim|required');
+        $this->form_validation->set_rules('teslimat_telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[30]');
         // E-posta kuralı yalnız misafir/bayi için — giriş yapmış KULLANICININ siparişi
         // hesabının e-postasına işlenir (form değeri eşleşmeyi koparamaz, XXV).
         if (! $this->kullanici()) {
-            $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email|max_length[150]');
+            $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email|max_length[150]');
         }
-        $this->form_validation->set_rules('odeme_yontemi', 'Ödeme yöntemi', 'trim|required');
-        $this->form_validation->set_rules('kargo_firma_id', 'Kargo firması', 'trim|required|integer');
-        $this->form_validation->set_rules('sozlesme', 'Sözleşme onayı', 'trim|required', array('required' => 'Mesafeli satış sözleşmesini onaylamanız gerekir.'));
+        $this->form_validation->set_rules('odeme_yontemi', t('odeme_yontem', 'Ödeme Yöntemi'), 'trim|required');
+        $this->form_validation->set_rules('kargo_firma_id', t('odeme_kargo_firma', 'Kargo Firması'), 'trim|required|integer');
+        $this->form_validation->set_rules('sozlesme', 'Sözleşme onayı', 'trim|required', array('required' => t('val_sozlesme_odeme', 'Mesafeli satış sözleşmesini onaylamanız gerekir.')));
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('bilgi', t('flash_zorunlu_alan', 'Lütfen zorunlu alanları doldurun.'));

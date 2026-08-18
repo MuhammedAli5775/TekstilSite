@@ -19,6 +19,49 @@
 
 ---
 
+## 2026-08-18 (XXXII) — CI3 doğrulama mesajları çoklu dil: form_validation ×4 + etiketler t() — 147/147
+
+**İstek (kullanıcı):** XXXI kapanışında not edilen son çeviri boşluğu — form
+doğrulama hataları her dilde İngilizce CI3 mesajı + Türkçe alan etiketi
+görünüyordu ("The Teslimat adı field is required").
+
+**Altyapı:**
+- `application/language/{turkish,english,russian,arabic}/form_validation_lang.php`
+  — CI3 çekirdek mesajları (~29 satır × 4 dil). Sistem yalnız english
+  gönderir; uygulama klasöründen yüklenmesi garanti altına alındı.
+- `config.php`: `$config['language'] = 'turkish'` (önceki 'english' — admin
+  paneli ve varsayılan artık Türkçe mesaj alır).
+- `MY_Controller::_ortak_veri()`: aktif dile göre
+  `config->set_item('language', dil_klasor(aktif_dil()))` — form_validation
+  kütüphanesi controller metodlarında yüklendiğinden dil atamasından sonra
+  gelir (autoload'da form_validation yok — doğrulandı).
+- 35 `set_rules` etiketi t()'ye sarıldı (Bayi/Kullanici/Odeme/Hesap; etiketler
+  mevcut odeme_*/auth_*/hesap_* anahtarlarını yeniden kullanır) + 3 özel
+  mesaj yeni `val_*` anahtarlarıyla (val_sozlesme_uyelik, val_kuladi_kural,
+  val_sozlesme_odeme).
+
+**Dil dosyaları:** 4 dosya × **371 anahtar** (+3).
+
+**Kaza + kurtarma:** config.php'yi değiştiren ilk preg_replace denemesi regex
+derleme hatasıyla NULL döndürdü ve NULL dosyaya yazıldı → dosya boşaldı
+(0 bayt; boş dosya php -l'den geçiyor!). `git restore` ile geri yüklendi
+(7587 bayt), değişim sayım-doğrulamalı str_replace ile uygulandı. Ders:
+php -l içerik doğrulaması değildir.
+
+**Doğrulama:** lint ×10; parite 4×371 (0 FFFD — RU/AR form_validation
+dosyalarına yazarken karışan 2+2 U+FFFD yakalandı+düzeltildi); autoload
+kontrolü; tam regresyon +2 (`validation-en-mesaj` [boş POST /bayi/kayit_kaydet
+EN'de 'The Full Name field is required.' + Türkçe kalıntı yok],
+`validation-tr-mesaj` [TR'de 'Ad Soyad alanı zorunludur.' + İngilizce kalıntı
+yok]) → **147/147**.
+
+**[!] Canlıya taşı:** `application/language/*/form_validation_lang.php` (4 yeni
+dosya), `application/config/config.php` (language=turkish), `MY_Controller.php`,
+controllers (Bayi, Kullanici, Odeme, Hesap), `tests/regresyon.php`.
+DB değişikliği YOK.
+
+---
+
 ## 2026-08-18 (XXXI) — Mağaza çeviri katmanı 3: kalan tüm yüzeyler + kategori adları çoklu dil — 145/145
 
 **İstek (kullanıcı):** "some parts aren't translated" — XXX'ten sonra mağazada
