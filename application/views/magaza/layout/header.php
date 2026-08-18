@@ -34,6 +34,11 @@ if (empty($menu)) {
                         <a href="<?= site_url('dil/cevir/en') ?>" class="<?= ($dil ?? '') === 'en' ? 'aktif' : '' ?>">English</a>
                         <a href="<?= site_url('dil/cevir/ru') ?>" class="<?= ($dil ?? '') === 'ru' ? 'aktif' : '' ?>">Русский</a>
                         <a href="<?= site_url('dil/cevir/ar') ?>" class="<?= ($dil ?? '') === 'ar' ? 'aktif' : '' ?>">العربية</a>
+                        <div class="dil-sec__ayrac"></div>
+                        <span class="dil-sec__ulke-baslik"><?= t('ulke_baslik', 'Teslimat Ülkesi') ?></span>
+                        <?php foreach (ulke_listesi() as $u_kod => $u_bilgi): ?>
+                            <a class="dil-sec__ulke<?= aktif_ulke() === $u_kod ? ' aktif' : '' ?>" href="<?= site_url('ulke/sec/' . $u_kod) ?>"><?= $u_bilgi['bayrak'] ?> <?= t('ulke_' . $u_kod, $u_bilgi['ad']) ?> <small><?= e(para_sembol($u_bilgi['pb'])) ?></small></a>
+                        <?php endforeach; ?>
                     </div>
                 </details>
                 <a href="<?= site_url('siparis-takip') ?>"><?= t('util_siparis_takibi', 'Sipariş Takibi') ?></a>

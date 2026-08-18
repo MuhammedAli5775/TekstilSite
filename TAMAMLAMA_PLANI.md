@@ -6,13 +6,13 @@
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
 > **Durum (2026-08-18):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **150/150 PASS** (dev) + yerel prod ve
+> (ayrıntılar maddelerin altında); regresyon **154/154 PASS** (dev) + yerel prod ve
 > sıfır-DB kurulum provası 74/74. Mağaza çoklu dil katmanı tamamlandı (XXIX kabuk +
 > XXX ana sayfalar + XXXI tüm kalan yüzeyler + kategori adları çoklu dil + XXXII
-> doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer). Kalan gap'in
-> tamamı **İş/Ops tarafında**: kimlikler (Faz A), hosting+deploy (Faz B), hukuki
-> metin kararı — artı bilinçli ertelenmişler (C6 canlı pazaryeri, D1 ek
-> adapter'lar, D2 cila, D3 blog).
+> doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer + XXXIV teslimat
+> ülkesi → para birimi). Kalan gap'in tamamı **İş/Ops tarafında**: kimlikler
+> (Faz A), hosting+deploy (Faz B), hukuki metin kararı — artı bilinçli
+> ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2 cila, D3 blog).
 
 ---
 

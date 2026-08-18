@@ -101,7 +101,7 @@ $lang = array(
 
     'kat_filtre_beden' => 'Beden',
     'kat_filtre_renk'  => 'Renk',
-    'kat_filtre_fiyat' => 'Fiyat Aralığı (₺)',
+    'kat_filtre_fiyat' => 'Fiyat Aralığı (%s)',
     'kat_filtre_min'   => 'en az',
     'kat_filtre_maks'  => 'en çok',
 
@@ -430,4 +430,17 @@ $lang = array(
     'ftr_toptan_sartlar' => 'Toptan Şartlar (MOQ)',
     'ftr_yukari_aria'    => 'Sayfanın başına dön',
     'ftr_yukari'         => 'Yukarı çık',
+
+    // ---- teslimat ülkesi seçici (XXXIV) ----
+    'ulke_baslik' => 'Teslimat Ülkesi',
+    'ulke_tr'     => 'Türkiye',
+    'ulke_de'     => 'Almanya',
+    'ulke_fr'     => 'Fransa',
+    'ulke_nl'     => 'Hollanda',
+    'ulke_es'     => 'İspanya',
+    'ulke_it'     => 'İtalya',
+    'ulke_us'     => 'ABD',
+    'ulke_gb'     => 'Birleşik Krallık',
+    'ulke_ru'     => 'Rusya',
+    'ulke_ae'     => 'BAE',
 );

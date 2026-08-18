@@ -221,7 +221,7 @@ if ( ! function_exists('_para_birim_harita'))
             }
         }
         if ( ! isset($map['TRY'])) {
-            $map['TRY'] = array('ad' => 'Turk Lirasi', 'sembol' => ayar('para_sembol_try', 'TL'), 'kur_try' => 1.0);
+            $map['TRY'] = array('ad' => 'Turk Lirasi', 'sembol' => ayar('para_sembol_try', '₺'), 'kur_try' => 1.0);
         }
         return $map;
     }
@@ -252,11 +252,84 @@ if ( ! function_exists('kur_getir'))
     }
 }
 
+if ( ! function_exists('ulke_listesi'))
+{
+    /** Teslimat ülkesi seçenekleri: kod => {ad, bayrak, pb} (XXXIV).
+     *  Ülke → para birimi eşlemesi statik; kur/sembol para_birimleri'nden. */
+    function ulke_listesi()
+    {
+        return array(
+            'tr' => array('ad' => 'Türkiye',          'bayrak' => '🇹🇷', 'pb' => 'TRY'),
+            'de' => array('ad' => 'Almanya',          'bayrak' => '🇩🇪', 'pb' => 'EUR'),
+            'fr' => array('ad' => 'Fransa',           'bayrak' => '🇫🇷', 'pb' => 'EUR'),
+            'nl' => array('ad' => 'Hollanda',         'bayrak' => '🇳🇱', 'pb' => 'EUR'),
+            'es' => array('ad' => 'İspanya',          'bayrak' => '🇪🇸', 'pb' => 'EUR'),
+            'it' => array('ad' => 'İtalya',           'bayrak' => '🇮🇹', 'pb' => 'EUR'),
+            'us' => array('ad' => 'ABD',              'bayrak' => '🇺🇸', 'pb' => 'USD'),
+            'gb' => array('ad' => 'Birleşik Krallık', 'bayrak' => '🇬🇧', 'pb' => 'GBP'),
+            'ru' => array('ad' => 'Rusya',            'bayrak' => '🇷🇺', 'pb' => 'RUB'),
+            'ae' => array('ad' => 'BAE',              'bayrak' => '🇦🇪', 'pb' => 'AED'),
+        );
+    }
+}
+
+if ( ! function_exists('ulke_secili'))
+{
+    /** Ham seçim: oturum → çerez; geçerli bir ülke kodu ya da NULL (XXXIV).
+     *  'tr' dahil geçerli koddur — açık Türkiye seçimi bayi para birimini ezar. */
+    function ulke_secili()
+    {
+        $CI =& get_instance();
+        $kod = $CI->session->userdata('teslimat_ulkesi');
+        if (! $kod) { $kod = (string) $CI->input->cookie('teksil_ulke'); }
+        $kod = strtolower(trim((string) $kod));
+        return array_key_exists($kod, ulke_listesi()) ? $kod : NULL;
+    }
+}
+
+if ( ! function_exists('aktif_ulke'))
+{
+    /** Görünüm için aktif ülke; seçilmemişse 'tr' (XXXIV). */
+    function aktif_ulke()
+    {
+        return ($u = ulke_secili()) !== NULL ? $u : 'tr';
+    }
+}
+
+if ( ! function_exists('ulke_para_birimi'))
+{
+    /** Ülke kodu → para birimi; geçersiz ülke NULL (XXXIV). */
+    function ulke_para_birimi($kod)
+    {
+        $liste = ulke_listesi();
+        return isset($liste[$kod]) ? $liste[$kod]['pb'] : NULL;
+    }
+}
+
+if ( ! function_exists('para_sembol'))
+{
+    /** Para birimi sembolü (para_birimleri'nden); bilinmeyense kodun kendisi. */
+    function para_sembol($kod)
+    {
+        $map = _para_birim_harita();
+        $kod = strtoupper(trim((string) $kod));
+        return isset($map[$kod]) ? $map[$kod]['sembol'] : $kod;
+    }
+}
+
 if ( ! function_exists('aktif_para_birimi'))
 {
-    /** Giris yapmis bayinin para birimi; yoksa TRY. */
+    /** Vitrin para birimi (XXXIV): açıkça seçilmiş teslimat ülkesi kazanır
+     *  (Türkiye dahil); seçilmemişse giriş yapmış bayinin hesap para birimi,
+     *  o da yoksa TRY. Sepet/sipariş kur snapshot'ı bu değeri kullanır. */
     function aktif_para_birimi()
     {
+        $ulke = ulke_secili();
+        if ($ulke !== NULL) {
+            $kod = ulke_para_birimi($ulke);
+            $map = _para_birim_harita();
+            return ($kod && isset($map[$kod])) ? $kod : 'TRY';
+        }
         $CI =& get_instance();
         $bid = $CI->session->userdata('bayi_id');
         if (! $bid) { return 'TRY'; }

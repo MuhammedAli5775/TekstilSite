@@ -147,6 +147,11 @@ ul{margin:0;padding:0;list-style:none;}
 .dil-sec__menu a.aktif{font-weight:700;color:#00875a;}
 [dir="rtl"] .dil-sec__menu{right:auto;left:0;}
 [dir="rtl"] .dil-sec__menu a{text-align:right;}
+/* Teslimat ülkesi seçici (XXXIV): dil menüsünün alt bölümü */
+.dil-sec__ayrac{height:1px;background:#e3edf1;margin:6px 8px;}
+.dil-sec__ulke-baslik{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#7d94a0;padding:2px 10px 4px;white-space:nowrap;}
+.dil-sec__menu a.dil-sec__ulke{display:flex;align-items:center;gap:6px;}
+.dil-sec__menu a.dil-sec__ulke small{margin-left:auto;color:#7d94a0;font-weight:600;}
 
 header{position:sticky;top:0;z-index:50;}
 .header-main{background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}

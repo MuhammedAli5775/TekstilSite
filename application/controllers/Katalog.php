@@ -36,12 +36,17 @@ class Katalog extends Magaza_Controller
     {
         $this->load->model('urun_model');
 
+        // XXXIV: fiyat filtresi vitrin para biriminde gelir — kur ile TRY'ye çevrilir.
+        $pb_kur = kur_getir(aktif_para_birimi());
+        $f_min  = $this->input->get('min');
+        $f_max  = $this->input->get('max');
+
         $filtre = array(
             'kategori_idler' => $ekstra['kategori_idler'] ?? null,
             'bedenler' => $this->_dizi('beden'),
             'renkler'  => $this->_dizi('renk'),
-            'min'      => $this->input->get('min'),
-            'max'      => $this->input->get('max'),
+            'min'      => ($f_min !== NULL && $f_min !== '') ? (float) $f_min * $pb_kur : null,
+            'max'      => ($f_max !== NULL && $f_max !== '') ? (float) $f_max * $pb_kur : null,
             'sira'     => $this->input->get('sira') ?: ($ekstra['sira'] ?? 'yeni'),
         );
 

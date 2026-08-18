@@ -128,7 +128,7 @@ class Odeme extends Magaza_Controller
         $r = $this->kupon_model->dogrula($kod, (float) ($liste['ara_toplam'] ?? 0));
         if ($r['ok']) {
             $this->session->set_userdata('kupon', $r['kupon']->kod);
-            $this->session->set_flashdata('bilgi', t('flash_kupon_uygulandi', 'Kupon uygulandı: -%s (%s).', para_tr($r['indirim']), e($r['kupon']->kod)));
+            $this->session->set_flashdata('bilgi', t('flash_kupon_uygulandi', 'Kupon uygulandı: -%s (%s).', para_goster($r['indirim']), e($r['kupon']->kod)));
         } else {
             $this->session->set_flashdata('hata', $r['mesaj']);
         }

@@ -32,7 +32,7 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
     <?php endif; ?>
 
     <div class="filtre-grup">
-        <h4><?= t('kat_filtre_fiyat', 'Fiyat Aralığı (₺)') ?></h4>
+        <h4><?= t('kat_filtre_fiyat', 'Fiyat Aralığı (%s)', para_sembol(aktif_para_birimi())) ?></h4>
         <div class="filtre-fiyat">
             <input type="number" name="min" placeholder="<?= t('kat_filtre_min', 'en az') ?>" value="<?= e($this->input->get('min')) ?>" min="0" inputmode="numeric">
             <span>–</span>

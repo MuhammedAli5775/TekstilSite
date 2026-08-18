@@ -471,6 +471,20 @@ check('ftr-en-cevrildi', strpos($r, 'Wholesale Terms (MOQ)') !== FALSE && strpos
 list($c, $r) = get('guest', '/');
 check('slider-tr-kendi-seti', $c === 200 && strpos($r, 'Toptan kadın giyimde üretici fiyatı') !== FALSE && strpos($r, 'Factory prices in wholesale womens clothing') === FALSE);
 
+/* ---- XXXIV: teslimat ülkesi → para birimi ---- */
+/* Not: header ülke dropdown'unda ₺/$ sembolleri boşluksuz gelir (<small>₺</small>);
+ * para biçimi ise boşlukludur ('1.234,50 ₺' / '1.234,50 $'). İddialar bu ayrımla kuruldu. */
+list($c, ) = get('dil', '/ulke/sec/us');
+check('ulke-sec-redirect', is_redir($c));
+list($c, $r) = get('dil', '/katalog');
+check('ulke-katalog-usd', $c === 200 && strpos($r, ' $') !== FALSE && strpos($r, ' ₺') === FALSE);
+list($c, $r) = get('dil', '/urun/' . $urunSlug);
+check('ulke-detay-usd', $c === 200 && strpos($r, ' $') !== FALSE && strpos($r, ' ₺') === FALSE);
+list($c, ) = get('dil', '/ulke/sec/xyz');
+list($c, $r) = get('dil', '/katalog');
+check('ulke-gecersiz-tr-geri', $c === 200 && strpos($r, ' ₺') !== FALSE);
+get('dil', '/ulke/sec/tr');   // sonraki bölümler için ülkeyi sıfırla
+
 /* ---- E) feed tam yol + rate-limit ------------------------------------------ */
 $anahtar = 'regtest_' . bin2hex(random_bytes(16));
 q("INSERT INTO api_anahtarlari (bayi_id, ad, onek, anahtar_hash, durum) VALUES (NULL, 'regresyon', 'reg', '"

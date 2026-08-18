@@ -100,7 +100,7 @@ $lang = array(
 
     'kat_filtre_beden' => 'Размер',
     'kat_filtre_renk'  => 'Цвет',
-    'kat_filtre_fiyat' => 'Диапазон цен (₺)',
+    'kat_filtre_fiyat' => 'Диапазон цен (%s)',
     'kat_filtre_min'   => 'от',
     'kat_filtre_maks'  => 'до',
 
@@ -429,4 +429,17 @@ $lang = array(
     'ftr_toptan_sartlar' => 'Оптовые условия (MOQ)',
     'ftr_yukari_aria'    => 'Наверх',
     'ftr_yukari'         => 'Вверх',
+
+    // ---- teslimat ülkesi seçici (XXXIV) ----
+    'ulke_baslik' => 'Страна доставки',
+    'ulke_tr'     => 'Турция',
+    'ulke_de'     => 'Германия',
+    'ulke_fr'     => 'Франция',
+    'ulke_nl'     => 'Нидерланды',
+    'ulke_es'     => 'Испания',
+    'ulke_it'     => 'Италия',
+    'ulke_us'     => 'США',
+    'ulke_gb'     => 'Великобритания',
+    'ulke_ru'     => 'Россия',
+    'ulke_ae'     => 'ОАЭ',
 );

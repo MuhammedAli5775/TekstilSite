@@ -155,6 +155,7 @@
         var toplamEl = document.getElementById('toplamTutar');
         var birimEl = document.getElementById('toplamBirim');
         var moq = V.moq || 1, adim = V.adim || 1, fiyat = V.fiyat || 0;
+        var kur = V.kur || 1, pbSembol = V.sembol || '₺';
 
         function snap(v) {
             v = parseInt(v, 10); if (isNaN(v)) { v = moq; }
@@ -167,7 +168,7 @@
             (V.basamak || []).forEach(function (b) { if (adet >= b.min && b.yuzde > yuzde) { yuzde = b.yuzde; } });
             return fiyat * (1 - yuzde / 100);
         }
-        function fmt(n) { return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺'; }
+        function fmt(n) { return (n / kur).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + pbSembol; }
         function guncelle() {
             var adet = snap(input.value);
             input.value = adet;

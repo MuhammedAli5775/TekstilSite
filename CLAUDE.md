@@ -21,7 +21,7 @@ Gerçek rehberler:
 - Dev sunucu: `npm run dev` → http://localhost:8000 (`scripts/dev.js`, php -S + router.php)
 - Tam regresyon (sunucu açıkken): `C:/xampp/php/php.exe tests/regresyon.php` — 112 test,
   localhost dışı hedefte `--force` guard'ı var
-- Sıfır-DB provası: scratch DB'ye DEPLOY.md §3 (19 dosya, SIRASI ŞART) uygula →
+- Sıfır-DB provası: scratch DB'ye DEPLOY.md §3 (20 dosya, SIRASI ŞART) uygula →
   `npm run dev:testing` (CI_ENV=testing → `teksilsite_rehearsal`) →
   `REGRESYON_DB=teksilsite_rehearsal C:/xampp/php/php.exe tests/regresyon.php`
 - Dev DB: `127.0.0.1` / root / mysql1234 / `teksilsite`
@@ -41,10 +41,11 @@ Gerçek rehberler:
 
 ## Durum özeti (2026-08-18)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 150/150 (dev).
+Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 154/154 (dev).
 Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
 yüzeyleri + kategori adları + doğrulama mesajları + dil-bazlı slider
-setleri (XXIX–XXXIII).
+setleri (XXIX–XXXIII); teslimat ülkesi seçici → ülkeye göre ürün para
+birimi (XXXIV, kur admin Para Birimi panelinden).
 Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
 (`FAZ_A_REHBERI.md`), **Ops** Faz B hosting (`DEPLOY.md`), hukuki yer tutucular
 (E4). Bilinçli ertelenmişler: D1 pazaryeri adapter'ları, D2 cila, D3 blog,

@@ -28,16 +28,16 @@ $tag   = $u['etiket']    ?? null; // ['renk'=>'green','metin'=>'Yeni']
         <?php if ($sku): ?><span class="prodcard__sku"><?= e($sku) ?></span><?php endif; ?>
         <div class="prodcard__price">
             <?php if ($eskifiyat && $eskifiyat > $fiyat): ?>
-                <span class="now"><?= para_tr($fiyat) ?></span>
-                <span style="text-decoration:line-through;color:var(--muted);font-size:13px"><?= para_tr($eskifiyat) ?></span>
+                <span class="now"><?= para_goster($fiyat) ?></span>
+                <span style="text-decoration:line-through;color:var(--muted);font-size:13px"><?= para_goster($eskifiyat) ?></span>
             <?php else: ?>
-                <span class="now"><?= para_tr($fiyat) ?></span>
+                <span class="now"><?= para_goster($fiyat) ?></span>
             <?php endif; ?>
             <span class="prodcard__adet-etiket"><?= t('kart_adet', '/ adet') ?></span>
         </div>
         <?php $seriFiyat = (float) ($u['seri_fiyat'] ?? 0); $seriAdet = (int) ($u['seri_adet'] ?? 0); ?>
         <?php if ($seriFiyat > 0 && $seriFiyat < $fiyat): ?>
-        <div class="prodcard__seri"><?= t('kart_seri', 'Seri') ?> <b><?= para_tr($seriFiyat) ?></b> <small><?= t('kart_seri_adet', '%s+ adette', $seriAdet) ?></small></div>
+        <div class="prodcard__seri"><?= t('kart_seri', 'Seri') ?> <b><?= para_goster($seriFiyat) ?></b> <small><?= t('kart_seri_adet', '%s+ adette', $seriAdet) ?></small></div>
         <?php endif; ?>
         <div class="prodcard__moq"><?= t('kart_moq', 'Min. %s adet · toptan', $moq) ?></div>
     </div>

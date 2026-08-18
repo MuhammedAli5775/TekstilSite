@@ -19,6 +19,65 @@
 
 ---
 
+## 2026-08-18 (XXXIV) — Teslimat ülkesi seçici: dil menüsü altında ülke → ürün para birimi — 154/154
+
+**İstek (kullanıcı):** "div.dil-sec__menu'nun en altında kullanıcı teslimat
+ülkesini seçebilsin. kullanıcının seçtiği teslimat adresine göre ürünlerin
+para birimi değişsin."
+
+**Çözüm mimarisi:** Mevcut çoklu-para altyapısına (para_birimleri + kur_try +
+sepet/sipariş snapshot) tek noktadan bağlandık — `aktif_para_birimi()`
+yeniden yazıldı: açıkça seçilmiş teslimat ülkesi (Türkiye dahil) kazanır;
+seçilmemişse bayi hesap para birimi; o da yoksa TRY. Sepet, checkout ve
+sipariş kur snapshot'ı bu değeri kullandığından tüm zincir otomatik uydu.
+
+**Parçalar:**
+- `teksil_helper`: `ulke_listesi()` (10 ülke → TRY/EUR/USD/GBP/RUB/AED statik
+  eşleme + bayrak), `ulke_secili()` (oturum → çerez; NULL = seçilmemiş),
+  `aktif_ulke()`, `ulke_para_birimi()`, `para_sembol()`; TRY sıfır-DB
+  fallback sembolü 'TL'→'₺' hizalandı.
+- `controllers/Ulke.php` (yeni): Dil::cevir deseni — oturum + 1 yıllık çerez,
+  beyaz liste, geçersiz → 'tr', yalnız aynı-site referere dönüş.
+- `layout/header.php`: dil-sec__menu alt bölümü — ayraç + "Teslimat Ülkesi"
+  başlığı + ülke linkleri (bayrak + çevrili ad + sembol); CSS ayraç/başlık/
+  sembol stilleri; 11 yeni dil anahtarı ×4 (ulke_baslik + 10 ülke adı).
+- Fiyat gösterimi `para_tr` → `para_goster`: urun_karti (3), favorilerim (3),
+  detay (fiyat/eski/toplam/birim + kargo eşiği ×2) + Odeme kupon flash'i.
+- `detay.php` pdVeri'ye `kur`+`sembol`; `teksil.js` pd `fmt()` artık `n/kur`
+  + aktif sembolle biçimliyor (adet/basamak matematiği TRY kalır).
+  Checkout modülündeki ikinci `fmt` ölü kod (`.odeme-form` markup'ı hiçbir
+  view'da yok) — dokunulmadı.
+- Fiyat filtresi: `filtre.php` etiketi `(%s)` + aktif sembol (4 dil değeri
+  %s kalıbına çevrildi); `Katalog::_liste` min/max'ı vitrin para biriminden
+  kur ile TRY'ye çevirir — kullanıcı gördüğü para biriminde filtreler.
+- `sql/migrate_ulke_para.sql`: GBP/RUB/AED seed (kur placeholder — admin Para
+  Birimi panelinden güncellenir; re-seed mevcut kur'u ezmez). DEPLOY.md §3 →
+  20 dosya.
+
+**Kaza/ders ×2:** (1) Dev DB'de TRY sembolü 'TL' kalmış — ₺ konvansiyonuna
+hizalandı; ilk düzeltmede bash→mysql CLI argümanında UTF-8 kırıldı (sembol
+0x3F '?' oldu) — onaltılık bayt literaliyle (`CONVERT(UNHEX('E282BA') USING
+utf8mb4)`) düzeltildi. Ders: CLI argümanına UTF-8 dizgi geçme; dosya ya da
+hex kullan. (2) Header ülke dropdown'unda semboller boşluksuz göründüğü için
+"sayfada ₺ yok" iddialı testler yanlış kırıldı — iddialar para-biçimi
+ayrımına çekildi (' ₺' boşluklu fiyat biçimi vs `<small>₺</small>`).
+
+**Doğrulama:** lint (dokunulan her dosya); parite 4×385 anahtar, 0 FFFD; DB
+6 para birimi doğru UTF-8 sembollerle (HEX ile doğrulandı); tam regresyon +4
+(`ulke-sec-redirect`, `ulke-katalog-usd`, `ulke-detay-usd`,
+`ulke-gecersiz-tr-geri`) → **154/154**.
+
+**[!] Canlıya taşı:** `teksil_helper.php`, `controllers/Ulke.php` (yeni),
+`controllers/Katalog.php`, `controllers/Odeme.php`,
+`views/magaza/layout/header.php`, `views/magaza/partial/urun_karti.php`,
+`views/magaza/partial/filtre.php`, `views/magaza/urun/detay.php`,
+`views/magaza/sayfa/favorilerim.php`, `assets/magaza/css/teksil.css`,
+`assets/magaza/js/teksil.js`, `application/language/` (4), `tests/regresyon.php`
++ **DB: `sql/migrate_ulke_para.sql` uygula** (GBP/RUB/AED) — ve canlıda TRY
+sembolünü '₺' yap (panel ya da `UPDATE ... CONVERT(UNHEX('E282BA') ...)`).
+
+---
+
 ## 2026-08-18 (XXXIII) — Dil-bazlı slider setleri (demo seed ×4) + footer kategoriler DB'den + kalan footer dizgileri — 150/150
 
 **İstek (kullanıcı):** (1) "there are the same sliders for every language and

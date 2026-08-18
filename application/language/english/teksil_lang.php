@@ -100,7 +100,7 @@ $lang = array(
 
     'kat_filtre_beden' => 'Size',
     'kat_filtre_renk'  => 'Color',
-    'kat_filtre_fiyat' => 'Price range (₺)',
+    'kat_filtre_fiyat' => 'Price range (%s)',
     'kat_filtre_min'   => 'min',
     'kat_filtre_maks'  => 'max',
 
@@ -429,4 +429,17 @@ $lang = array(
     'ftr_toptan_sartlar' => 'Wholesale Terms (MOQ)',
     'ftr_yukari_aria'    => 'Back to top',
     'ftr_yukari'         => 'Go to top',
+
+    // ---- teslimat ülkesi seçici (XXXIV) ----
+    'ulke_baslik' => 'Delivery Country',
+    'ulke_tr'     => 'Turkey',
+    'ulke_de'     => 'Germany',
+    'ulke_fr'     => 'France',
+    'ulke_nl'     => 'Netherlands',
+    'ulke_es'     => 'Spain',
+    'ulke_it'     => 'Italy',
+    'ulke_us'     => 'USA',
+    'ulke_gb'     => 'United Kingdom',
+    'ulke_ru'     => 'Russia',
+    'ulke_ae'     => 'UAE',
 );

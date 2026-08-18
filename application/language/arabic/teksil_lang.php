@@ -104,7 +104,7 @@ $lang = array(
 
     'kat_filtre_beden' => 'المقاس',
     'kat_filtre_renk'  => 'اللون',
-    'kat_filtre_fiyat' => 'نطاق السعر (₺)',
+    'kat_filtre_fiyat' => 'نطاق السعر (%s)',
     'kat_filtre_min'   => 'الأدنى',
     'kat_filtre_maks'  => 'الأقصى',
 
@@ -433,4 +433,17 @@ $lang = array(
     'ftr_toptan_sartlar' => 'شروط الجملة (MOQ)',
     'ftr_yukari_aria'    => 'إلى أعلى الصفحة',
     'ftr_yukari'         => 'صعود',
+
+    // ---- teslimat ülkesi seçici (XXXIV) ----
+    'ulke_baslik' => 'بلد التوصيل',
+    'ulke_tr'     => 'تركيا',
+    'ulke_de'     => 'ألمانيا',
+    'ulke_fr'     => 'فرنسا',
+    'ulke_nl'     => 'هولندا',
+    'ulke_es'     => 'إسبانيا',
+    'ulke_it'     => 'إيطاليا',
+    'ulke_us'     => 'الولايات المتحدة',
+    'ulke_gb'     => 'المملكة المتحدة',
+    'ulke_ru'     => 'روسيا',
+    'ulke_ae'     => 'الإمارات',
 );

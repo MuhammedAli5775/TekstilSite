@@ -4,6 +4,7 @@ $ilk_gorsel = ! empty($gorseller) ? $gorseller[0] : '';
 $moq = (int) $u->moq;
 $adim = max(1, (int) $u->birim_adim);
 $renk_secili = ! empty($renkler) ? $renkler[0] : null;
+$pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para birimi
 ?>
 <section class="pd-hero">
     <div class="container">
@@ -45,9 +46,9 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
                 </div>
 
                 <div class="pd-fiyat">
-                    <span class="pd-fiyat-now"><?= para_tr($u->fiyat) ?></span>
+                    <span class="pd-fiyat-now"><?= para_goster($u->fiyat) ?></span>
                     <?php if (! empty($u->eski_fiyat) && $u->eski_fiyat > $u->fiyat): ?>
-                        <span class="pd-fiyat-eski"><?= para_tr($u->eski_fiyat) ?></span>
+                        <span class="pd-fiyat-eski"><?= para_goster($u->eski_fiyat) ?></span>
                     <?php endif; ?>
                     <span class="badge badge--green-soft"><?= t('detay_toptan', 'Adet başı toptan') ?></span>
                 </div>
@@ -98,8 +99,8 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 
                 <div class="pd-toplam">
                     <span><?= t('detay_toplam', 'Toplam:') ?></span>
-                    <b id="toplamTutar"><?= para_tr($u->fiyat * $moq) ?></b>
-                    <span class="pd-toplam-birim" id="toplamBirim"><?= t('detay_toplam_birim', '(%s / adet)', para_tr($u->fiyat)) ?></span>
+                    <b id="toplamTutar"><?= para_goster($u->fiyat * $moq) ?></b>
+                    <span class="pd-toplam-birim" id="toplamBirim"><?= t('detay_toplam_birim', '(%s / adet)', para_goster($u->fiyat)) ?></span>
                 </div>
 
                 <div class="pd-sepet-satir">
@@ -114,7 +115,7 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
 
                 <ul class="pd-deger">
                     <li><span>✓</span> <?= t('detay_deger_1', 'Üretici garantisi · gerçek stok') ?></li>
-                    <li><span>✓</span> <?= t('detay_deger_2', '%s üzeri ücretsiz kargo', ayar('ucretsiz_kargo_esik', '2000') . ' ₺') ?></li>
+                    <li><span>✓</span> <?= t('detay_deger_2', '%s üzeri ücretsiz kargo', para_goster((float) ayar('ucretsiz_kargo_esik', '2000'))) ?></li>
                     <li><span>✓</span> <?= t('detay_deger_3', 'Hızlı sevkiyat (Merter, İstanbul)') ?></li>
                 </ul>
             </div>
@@ -141,7 +142,7 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
         </div>
         <div class="pd-tab-panel" data-panel="teslimat">
             <div class="prose">
-                <p><?= t('detay_teslimat_not', 'Siparişler aynı iş günü hazırlanır ve anlaşmalı kargo firmalarıyla gönderilir. %s üzeri siparişlerde kargo ücretsizdir.', ayar('ucretsiz_kargo_esik', '2000') . ' ₺') ?></p>
+                <p><?= t('detay_teslimat_not', 'Siparişler aynı iş günü hazırlanır ve anlaşmalı kargo firmalarıyla gönderilir. %s üzeri siparişlerde kargo ücretsizdir.', para_goster((float) ayar('ucretsiz_kargo_esik', '2000'))) ?></p>
             </div>
         </div>
     </div>
@@ -167,6 +168,8 @@ $renk_secili = ! empty($renkler) ? $renkler[0] : null;
     'id'       => (int) $u->id,
     'varyant'  => $varyant_map,
     'fiyat'    => (float) $u->fiyat,
+    'kur'      => kur_getir($pb_kod),        // XXXIV: JS toplamı bu kurla böler
+    'sembol'   => para_sembol($pb_kod),
     'moq'      => $moq,
     'adim'     => $adim,
     'basamak'  => array_map(function ($x) { return array('min' => (int) $x->min_adet, 'yuzde' => (float) $x->indirim_yuzde); }, $basamaklar),
