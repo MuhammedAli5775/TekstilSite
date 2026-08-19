@@ -19,6 +19,32 @@
 
 ---
 
+## 2026-08-19 (XLII) — Admin panel: son 3 yazı akışı kapandı (Ayarlar/Yetkiler/Bayiler) — 246/246 PASS
+
+**Kullanıcı isteği:** "sonraki adıma geç" (XLI'de bilinçli ertelediğim 3 admin
+yazı eylemini kapat → admin panel denetimini tamamla).
+
+**Yapılan:** `tests/regresyon.php` "G" bölümüne 3 yazı akışı eklendi:
+- **Ayarlar `kaydet`** — 4 toggle'ın tamamı post edilir (kısmi post diğer
+  toggle'ları sıfırlar — checkbox semantiği); `arama_index` çevrilip doğrulanıp
+  geri alındı.
+- **Yetkiler `kaydet`** (davranışsal) — rol-2 tam matrisi DB'den kurulup `stok`
+  görüntüleme kapatıldı → admin2 `/yonetim/stok` **403** düştü → geri açıldı →
+  **200**. Yazı yolunun izin uygulamasını gerçekten değiştirdiği uçtan uca kanıtlandı.
+- **Bayiler `durum_guncelle` + `grup_guncelle`** — test bayisinin durumu 2'ye
+  çekilip doğrulanıp geri alındı; grubu başka bir gruba değişip doğrulanıp geri alındı.
+
+**Doğrulama:** tam regresyon **246/246 PASS** (+5). `php -l` + mojibake temiz.
+
+Böylece admin panel denetimi TAMAMLANDI: 18 modülün her GET rotası + her yazı
+eylemi (CRUD oluşturma/düzenleme/silme, sipariş durum yönetimi + kargolandı
+takip-zorunlu, ayar, yetki matrisi, bayi durum/grup, para_birimi, feed anahtarı,
+stok düzeltme) uçtan uca kanıtlandı.
+
+**[!] Canlıya taşı:** `tests/regresyon.php`.
+
+---
+
 ## 2026-08-19 (XLI) — Admin panel özellik taraması: tüm modüller + 1 bug kapandı — 241/241 PASS
 
 **Kullanıcı isteği:** "admin panelindeki bütün özelliklerin doğru çalıştığına 100% emin ol."

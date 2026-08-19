@@ -764,6 +764,38 @@ q("UPDATE siparisler SET durum='$_sdOnce' WHERE id=$siparisId");   // geri al (g
 list($c, ) = post('admin', "/yonetim/siparisler/durum_guncelle/$siparisId", array('durum' => 'kargolandi', 'notu' => ''));
 check('admin-siparis-kargo-takip-zorunlu', is_redir($c) && q1("SELECT durum FROM siparisler WHERE id=$siparisId") === $_sdOnce);
 unset($_sdOnce);
+// Ayarlar kaydet (toggle yazı yolu): 4 toggle'ın TAMAMI post edilmeli (kısmi post
+// diğer toggle'ları sıfırlar — checkbox semantiği). arama_index çevir → doğrula → geri al.
+$_ayToggles = array('arama_index','sms_aktif','paytr_test','efatura_test');
+$_ayOnce = array(); foreach ($_ayToggles as $tg) $_ayOnce[$tg] = (string) q1("SELECT deger FROM ayarlar WHERE anahtar='$tg'");
+$_ayPost = array(); foreach ($_ayToggles as $tg) $_ayPost[$tg] = $_ayOnce[$tg] === '1' ? '1' : '0';
+$_ayPost['arama_index'] = $_ayOnce['arama_index'] === '1' ? '0' : '1';   // çevir
+list($c, ) = post('admin', '/yonetim/ayarlar/kaydet', $_ayPost);
+check('admin-ayarlar-kaydet', is_redir($c) && q1("SELECT deger FROM ayarlar WHERE anahtar='arama_index'") === $_ayPost['arama_index']);
+foreach ($_ayToggles as $tg) q("UPDATE ayarlar SET deger='" . esc($_ayOnce[$tg]) . "' WHERE anahtar='$tg'");   // geri al
+// Yetkiler matris kaydet (yazı yolu, DAVRANIŞSAL): rol-2 'stok' görüntülemeyi kapat →
+// admin2 /yonetim/stok 403 → geri aç → 200. (kaydet tüm matrisi yazar → tam grid post.)
+$_ykGrid = array(); $_ykR = q("SELECT modul, goruntule, duzenle, sil FROM yetkiler WHERE rol_id=2");
+while ($_row = $_ykR->fetch_assoc()) { $_m = $_row['modul']; $_ykGrid[$_m] = array(); if ((int)$_row['goruntule']) $_ykGrid[$_m]['goruntule']=1; if ((int)$_row['duzenle']) $_ykGrid[$_m]['duzenle']=1; if ((int)$_row['sil']) $_ykGrid[$_m]['sil']=1; }
+unset($_ykGrid['stok']['goruntule']);
+list($c, ) = post('admin', '/yonetim/yetkiler/kaydet', array('rol' => '2', 'grid' => $_ykGrid));
+list($c2, ) = get('admin2', '/yonetim/stok');
+check('admin-yetkiler-kaydet-403', is_redir($c) && $c2 === 403);
+$_ykGrid['stok']['goruntule'] = 1; post('admin', '/yonetim/yetkiler/kaydet', array('rol' => '2', 'grid' => $_ykGrid));
+list($c2, ) = get('admin2', '/yonetim/stok'); check('admin-yetkiler-geri-ac-200', $c2 === 200);
+// Bayiler durum + grup güncelleme (test bayi $bayiId — B bölümü bitti, cleanup siler).
+$_bdOnce = (string) q1("SELECT durum FROM bayiler WHERE id=$bayiId");
+list($c, ) = post('admin', "/yonetim/bayiler/durum_guncelle/$bayiId", array('durum' => '2'));
+check('admin-bayi-durum-guncelle', is_redir($c) && (string) q1("SELECT durum FROM bayiler WHERE id=$bayiId") === '2');
+q("UPDATE bayiler SET durum=$_bdOnce WHERE id=$bayiId");
+$_bgOnce = (string) q1("SELECT grup_id FROM bayiler WHERE id=$bayiId");
+$_bgYeni = (int) q1("SELECT id FROM bayi_gruplari WHERE id != $_bgOnce ORDER BY id ASC LIMIT 1");
+if ($_bgYeni) {
+    list($c, ) = post('admin', "/yonetim/bayiler/grup_guncelle/$bayiId", array('grup_id' => (string) $_bgYeni));
+    check('admin-bayi-grup-guncelle', is_redir($c) && (string) q1("SELECT grup_id FROM bayiler WHERE id=$bayiId") === (string) $_bgYeni);
+    q("UPDATE bayiler SET grup_id=$_bgOnce WHERE id=$bayiId");
+}
+unset($_ayToggles, $_ayOnce, $_ayPost, $_ykGrid, $_ykR, $_row, $_m, $_bdOnce, $_bgOnce, $_bgYeni, $c2);
 // Güvenlik ağı: yazı akışları yarım kalırsa test artığı kalmasın.
 q("DELETE FROM markalar WHERE ad LIKE 'REG-MARKA-%'");
 q("DELETE FROM sayfalar WHERE slug LIKE 'reg-sayfa-%'");
@@ -773,6 +805,7 @@ q("DELETE FROM yazilar WHERE slug LIKE 'reg-yazi-%'");
 q("DELETE FROM api_anahtarlari WHERE ad='REG Feed'");
 q("DELETE FROM para_birimleri WHERE kod IN ('TST','UZU','UZUNKOD')");
 q("DELETE FROM siparis_durum_gecmisi WHERE notu='reg'");   // admin durum_guncelle test satırları
+q("UPDATE yetkiler SET goruntule=1 WHERE rol_id=2 AND modul='stok'");   // Yetkiler test çökerse rol-2 stok geri açılsın (seed=1)
 unset($_gid, $_aGet, $_i, $_mi, $_si, $_ki, $_bi, $_yi, $_usdKurOnce, $_fi, $_sv, $_svStok);
 
 /* ---- temizlik ---------------------------------------------------------------- */
