@@ -63,6 +63,15 @@ $kargo = (float) $s->kargo_ucreti;
             <div class="adm-kv"><span>Sipariş no</span><b><?= e($s->siparis_no) ?></b></div>
             <div class="adm-kv"><span>Tarih</span><b><?= e(date('d.m.Y H:i', strtotime($s->olusturma_zaman))) ?></b></div>
             <div class="adm-kv"><span>Ödeme</span><b><?= e($s->odeme_yontemi) ?> · <?= e($s->odeme_durumu) ?></b></div>
+            <?php if ($s->odeme_durumu !== 'odendi'): ?>
+            <div class="adm-kv" style="align-items:center"><span>Manuel ödeme</span>
+                <form action="<?= site_url('yonetim/siparisler/odeme_isaretle/' . $s->id) ?>" method="post" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                    <?= csrf_field() ?>
+                    <input type="text" name="notu" placeholder="not (opsiyonel)" style="font-size:12px;padding:5px 8px;max-width:160px">
+                    <button class="btn btn-secondary btn-sm" onclick="return confirm('Bu sipariş ödendi olarak işaretlensin mi? (havale/kapıda ödeme aldığında kullanın)')">Ödeme Alındı</button>
+                </form>
+            </div>
+            <?php endif; ?>
             <div class="adm-kv"><span>Ara toplam</span><b><?= para_formatla($s->ara_toplam, $s->para_birimi) ?></b></div>
             <?php if ($islem > 0): ?><div class="adm-kv"><span>İşlem ücreti</span><b><?= para_formatla($islem, $s->para_birimi) ?></b></div><?php endif; ?>
             <div class="adm-kv"><span>Kargo</span><b><?= $kargo > 0 ? para_formatla($kargo, $s->para_birimi) : 'Ücretsiz' ?></b></div>

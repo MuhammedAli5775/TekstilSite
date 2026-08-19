@@ -91,4 +91,15 @@ class Siparisler extends Admin_Controller
         $this->session->set_flashdata('bilgi', 'Sipariş durumu güncellendi: ' . $de);
         redirect('yonetim/siparisler/detay/' . $id);
     }
+
+    /** Manuel ödeme işaretleme (havale/kapıda): odeme_durumu='odendi'. */
+    public function odeme_isaretle($id = NULL)
+    {
+        if (! $id) { redirect('yonetim/siparisler'); }
+        $this->yetki_gerek('siparisler', 'duzenle');
+        $ok = $this->siparis_model->mg_odeme_isaretle((int) $id, (string) $this->input->post('notu'));
+        $this->auth_admin->audit('siparisler', 'odeme_isaretle', '#' . (int) $id, $ok ? 'odendi' : 'zaten-odendi');
+        $this->session->set_flashdata('bilgi', $ok ? 'Ödeme alındı olarak işaretlendi.' : 'Bu sipariş zaten ödendi işaretli.');
+        redirect('yonetim/siparisler/detay/' . (int) $id);
+    }
 }

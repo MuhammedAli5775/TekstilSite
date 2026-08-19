@@ -19,7 +19,7 @@ class Rapor_model extends CI_Model
     /** Satış özeti: toplam sipariş + durum dağılımı + brüt ciro + kargo + indirim + AOV. */
     public function satis_ozet($bas, $son)
     {
-        $out = array('toplam' => 0, 'brut_siparis' => 0, 'durumlar' => array(), 'ciro' => 0.0, 'kargo' => 0.0, 'indirim' => 0.0, 'aov' => 0.0);
+        $out = array('toplam' => 0, 'brut_siparis' => 0, 'durumlar' => array(), 'ciro' => 0.0, 'kargo' => 0.0, 'indirim' => 0.0, 'aov' => 0.0, 'iptal_oran' => 0.0, 'pb_dagilim' => array());
         if (! $this->db->table_exists('siparisler')) { return $out; }
 
         $this->_aralik($bas, $son);
@@ -40,6 +40,16 @@ class Rapor_model extends CI_Model
             $out['indirim']= (float) $row->indirim;
             $out['brut_siparis'] = (int) $row->n;
             $out['aov']    = $row->n > 0 ? round($out['ciro'] / $row->n, 2) : 0.0;
+        }
+        // İade/iptal oranı (toplam sipariş üzerinden, %) + para birimi dağılımı (brüt ciro).
+        $this->_aralik($bas, $son);
+        $ip = $this->db->select('COUNT(*) AS n')->where_in('s.durum', array('iptal', 'iade_edildi'))->get('siparisler s')->row();
+        $out['iptal_oran'] = $out['toplam'] > 0 ? round((int) ($ip->n ?? 0) * 100 / $out['toplam'], 1) : 0.0;
+        $this->_aralik($bas, $son);
+        foreach ($this->db->select('COALESCE(s.para_birimi,"TRY") AS pb, SUM(s.toplam * s.kur) AS ciro, COUNT(*) AS n', FALSE)
+                        ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
+                        ->group_by('pb')->order_by('ciro', 'DESC')->get('siparisler s')->result() as $r) {
+            $out['pb_dagilim'][$r->pb] = array('ciro' => (float) $r->ciro, 'siparis' => (int) $r->n);
         }
         return $out;
     }

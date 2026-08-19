@@ -19,6 +19,38 @@
 
 ---
 
+## 2026-08-19 (XLIII) — Ertelenenler: havale "ödendi" butonu + D2 rapor cilası — 250/250 PASS
+
+**Kullanıcı isteği:** "ertelenenleri yap."
+
+**Yapılan (kod tarafı):**
+- **Havale "ödendi işaretle"** (XL'deki nüans kapatıldı): `Siparis_model::mg_odeme_isaretle`
+  (odeme_durumu='odendi' + geçmiş; **idempotent** — zaten ödendiyse dokunma, yeni
+  geçmiş satırı eklenmez) + `Siparisler::odeme_isaretle` POST eylemi + detay view'da
+  "Ödeme Alındı" butonu (odeme_durumu !== 'odendi' iken). PayTR callback'ten BAĞIMSIZ
+  (admin manuel kararı — havale/kapıda ödeme aldığında).
+- **D2 rapor cilası:** `Rapor_model::satis_ozet` artık `iptal_oran` (iptal+iade_edildi /
+  toplam %) + `pb_dagilim` (para birimi başına brüt ciro + sipariş) döndürür; CSV dışa
+  aktarmaya bu iki metrik eklendi; raporlar view'a **hızlı tarih seçiciler** (Son 7/30/90
+  gün, Bu ay, Bu yıl) + iade/iptal oranı stat kartı + para birimi dağılımı tablosu eklendi.
+
+**Doğrulama:** tam regresyon **250/250 PASS** (+4: `admin-siparis-odeme-isaretle`,
+`admin-siparis-odeme-idempotent`, `admin-rapor-satis-yeni-metrikler`,
+`admin-rapor-csv-yeni-metrikler`). `php -l` temiz; mojibake temiz.
+
+**Bloke (dış kaynak gerektirir — yapılamadı):**
+- **C6 canlı Trendyol testi** — gerçek Trendyol supplier kimliği gerek; yerelde
+  graceful-skip yolu zaten kanıtlı (cron `pazaryeri_senkron` → "aktif hesap yok").
+- **D1 Hepsiburada/N11/Amazon adapter'ları** — her platformun API dokümanı + test
+  kimliği gerek; kodda yalnız Trendyol adapter'ı var (diğerleri "adapter yok" graceful
+  atlar).
+
+**[!] Canlıya taşı:** `Siparis_model.php`, `yonetim/Siparisler.php`,
+`views/yonetim/siparisler/detay.php`, `Rapor_model.php`, `yonetim/Raporlar.php`,
+`views/yonetim/raporlar/index.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-19 (XLII) — Admin panel: son 3 yazı akışı kapandı (Ayarlar/Yetkiler/Bayiler) — 246/246 PASS
 
 **Kullanıcı isteği:** "sonraki adıma geç" (XLI'de bilinçli ertelediğim 3 admin

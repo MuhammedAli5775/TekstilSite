@@ -296,7 +296,27 @@ class Siparis_model extends CI_Model
     }
 
     /**
-     * Sipariş detaylarındaki varyantların stoğını geri ekle + iade hareketi yaz.
+     * Manuel ödeme işaretleme (havale/kapıda ödeme): odeme_durumu='odendi' + geçmişe
+     * yaz. PayTR callback'ten BAĞIMSIZ (admin kararı). İdempotent — zaten ödendiyse
+     * dokunma (çift işaretlemede yeni geçmiş satırı eklenmez).
+     */
+    public function mg_odeme_isaretle($id, $notu = '')
+    {
+        $id = (int) $id;
+        $s = $this->db->select('odeme_durumu, durum')->where('id', $id)->limit(1)->get('siparisler')->row();
+        if (! $s || $s->odeme_durumu === 'odendi') { return FALSE; }
+        $this->db->where('id', $id)->update('siparisler', array('odeme_durumu' => 'odendi'));
+        $this->db->insert('siparis_durum_gecmisi', array(
+            'siparis_id' => $id,
+            'durum'      => $s->durum,
+            'taraf'      => 'admin',
+            'notu'       => $notu !== '' ? mb_substr(trim((string) $notu), 0, 255) : 'Ödeme alındı (manuel işaretleme)',
+        ));
+        return TRUE;
+    }
+
+    /**
+     * Sipariş detaylarındaki varyantların stoğini geri ekle + iade hareketi yaz.
      * varyant_id'si olmayan (silinmiş/üretilmemiş) satırlarda stok geri eklenemez.
      */
     private function _stok_iade_et($siparis_id)

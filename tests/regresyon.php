@@ -795,7 +795,20 @@ if ($_bgYeni) {
     check('admin-bayi-grup-guncelle', is_redir($c) && (string) q1("SELECT grup_id FROM bayiler WHERE id=$bayiId") === (string) $_bgYeni);
     q("UPDATE bayiler SET grup_id=$_bgOnce WHERE id=$bayiId");
 }
-unset($_ayToggles, $_ayOnce, $_ayPost, $_ykGrid, $_ykR, $_row, $_m, $_bdOnce, $_bgOnce, $_bgYeni, $c2);
+// Manuel ödeme işaretleme (havale/kapıda): odeme_durumu='odendi' + geçmiş. İdempotent.
+$_odOnce = (string) q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId");
+list($c, ) = post('admin', "/yonetim/siparisler/odeme_isaretle/$siparisId", array('notu' => 'reg'));
+check('admin-siparis-odeme-isaretle', is_redir($c) && q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId") === 'odendi');
+$_gecOnce = (int) q1("SELECT COUNT(*) FROM siparis_durum_gecmisi WHERE siparis_id=$siparisId");
+post('admin', "/yonetim/siparisler/odeme_isaretle/$siparisId", array('notu' => ''));
+check('admin-siparis-odeme-idempotent', q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId") === 'odendi' && (int) q1("SELECT COUNT(*) FROM siparis_durum_gecmisi WHERE siparis_id=$siparisId") === $_gecOnce);
+q("UPDATE siparisler SET odeme_durumu='$_odOnce' WHERE id=$siparisId");   // geri al (geçmiş 'reg' safety-netten)
+// D2 rapor cilası: Satış Özeti'ne iade/iptal oranı + para birimi dağılımı + hızlı tarih seçiciler.
+list($c, $r) = get('admin', '/yonetim/raporlar/index/satis');
+check('admin-rapor-satis-yeni-metrikler', $c === 200 && strpos($r, 'İade/İptal Oranı') !== FALSE && strpos($r, 'Para Birimi Dağılımı') !== FALSE && strpos($r, 'Son 7 gün') !== FALSE);
+list($c, $r) = get('admin', '/yonetim/raporlar/disa_aktar/satis/csv');
+check('admin-rapor-csv-yeni-metrikler', $c === 200 && strpos($r, 'İade/İptal Oranı') !== FALSE && strpos($r, 'Para Birimi') !== FALSE);
+unset($_ayToggles, $_ayOnce, $_ayPost, $_ykGrid, $_ykR, $_row, $_m, $_bdOnce, $_bgOnce, $_bgYeni, $_odOnce, $_gecOnce, $c2);
 // Güvenlik ağı: yazı akışları yarım kalırsa test artığı kalmasın.
 q("DELETE FROM markalar WHERE ad LIKE 'REG-MARKA-%'");
 q("DELETE FROM sayfalar WHERE slug LIKE 'reg-sayfa-%'");

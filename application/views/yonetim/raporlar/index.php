@@ -14,6 +14,21 @@
     <?php endforeach; ?>
 </div>
 
+<?php
+$_hizli = array(
+    array(date('Y-m-d', strtotime('-6 days')),  date('Y-m-d'), 'Son 7 gün'),
+    array(date('Y-m-d', strtotime('-29 days')), date('Y-m-d'), 'Son 30 gün'),
+    array(date('Y-m-d', strtotime('-89 days')), date('Y-m-d'), 'Son 90 gün'),
+    array(date('Y-m-01'),  date('Y-m-d'), 'Bu ay'),
+    array(date('Y-01-01'), date('Y-m-d'), 'Bu yıl'),
+);
+?>
+<div class="adm-filtre" style="margin-bottom:10px;gap:6px;flex-wrap:wrap">
+    <span style="font-size:12px;color:var(--slate);align-self:center">Hızlı:</span>
+    <?php foreach ($_hizli as $_d): $_aktif = ($bas === $_d[0] && $son === $_d[1]); ?>
+        <a class="btn btn-ghost btn-sm" style="<?= $_aktif ? 'background:var(--brand-green,#00ed64);color:#001e2b' : '' ?>" href="<?= site_url('yonetim/raporlar/index/' . $rapor) ?>?bas=<?= $_d[0] ?>&son=<?= $_d[1] ?><?= $rapor === 'bolge' && $this->input->get('alan') === 'ilce' ? '&alan=ilce' : '' ?>"><?= e($_d[2]) ?></a>
+    <?php endforeach; ?>
+</div>
 <form class="adm-filtre" method="get" action="<?= site_url('yonetim/raporlar/index/' . $rapor) ?>">
     <div class="adm-filtre-alan"><label>Başlangıç</label><input type="date" name="bas" value="<?= e($bas) ?>"></div>
     <div class="adm-filtre-alan"><label>Bitiş</label><input type="date" name="son" value="<?= e($son) ?>"></div>
@@ -31,6 +46,7 @@
         <div class="adm-stat"><div class="adm-stat-etiket">Brüt Ciro</div><div class="adm-stat-sayi"><?= para_tr($o['ciro']) ?></div><div class="adm-stat-alt"><?= e($bas) ?> – <?= e($son) ?></div></div>
         <div class="adm-stat"><div class="adm-stat-etiket">Ortalama Sepet</div><div class="adm-stat-sayi"><?= para_tr($o['aov']) ?></div><div class="adm-stat-alt">brüt sipariş başına</div></div>
         <div class="adm-stat"><div class="adm-stat-etiket">Kargo / İndirim</div><div class="adm-stat-sayi" style="font-size:20px"><?= para_tr($o['kargo']) ?> <span style="color:var(--stone);font-weight:400">/ <?= para_tr($o['indirim']) ?></span></div><div class="adm-stat-alt">toplam kargo / indirim</div></div>
+        <div class="adm-stat"><div class="adm-stat-etiket">İade/İptal Oranı</div><div class="adm-stat-sayi"><?= number_format((float) $o['iptal_oran'], 1, ',', '.') ?>%</div><div class="adm-stat-alt">toplam sipariş üzerinden</div></div>
     </div>
     <div class="adm-card adm-card--p0">
         <div class="adm-card-baslik"><h3>Durum Dağılımı</h3></div>
@@ -45,6 +61,19 @@
             </tbody>
         </table></div>
     </div>
+    <?php if (! empty($o['pb_dagilim'])): ?>
+    <div class="adm-card adm-card--p0" style="margin-top:12px">
+        <div class="adm-card-baslik"><h3>Para Birimi Dağılımı (brüt)</h3></div>
+        <div class="adm-tbl-sar"><table class="adm-tbl">
+            <thead><tr><th>Para Birimi</th><th class="sag">Brüt Ciro</th><th class="sag">Sipariş</th></tr></thead>
+            <tbody>
+            <?php foreach ($o['pb_dagilim'] as $pb => $d): ?>
+                <tr><td><?= e($pb) ?></td><td class="sag"><?= para_tr($d['ciro']) ?></td><td class="sag"><?= (int) $d['siparis'] ?></td></tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
+    </div>
+    <?php endif; ?>
 
 <?php elseif ($kolonlar): ?>
     <div class="adm-card adm-card--p0">

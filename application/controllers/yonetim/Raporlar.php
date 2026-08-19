@@ -114,6 +114,10 @@ class Raporlar extends Admin_Controller
             fputcsv($out, array(''), ';');
             fputcsv($out, array('Durum', 'Sipariş'), ';');
             foreach ($o['durumlar'] as $d => $n) { fputcsv($out, array($d, $n), ';'); }
+            fputcsv($out, array('İade/İptal Oranı (%)', $o['iptal_oran']), ';');
+            fputcsv($out, array(''), ';');
+            fputcsv($out, array('Para Birimi', 'Brüt Ciro', 'Sipariş'), ';');
+            foreach ($o['pb_dagilim'] as $pb => $d) { fputcsv($out, array($pb, $d['ciro'], $d['siparis']), ';'); }
         } else {
             fputcsv($out, array_values($kolonlar), ';');
             foreach ($this->_yukle($rapor, $bas, $son) as $r) {
