@@ -19,6 +19,47 @@
 
 ---
 
+## 2026-08-19 (XL) — Para tarafı denetimi: 3 bug + 1 sağlamlaştırma kapandı — 188/188 PASS
+
+**Kullanıcı isteği:** "son kez projeyi iyice kontrol et, özellikle para tarafını."
+
+**Denetlenen (sağlam bulundu):** PayTR callback — HMAC timing-safe (`hash_equals`)
++ **kuruş tutar çapraz kontrolü** (ödenen = `sipariş.toplam × kur × 100`, XXVI/XXVII
+düzeltmesi) + idempotent + bilinmeyen sipariş reddi; get_token tutarı callback ile
+aynı formül → tutarlı. Kupon — zaman/limit/min/max_indirim/ara'ya kelepçe (negatif
+sipariş toplamı üretilemez), kullanım sayacı yalnız sipariş başarılı olunca artar.
+Fiyatlar **tamamen sunucu-taraflı** (DB'den; POST yalnız adet taşır, MOQ+birim_adım
+sunucuda uygulanır). Stok — koşullu düşüm + rollback (yarış güvenliği, XXVI),
+iptal/iadede geri ekleme (çift-iade koruması). Yuvarlama — birim-yuvarla-sonra-çarp,
+sepet↔sipariş birebir (kuruş düzeltmesi XXVII/VIII).
+
+**Bulgu + onarım:**
+1. **Para birimi tutarsızlığı (XXXIV entegrasyon gap'i):** sepet/ödeme görüntüsü
+   `aktif_para_birimi()` (seçili teslimat ülkesi kazanır, yoksa bayi) kullanırken,
+   `mg_olustur` sipariş snapshot para birimini yalnız bayi hesabından türetiyordu
+   — ülke seçilince görüntü (EUR) ↔ kayıtlı sipariş (TRY) ayrışırdı, ödeme
+   özetinin siparişle uyuşmaması. `mg_olustur` artık `aktif_para_birimi()` kullanır.
+2. **KDV hardcoded 20:** `siparis_detaylari.kdv` daima 20 yazılıyordu;
+   `urunler.kdv` kolonu yok sayılıyordu. `liste()` artık `u.kdv` seçer, detay ondan gelir.
+3. **Kapalı ödeme yöntemi kabul:** `mg_olustur` `odeme_yontemleri` sorgusuna
+   `durum=1` koymuyordu — kapalı/bilinmeyen kod POST'lanınca (form listelemez ama
+   elle POSTlanabilir) sipariş yine oluşuyordu. Artık reddedilir.
+4. **Sağlamlaştırma:** `_birim_fiyat` `max(0, ...)` ile zeminlendi — admin
+   yanlış yapılandırmasında (basamak+grup indirim toplamı >%100) negatif birim
+   fiyat düşmez.
+
+**Doğrulama:** tam regresyon **188/188 PASS** (+3: `odeme-kapali-yontem-reddi`,
+`siparis-detay-kdv-urun`=10, `kullanici-siparis-para-birimi-ulke`=EUR — ülke=de
+seçiliyken sipariş snapshot'ı EUR düşüyor, görüntüyle birebir). `php -l` temiz;
+mojibake temiz. Bilinen modelleme nüansı (bug değil): havale siparişlerinde
+`odeme_durumu` 'bekliyor' kalır (admin `durum='onaylandi'` işaretler; bu bayrak
+PayTR ödendi-sinyali özelinde) — manuel ödeme işaretlemesi istenirse ayrı admin
+eylemi eklenir (Faz A kapsamında).
+
+**[!] Canlıya taşı:** `Siparis_model.php`, `Sepet_model.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-19 (XXXIX) — Birleşik hat kanıtı: taze-DB zinciri (22 dosya) + prod provası 185/185
 
 **Kullanıcı isteği:** devam (canlıya taşıma hazırlığı; XXXVIII birleşiminden sonra).

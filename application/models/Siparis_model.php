@@ -27,16 +27,13 @@ class Siparis_model extends CI_Model
         $satirlar = $liste['satirlar'];
         $ara_toplam_try = (float) $liste['ara_toplam'];
 
-        // (2) Bayi para birimi + kur (snapshot).
+        // (2) Sipariş para birimi + kur (snapshot) — sepet/ödeme görüntüsüyle BİREBİR
+        // tutarlı (XXXIV): aktif_para_birimi() açıkça seçilmiş teslimat ülkesini
+        // kazanır, yoksa bayi hesap para birimini döndürür. Misafir + ülke yok → TRY.
         $bayi_id = ! empty($g['bayi_id']) ? (int) $g['bayi_id'] : NULL;
-        $para_birimi = 'TRY';
+        $para_birimi = function_exists('aktif_para_birimi') ? strtoupper(trim((string) aktif_para_birimi())) : 'TRY';
+        if ($para_birimi === '' || $para_birimi === '0') { $para_birimi = 'TRY'; }
         $kur = 1.0;
-        if ($bayi_id) {
-            $bayi = $this->db->select('para_birimi')->where('id', $bayi_id)->limit(1)->get('bayiler')->row();
-            if ($bayi && strtoupper(trim((string) $bayi->para_birimi)) !== '') {
-                $para_birimi = strtoupper(trim((string) $bayi->para_birimi));
-            }
-        }
         if ($para_birimi !== 'TRY') {
             $pb = $this->db->select('kur_try')->where('kod', $para_birimi)->where('durum', 1)->limit(1)->get('para_birimleri')->row();
             $kur = $pb ? (float) $pb->kur_try : 1.0;
@@ -50,14 +47,15 @@ class Siparis_model extends CI_Model
         $esik = (float) ayar('ucretsiz_kargo_esik', 2000);
         $kargo_try = ($ara_toplam_try >= $esik) ? 0.0 : (float) ayar('varsayilan_kargo_ucreti', 0);
 
-        // (4) İşlem ücreti (TRY): ödeme yöntemi ek ücreti.
-        $islem_try = 0.0;
-        $oy = $this->db->where('kod', $g['odeme_yontemi'])->limit(1)->get('odeme_yontemleri')->row();
-        if ($oy) {
-            $islem_try = ($oy->ek_ucret_tip === 'yuzde')
-                ? $ara_toplam_try * (float) $oy->ek_ucret / 100
-                : (float) $oy->ek_ucret;
+        // (4) İşlem ücreti (TRY): ödeme yöntemi ek ücreti. Yalnız AKTİF (durum=1)
+        // yöntem kabul edilir — kapalı/bilinmeyen kodla sipariş oluşmaz (POST'a güvenilmez).
+        $oy = $this->db->where('kod', $g['odeme_yontemi'])->where('durum', 1)->limit(1)->get('odeme_yontemleri')->row();
+        if (! $oy) {
+            return array('ok' => FALSE, 'mesaj' => 'Geçersiz ödeme yöntemi.');
         }
+        $islem_try = ($oy->ek_ucret_tip === 'yuzde')
+            ? $ara_toplam_try * (float) $oy->ek_ucret / 100
+            : (float) $oy->ek_ucret;
 
         $indirim_try = $this->_kupon_indirim($ara_toplam_try); // session kupon (TRY)
         $toplam_try = $ara_toplam_try - $indirim_try + $islem_try + $kargo_try;
@@ -119,7 +117,7 @@ class Siparis_model extends CI_Model
                 'varyant_bilgi' => $varyant_bilgi !== '' ? $varyant_bilgi : NULL,
                 'birim_fiyat'   => $birim_snap,
                 'adet'          => (int) $r->adet,
-                'kdv'           => 20,
+                'kdv'           => (int) ($r->kdv ?? 20),
                 'ara_toplam'    => $ara_satir,
             ));
 

@@ -219,6 +219,18 @@ check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax')
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 
+// Kapalı/bilinmeyen ödeme yöntemi reddedilmeli (POST'a güvenilmez): sipariş oluşmaz.
+$oncekiS = (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'");
+list($c, ) = post('bayi', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Bogus', 'teslimat_adres' => 'x', 'teslimat_il' => 'Istanbul',
+    'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '555', 'email' => $E,
+    'fatura_ayni' => '1', 'odeme_yontemi' => 'kapali_yontem', 'kargo_firma_id' => 1, 'sozlesme' => '1',
+));
+check('odeme-kapali-yontem-reddi', is_redir($c) && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'") === $oncekiS);
+
+// KDV ürün bazından gelmeli (hardcoded 20 değil): ürün 1 KDV'sini 10 yap, detayda 10 düşmeli.
+q("UPDATE urunler SET kdv=10 WHERE id=1");
+
 list($c, ) = post('bayi', '/odeme/tamamla', array(
     'teslimat_ad' => 'Regresyon Test', 'teslimat_adres' => 'Test mahalle cadde no 1',
     'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112233',
@@ -229,6 +241,8 @@ check('odeme-tamamla-redirect', is_redir($c));
 $siparisId = (int) q1("SELECT id FROM siparisler WHERE email='" . esc($E) . "' ORDER BY id DESC LIMIT 1");
 check('siparis-db-olustu', $siparisId > 0);
 $siparisNo = q1("SELECT siparis_no FROM siparisler WHERE id=$siparisId");
+check('siparis-detay-kdv-urun', (int) q1("SELECT kdv FROM siparis_detaylari WHERE siparis_id=$siparisId AND urun_id=1 LIMIT 1") === 10);
+q("UPDATE urunler SET kdv=20 WHERE id=1");   // geri al
 check('sepet-bosaldi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId") === 0);
 list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 200);
 
@@ -335,6 +349,9 @@ check('kullanici-giris-sepet-devredi', (int) q1("SELECT COUNT(*) FROM sepet WHER
 // sipariş hesabın e-postasıyla kaydedilir (hesabım eşleşmesi bu alandan).
 list($c, ) = get('kullanici', '/odeme');
 check('kullanici-odeme-form-200', $c === 200);
+// Sipariş para birimi seçili teslimat ülkesinden gelmeli (XXXIV tutarlılık):
+// sepet görüntüsü (EUR) ↔ kaydedilen sipariş snapshot'u (EUR) birebir.
+$SES['kullanici']['teksil_ulke'] = 'de';
 list($c, ) = post('kullanici', '/odeme/tamamla', array(
     'teslimat_ad' => 'Reg Kullanici', 'teslimat_adres' => 'Test mahalle cadde no 2',
     'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112244',
@@ -344,6 +361,8 @@ list($c, ) = post('kullanici', '/odeme/tamamla', array(
 check('kullanici-siparis-redirect', is_redir($c));
 $kSiparisId = (int) q1("SELECT id FROM siparisler WHERE email='" . esc($EK) . "' ORDER BY id DESC LIMIT 1");
 check('kullanici-siparis-hesap-eposta', $kSiparisId > 0 && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc("yanlis$T@test.local") . "'") === 0);
+check('kullanici-siparis-para-birimi-ulke', q1("SELECT para_birimi FROM siparisler WHERE id=$kSiparisId") === 'EUR');
+unset($SES['kullanici']['teksil_ulke']);
 $kSiparisNo = (string) q1("SELECT siparis_no FROM siparisler WHERE id=$kSiparisId");
 list($c, $r) = get('kullanici', '/hesabim/siparisler');
 check('kullanici-siparisler-gorunur', $c === 200 && $kSiparisId > 0 && strpos($r, $kSiparisNo) !== FALSE);

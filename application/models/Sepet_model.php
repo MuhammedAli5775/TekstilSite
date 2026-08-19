@@ -92,7 +92,7 @@ class Sepet_model extends CI_Model
     {
         $where = $this->_sahip_where();
         $rows = $this->db->select('s.id AS sepet_id, s.urun_id, s.varyant_id, s.adet,
-                                   u.ad, u.slug, u.stok_kodu, u.fiyat, u.eski_fiyat, u.moq, u.birim_adim, u.ana_gorsel,
+                                   u.ad, u.slug, u.stok_kodu, u.fiyat, u.eski_fiyat, u.moq, u.birim_adim, u.ana_gorsel, u.kdv,
                                    v.renk, v.beden, v.stok AS varyant_stok')
                          ->from('sepet s')
                          ->join('urunler u', 'u.id = s.urun_id', 'inner')
@@ -192,6 +192,6 @@ class Sepet_model extends CI_Model
         }
         // adet basamağı indirimi + bayi grup indirimi (basit toplam)
         $toplam_yuzde = $yuzde + (float) $indirim;
-        return (float) $fiyat * (1 - $toplam_yuzde / 100);
+        return max(0.0, (float) $fiyat * (1 - $toplam_yuzde / 100));
     }
 }
