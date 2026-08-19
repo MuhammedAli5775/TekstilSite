@@ -33,9 +33,11 @@ class Para_birimi extends Admin_Controller
         $durum  = (array) $this->input->post('durum');
         $sira   = (array) $this->input->post('sira');
 
+        $gecersiz = 0;
         foreach ($kodlar as $i => $kod) {
             $k = strtoupper(trim((string) $kod));
             if ($k === '') { continue; }
+            if (strlen($k) > 3) { $gecersiz++; continue; }   // ISO 4217: 3 harf; CHAR(3) kolon — sessiz truncate/reddi önle
             $kurval = ($k === 'TRY') ? 1.0 : max(0.0001, (float) ($kur[$i] ?? 1));
             $row = array(
                 'ad'      => trim((string) ($adlar[$i] ?? $k)),
@@ -49,7 +51,11 @@ class Para_birimi extends Admin_Controller
             else { $row['kod'] = $k; $this->db->insert('para_birimleri', $row); }
         }
         $this->auth_admin->audit('ayarlar', 'para_birimi', '', 'Kurlar güncellendi');
-        $this->session->set_flashdata('bilgi', 'Para birimleri güncellendi.');
+        if ($gecersiz > 0) {
+            $this->session->set_flashdata('hata', $gecersiz . ' para birimi kodu geçersiz (en fazla 3 harf) — atlandı.');
+        } else {
+            $this->session->set_flashdata('bilgi', 'Para birimleri güncellendi.');
+        }
         redirect('yonetim/para_birimi');
     }
 

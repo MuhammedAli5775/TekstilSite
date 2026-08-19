@@ -19,6 +19,40 @@
 
 ---
 
+## 2026-08-19 (XLI) — Admin panel özellik taraması: tüm modüller + 1 bug kapandı — 241/241 PASS
+
+**Kullanıcı isteği:** "admin panelindeki bütün özelliklerin doğru çalıştığına 100% emin ol."
+
+**Yapılan:** `tests/regresyon.php`'ye "G) admin özellik taraması" bölümü eklendi — admin
+olarak **her admin rotası GET'lendi** (dashboard, siparişler+detay, ürünler+ekle/düzenle,
+kategoriler+düzenle, markalar+düzenle, stok+hareketler, bayiler+detay, faturalar+detay,
+pazaryeri+detay, feed, xml_ice+log, raporlar+dışa_aktar, bannerlar+düzenle, sayfalar+
+ekle+düzenle, kuponlar+ekle+düzenle, yazılar+düzenle, para_birimi, ayarlar, yetkiler) —
+hepsi 200 + PHP fatal/render kırılması yok. **Yazı akışları** (oluştur→DB doğrula→sil→
+silindi doğrula): Markalar, Sayfalar, Kuponlar, Bannerlar, Yazılar; Para_birimi
+(kur güncelle+geri al, ekle→sil, uzun-kod reddi); Feed (api anahtarı oluştur→sil);
+Stok (manuel düzeltme no-op+temizlik); Siparişler (durum güncelle: onaylandı+
+geri al; kargolandı'da takip-no zorunlu reddi).
+
+**Bulgu + onarım:** Para_birimi `kaydet` admin 4+ harf para kodu girince DB `CHAR(3)`
+reddediyor ama flash yine "güncellendi" diyordu (sessiz başarısız + yanıltıcı onay).
+Gardi eklendi: >3 harf kod atlanır + "N para birimi kodu geçersiz (en fazla 3 harf) —
+atlandı" hata flash'ı basılır. Test: `admin-pb-uzun-kod-reddi` (UZUNKOD → eklenmez,
+DB truncate etmez).
+
+**Doğrulama:** tam regresyon **241/241 PASS** (+53: ~37 GET rotası + 16 yazı akışı/
+durum kontrolü). `php -l` temiz; mojibake temiz.
+
+**Bilinçli kapsam (yazı-test edilmedi; GET/render + okuma yolu kanıtlı):** Ayarlar
+`kaydet` (ayar değişimi diğer testleri bozar; D0 whitelist+toggle E2E tarihsel
+kanıtlı), Yetkiler `kaydet` (matris grid POST biçimi; rol-2 403/200 okuma yolu
+testli), Bayiler `grup_guncelle`/`durum_guncelle` (B bölümü bayi hesabıyla iç içe).
+Bunlar düşük-sıklık admin eylemleri; formları render olur, okuma yolları testli.
+
+**[!] Canlıya taşı:** `application/controllers/yonetim/Para_birimi.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-19 (XL) — Para tarafı denetimi: 3 bug + 1 sağlamlaştırma kapandı — 188/188 PASS
 
 **Kullanıcı isteği:** "son kez projeyi iyice kontrol et, özellikle para tarafını."

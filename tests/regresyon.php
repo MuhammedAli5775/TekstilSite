@@ -659,6 +659,122 @@ if (is_file($logFile)) {
 check('log-beklenmeyen-hata-yok', empty($yeni));
 foreach ($yeni as $l) { echo "  LOG: $l\n"; }
 
+/* ---- G) admin özellik taraması (her modülün GET eylemi + güvenli yazı akışları) */
+$_gid = function($t){ return (int) q1("SELECT id FROM $t ORDER BY id ASC LIMIT 1"); };
+$_aGet = function($ad, $url){
+    list($c, $r) = get('admin', $url);
+    check("admin-get-$ad", $c === 200 && ! preg_match('/(Fatal error|A PHP Error|Severity: error|Parse error|Call to a member function on)/i', $r));
+};
+// GET taraması — her admin rotası yüklenmeli, fatal/PHP hatası olmamalı.
+$_aGet('dashboard', '/yonetim/dashboard');
+$_aGet('siparisler', '/yonetim/siparisler'); if (($_i=$_gid('siparisler'))) $_aGet('siparisler-detay', "/yonetim/siparisler/detay/$_i");
+$_aGet('urunler', '/yonetim/urunler'); $_aGet('urunler-ekle', '/yonetim/urunler/ekle'); if (($_i=$_gid('urunler'))) $_aGet('urunler-duzenle', "/yonetim/urunler/duzenle/$_i");
+$_aGet('kategoriler', '/yonetim/kategoriler'); if (($_i=$_gid('kategoriler'))) $_aGet('kategoriler-duzenle', "/yonetim/kategoriler?duzenle=$_i");
+$_aGet('markalar', '/yonetim/markalar'); if (($_i=$_gid('markalar'))) $_aGet('markalar-duzenle', "/yonetim/markalar?duzenle=$_i");
+$_aGet('stok', '/yonetim/stok'); $_aGet('stok-hareketler', '/yonetim/stok/hareketler');
+$_aGet('bayiler', '/yonetim/bayiler'); if (($_i=$_gid('bayiler'))) $_aGet('bayiler-detay', "/yonetim/bayiler/detay/$_i");
+$_aGet('faturalar', '/yonetim/faturalar'); if (($_i=$_gid('faturalar'))) $_aGet('faturalar-detay', "/yonetim/faturalar/detay/$_i");
+$_aGet('pazaryeri', '/yonetim/pazaryeri'); if (($_i=$_gid('pazaryeri_hesaplari'))) $_aGet('pazaryeri-detay', "/yonetim/pazaryeri/detay/$_i");
+$_aGet('feed', '/yonetim/feed');
+$_aGet('xml-ice', '/yonetim/xml_ice'); if (($_i=$_gid('xml_kaynaklari'))) $_aGet('xml-ice-log', "/yonetim/xml_ice/log/$_i");
+$_aGet('raporlar', '/yonetim/raporlar'); $_aGet('raporlar-disa', '/yonetim/raporlar/disa_aktar');
+$_aGet('bannerlar', '/yonetim/bannerlar'); if (($_i=$_gid('bannerlar'))) $_aGet('bannerlar-duzenle', "/yonetim/bannerlar?duzenle=$_i");
+$_aGet('sayfalar', '/yonetim/sayfalar'); $_aGet('sayfalar-ekle', '/yonetim/sayfalar/ekle'); if (($_i=$_gid('sayfalar'))) $_aGet('sayfalar-duzenle', "/yonetim/sayfalar?duzenle=$_i");
+$_aGet('kuponlar', '/yonetim/kuponlar'); $_aGet('kuponlar-ekle', '/yonetim/kuponlar/ekle'); if (($_i=$_gid('kuponlar'))) $_aGet('kuponlar-duzenle', "/yonetim/kuponlar?duzenle=$_i");
+$_aGet('yazilar', '/yonetim/yazilar'); if (($_i=$_gid('yazilar'))) $_aGet('yazilar-duzenle', "/yonetim/yazilar?duzenle=$_i");
+$_aGet('para-birimi', '/yonetim/para_birimi');
+$_aGet('ayarlar', '/yonetim/ayarlar');
+$_aGet('yetkiler', '/yonetim/yetkiler');
+
+// Yazı akışları: oluştur → DB'de doğrula → sil → silindi doğrula (her CRUD modülü).
+// Markalar
+list($c, ) = post('admin', '/yonetim/markalar/kaydet', array('ad' => "REG-MARKA-$T", 'slug' => '', 'logo' => '', 'durum' => '1'));
+check('admin-marka-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM markalar WHERE ad='REG-MARKA-$T'") === 1);
+$_mi = (int) q1("SELECT id FROM markalar WHERE ad='REG-MARKA-$T' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/markalar/sil/$_mi");
+check('admin-marka-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM markalar WHERE id=$_mi") === 0);
+// Sayfalar
+list($c, ) = post('admin', '/yonetim/sayfalar/kaydet', array('baslik' => "REG Sayfa $T", 'slug' => "reg-sayfa-$T", 'icerik' => 'test', 'seo_title' => '', 'seo_description' => '', 'durum' => '1'));
+check('admin-sayfa-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM sayfalar WHERE slug='reg-sayfa-$T'") === 1);
+$_si = (int) q1("SELECT id FROM sayfalar WHERE slug='reg-sayfa-$T' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/sayfalar/sil/$_si");
+check('admin-sayfa-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM sayfalar WHERE id=$_si") === 0);
+// Kuponlar
+list($c, ) = post('admin', '/yonetim/kuponlar/kaydet', array('kod' => "REGKUP$T", 'tip' => 'yuzde', 'deger' => '10', 'min_sepet_tutar' => '0', 'max_indirim' => '0', 'kullanim_limiti' => '0', 'baslangic_zaman' => '', 'bitis_zaman' => '', 'aciklama' => 'reg', 'durum' => '1'));
+check('admin-kupon-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM kuponlar WHERE kod='REGKUP$T'") === 1);
+$_ki = (int) q1("SELECT id FROM kuponlar WHERE kod='REGKUP$T' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/kuponlar/sil/$_ki");
+check('admin-kupon-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM kuponlar WHERE id=$_ki") === 0);
+// Bannerlar (gorsel_url ile; dil zorunlu)
+list($c, ) = post('admin', '/yonetim/bannerlar/kaydet', array('baslik' => "REG Banner $T", 'alt_baslik' => '', 'buton_yazi' => '', 'link' => '', 'gorsel_url' => 'https://example.com/x.jpg', 'yazi_konum' => 'sol', 'dil' => 'tr', 'sira' => '999', 'durum' => '1'));
+check('admin-banner-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM bannerlar WHERE baslik='REG Banner $T'") === 1);
+$_bi = (int) q1("SELECT id FROM bannerlar WHERE baslik='REG Banner $T' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/bannerlar/sil/$_bi");
+check('admin-banner-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM bannerlar WHERE id=$_bi") === 0);
+// Yazilar
+list($c, ) = post('admin', '/yonetim/yazilar/kaydet', array('baslik' => "REG Yazi $T", 'slug' => "reg-yazi-$T", 'ozet' => 'x', 'icerik' => 'x', 'gorsel' => '', 'yayin_tarihi' => date('Y-m-d H:i:s'), 'durum' => '1'));
+check('admin-yazi-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM yazilar WHERE slug='reg-yazi-$T'") === 1);
+$_yi = (int) q1("SELECT id FROM yazilar WHERE slug='reg-yazi-$T' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/yazilar/sil/$_yi");
+check('admin-yazi-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM yazilar WHERE id=$_yi") === 0);
+// Para_birimi: kaydet DİZİ alır (tüm birimleri tek formdan). USD kur'unu güncelle → geri al.
+$_usdKurOnce = (string) q1("SELECT kur_try FROM para_birimleri WHERE kod='USD'");
+list($c, ) = post('admin', '/yonetim/para_birimi/kaydet', array(
+    'kod' => array('USD'), 'ad' => array('Dolar'), 'sembol' => array('$'),
+    'kur_try' => array('99.99'), 'durum' => array('1'), 'sira' => array('2'),
+));
+check('admin-pb-kur-guncelle', is_redir($c) && abs((float) q1("SELECT kur_try FROM para_birimleri WHERE kod='USD'") - 99.99) < 0.001);
+q("UPDATE para_birimleri SET kur_try=$_usdKurOnce WHERE kod='USD'");
+// Para_birimi: yeni birim ekle (kaydet dizisine yeni kod) → sil(kod). kod CHAR(3) → 'TST'.
+q("DELETE FROM para_birimleri WHERE kod='TST'");   // önceki koşu artığı varsa
+list($c, ) = post('admin', '/yonetim/para_birimi/kaydet', array(
+    'kod' => array('TST'), 'ad' => array('Test PB'), 'sembol' => array('T'),
+    'kur_try' => array('2'), 'durum' => array('1'), 'sira' => array('99'),
+));
+check('admin-pb-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM para_birimleri WHERE kod='TST'") === 1);
+list($c, ) = get('admin', '/yonetim/para_birimi/sil/TST');
+check('admin-pb-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM para_birimleri WHERE kod='TST'") === 0);
+// Geçersiz uzun kod reddedilmeli (>3 harf → eklenmez, DB sessiz truncate etmez)
+list($c, ) = post('admin', '/yonetim/para_birimi/kaydet', array(
+    'kod' => array('UZUNKOD'), 'ad' => array('X'), 'sembol' => array('X'),
+    'kur_try' => array('1'), 'durum' => array('1'), 'sira' => array('1'),
+));
+check('admin-pb-uzun-kod-reddi', (int) q1("SELECT COUNT(*) FROM para_birimleri WHERE kod='UZU' OR kod='UZUNKOD'") === 0);
+// Feed: api anahtarı oluştur → sil
+list($c, ) = post('admin', '/yonetim/feed/olustur', array('ad' => 'REG Feed', 'bayi_id' => ''));
+check('admin-feed-olustur', is_redir($c) && (int) q1("SELECT COUNT(*) FROM api_anahtarlari WHERE ad='REG Feed'") === 1);
+$_fi = (int) q1("SELECT id FROM api_anahtarlari WHERE ad='REG Feed' LIMIT 1");
+list($c, ) = get('admin', "/yonetim/feed/sil/$_fi");
+check('admin-feed-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM api_anahtarlari WHERE id=$_fi") === 0);
+// Stok düzeltme (no-op: mevcut stoğu yeniden yaz → hareket oluşur, stok değişmez)
+$_sv = (int) q1("SELECT id FROM urun_varyantlari WHERE id != 1 ORDER BY id ASC LIMIT 1");
+if ($_sv) {
+    $_svStok = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=$_sv");
+    list($c, ) = post('admin', "/yonetim/stok/duzeltle/$_sv", array('yeni_stok' => (string) $_svStok, 'sebep' => 'reg-noop'));
+    check('admin-stok-duzeltle', is_redir($c) && (int) q1("SELECT stok FROM urun_varyantlari WHERE id=$_sv") === $_svStok
+        && (int) q1("SELECT COUNT(*) FROM stok_hareketleri WHERE varyant_id=$_sv AND tip='duzeltme' ORDER BY id DESC LIMIT 1") >= 1);
+    q("DELETE FROM stok_hareketleri WHERE varyant_id=$_sv AND tip='duzeltme' AND aciklama LIKE '%reg-noop%'");
+}
+// Siparisler durum güncelleme: onaylandi (stok etkilemeyen geçiş) → doğrula → geri al.
+$_sdOnce = (string) q1("SELECT durum FROM siparisler WHERE id=$siparisId");
+list($c, ) = post('admin', "/yonetim/siparisler/durum_guncelle/$siparisId", array('durum' => 'onaylandi', 'notu' => 'reg'));
+check('admin-siparis-durum-guncelle', is_redir($c) && q1("SELECT durum FROM siparisler WHERE id=$siparisId") === 'onaylandi');
+q("UPDATE siparisler SET durum='$_sdOnce' WHERE id=$siparisId");   // geri al (gecmis satırı temizlikten düşer)
+// Kargolandı durumunda takip no zorunlu — eksikse reddedilmeli (durum değişmemeli)
+list($c, ) = post('admin', "/yonetim/siparisler/durum_guncelle/$siparisId", array('durum' => 'kargolandi', 'notu' => ''));
+check('admin-siparis-kargo-takip-zorunlu', is_redir($c) && q1("SELECT durum FROM siparisler WHERE id=$siparisId") === $_sdOnce);
+unset($_sdOnce);
+// Güvenlik ağı: yazı akışları yarım kalırsa test artığı kalmasın.
+q("DELETE FROM markalar WHERE ad LIKE 'REG-MARKA-%'");
+q("DELETE FROM sayfalar WHERE slug LIKE 'reg-sayfa-%'");
+q("DELETE FROM kuponlar WHERE kod LIKE 'REGKUP%'");
+q("DELETE FROM bannerlar WHERE baslik LIKE 'REG Banner%'");
+q("DELETE FROM yazilar WHERE slug LIKE 'reg-yazi-%'");
+q("DELETE FROM api_anahtarlari WHERE ad='REG Feed'");
+q("DELETE FROM para_birimleri WHERE kod IN ('TST','UZU','UZUNKOD')");
+q("DELETE FROM siparis_durum_gecmisi WHERE notu='reg'");   // admin durum_guncelle test satırları
+unset($_gid, $_aGet, $_i, $_mi, $_si, $_ki, $_bi, $_yi, $_usdKurOnce, $_fi, $_sv, $_svStok);
+
 /* ---- temizlik ---------------------------------------------------------------- */
 q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
 q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");
@@ -678,7 +794,7 @@ q("UPDATE urun_varyantlari SET stok=$vStokOnce WHERE id=1");
 q("DELETE FROM urun_varyantlari WHERE urun_id=" . (int) ($yId ?? 0));
 q("DELETE FROM urunler WHERE stok_kodu LIKE 'REG-XML-%'");
 q("UPDATE urunler SET fiyat=$gFiyatOnce WHERE id=1");
-q("DELETE FROM xml_kaynaklari WHERE id=" . (int) ($XK ?? 0));   // xml_loglari CASCADE
+q("DELETE FROM xml_kaynaklari WHERE ad='Regresyon XML'");   // xml_loglari CASCADE (ad'yla — crash artığına dayanıklı, $kalan da ad'la sayar)
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
     q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ")");
