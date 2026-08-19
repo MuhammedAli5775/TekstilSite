@@ -543,6 +543,81 @@ q("DELETE FROM feed_denemeler");
 list($c, ) = get('guest', "/feed/urunler?key=" . urlencode($anahtar));
 check('feed-blok-sonrasi-temiz-200', $c === 200);
 
+/* ---- E2) XML içe aktarım (Faz 5) -------------------------------------------- */
+// Not: sunucu-içi URL çekmesi Windows php -S'de (tek iş parçacığı) KENDİNE
+// curl kilitlenmesi yaratır — URL yolu yalnız hızlı-hata durumunda sınanır;
+// Xml_export ↔ içe aktarım simetrisi feed gövdesi xml_metin ile verilerek test edilir.
+$gKod       = q1("SELECT stok_kodu FROM urunler WHERE id=1");
+$gFiyatOnce = (float) q1("SELECT fiyat FROM urunler WHERE id=1");
+
+// Kaynak: URL hata yolu (bağlanılamaz adres → hızlı ret)
+list($c, ) = post('admin', '/yonetim/xml_ice/kaydet', array(
+    'ad' => 'Regresyon XML', 'url' => 'http://127.0.0.1:1/hata.xml',
+    'varsayilan_kategori_id' => '0', 'fiyat_carpani' => '1', 'yeni_urun_olustur' => '1',
+));
+check('xml-kaynak-ekle-redirect', is_redir($c));
+$XK = (int) q1("SELECT id FROM xml_kaynaklari ORDER BY id DESC LIMIT 1");
+check('xml-kaynak-db', $XK > 0);
+list($c, $r) = get('admin', '/yonetim/xml_ice');
+check('xml-ice-200', $c === 200 && strpos($r, 'yonetim/xml_ice') !== FALSE);
+list($c, $r) = get('admin', "/yonetim/xml_ice/onizleme/$XK");
+check('xml-cek-hata-yolu', $c === 200 && strpos($r, 'adm-uyari--hata') !== FALSE);
+
+// Kendi feed'imiz geri okunabilmeli (Xml_export ↔ içe aktarım simetrisi).
+// hh() başlıklarla döndüğü için gövde \r\n\r\n sonrasıdır — XML'e yalnız o kısım girer.
+list($fc, $feedTam) = get('guest', "/feed/urunler?key=" . urlencode($anahtar));
+$feedGovde = substr($feedTam, strpos($feedTam, "\r\n\r\n") + 4);
+list($c, ) = post('admin', '/yonetim/xml_ice/kaydet', array(
+    'id' => (string) $XK, 'ad' => 'Regresyon XML', 'url' => "$BASE/feed/urunler?key=" . urlencode($anahtar),
+    'varsayilan_kategori_id' => '0', 'fiyat_carpani' => '1', 'yeni_urun_olustur' => '1',
+));
+list($c, $r) = post('admin', "/yonetim/xml_ice/onizleme/$XK", array('xml_metin' => $feedGovde));
+check('xml-kendi-feed-geri-okundu', $fc === 200 && $c === 200 && strpos($r, 'Kuru ko') !== FALSE);
+check('xml-kendi-feed-urun-sayisi',
+      (int) q1("SELECT urun_sayisi FROM xml_loglari WHERE kaynak_id=$XK ORDER BY id DESC LIMIT 1")
+      === (int) substr_count($feedGovde, '<urun id='));
+
+// Fixtür: yeni ürün (TR biçimli fiyat, moq, 2 varyant) + mevcut ürün güncellemesi + kodsuz satır
+$fixture = '<?xml version="1.0" encoding="UTF-8"?><katalog><urun><stokKodu>REG-XML-YENI</stokKodu>'
+    . '<ad>Regresyon XML Urunu</ad><fiyat>12,34</fiyat><moq>2</moq>'
+    . '<varyantlar><varyant><renk>Siyah</renk><beden>M</beden><sku>REG-XML-V1</sku><stok>7</stok></varyant>'
+    . '<varyant><renk>Beyaz</renk><beden>L</beden><stok>3</stok></varyant></varyantlar></urun>'
+    . "<urun><stokKodu>$gKod</stokKodu><ad>Guncellendi</ad><fiyat>98,76</fiyat></urun>"
+    . '<urun><stokKodu></stokKodu><ad>Kodsuz</ad><fiyat>1</fiyat></urun></katalog>';
+
+// Önizleme: kuru koşu — DB'de iz bırakmamalı
+list($c, $r) = post('admin', "/yonetim/xml_ice/onizleme/$XK", array('xml_metin' => $fixture));
+check('xml-onizleme-kuru', $c === 200 && strpos($r, 'Kuru ko') !== FALSE);
+check('xml-onizleme-iz-yok', (int) q1("SELECT COUNT(*) FROM urunler WHERE stok_kodu='REG-XML-YENI'") === 0);
+
+// GET ile gerçek aktarim reddi (yalnız POST)
+list($c, ) = get('admin', "/yonetim/xml_ice/calistir/$XK");
+check('xml-calistir-get-reddi', is_redir($c));
+
+// Gerçek aktarım: yeni ürün + varyant + güncelleme + atlanan
+list($c, ) = post('admin', "/yonetim/xml_ice/calistir/$XK", array('xml_metin' => $fixture));
+check('xml-calistir-redirect', is_redir($c));
+$yId = (int) q1("SELECT id FROM urunler WHERE stok_kodu='REG-XML-YENI'");
+check('xml-yeni-urun-db', $yId > 0);
+check('xml-yeni-fiyat-tr', abs((float) q1("SELECT fiyat FROM urunler WHERE id=$yId") - 12.34) < 0.001);
+check('xml-yeni-moq', (int) q1("SELECT moq FROM urunler WHERE id=$yId") === 2);
+check('xml-yeni-varyant', (int) q1("SELECT COUNT(*) FROM urun_varyantlari WHERE urun_id=$yId") === 2);
+check('xml-guncelleme', abs((float) q1("SELECT fiyat FROM urunler WHERE id=1") - 98.76) < 0.001);
+check('xml-log-atlanan', (int) q1("SELECT atlanan FROM xml_loglari WHERE kaynak_id=$XK AND kip='gercek' ORDER BY id DESC LIMIT 1") === 1);
+
+// Tekrar koş → idempotent: yeni=0, guncellenen=2, varyant güncelleme=2
+post('admin', "/yonetim/xml_ice/calistir/$XK", array('xml_metin' => $fixture));
+$satir = q("SELECT yeni, guncellenen, varyant_guncellenen FROM xml_loglari WHERE kaynak_id=$XK AND kip='gercek' ORDER BY id DESC LIMIT 1")->fetch_assoc();
+check('xml-tekrar-idempotent', (int) $satir['yeni'] === 0 && (int) $satir['guncellenen'] === 2 && (int) $satir['varyant_guncellenen'] === 2);
+
+// Çarpan: 1.25 → 98.76 × 1.25 = 123.45
+post('admin', '/yonetim/xml_ice/kaydet', array(
+    'id' => (string) $XK, 'ad' => 'Regresyon XML', 'url' => 'http://127.0.0.1:1/hata.xml',
+    'varsayilan_kategori_id' => '0', 'fiyat_carpani' => '1.25', 'yeni_urun_olustur' => '1',
+));
+post('admin', "/yonetim/xml_ice/calistir/$XK", array('xml_metin' => $fixture));
+check('xml-fiyat-carpani', abs((float) q1("SELECT fiyat FROM urunler WHERE id=1") - 123.45) < 0.01);
+
 /* ---- F) graceful log denetimi ------------------------------------------------ */
 $yeni = array();
 if (is_file($logFile)) {
@@ -581,6 +656,10 @@ q("DELETE FROM kullanicilar WHERE email='" . esc($EK) . "'");
 q("DELETE FROM api_anahtarlari WHERE id=$anahtarId");
 q("DELETE FROM feed_denemeler");
 q("UPDATE urun_varyantlari SET stok=$vStokOnce WHERE id=1");
+q("DELETE FROM urun_varyantlari WHERE urun_id=" . (int) ($yId ?? 0));
+q("DELETE FROM urunler WHERE stok_kodu LIKE 'REG-XML-%'");
+q("UPDATE urunler SET fiyat=$gFiyatOnce WHERE id=1");
+q("DELETE FROM xml_kaynaklari WHERE id=" . (int) ($XK ?? 0));   // xml_loglari CASCADE
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
     q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ")");
@@ -590,7 +669,9 @@ $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc(
                  + (SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local')
                  + (SELECT COUNT(*) FROM kullanicilar WHERE email='" . esc($EK) . "')
                  + (SELECT COUNT(*) FROM api_anahtarlari WHERE id=$anahtarId)
-                 + (SELECT COUNT(*) FROM feed_denemeler)");
+                 + (SELECT COUNT(*) FROM feed_denemeler)
+                 + (SELECT COUNT(*) FROM xml_kaynaklari WHERE ad='Regresyon XML')
+                 + (SELECT COUNT(*) FROM urunler WHERE stok_kodu LIKE 'REG-XML-%')");
 check('temizlik-tamam', $kalan === 0);
 check('stok-geri-yuklendi', (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1") === $vStokOnce);
 

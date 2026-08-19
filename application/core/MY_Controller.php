@@ -211,6 +211,7 @@ class Admin_Controller extends MY_Controller
             array('key' => 'faturalar',   'baslik' => 'Faturalar',   'url' => site_url('yonetim/faturalar'),   'ikon' => '▤'),
             array('key' => 'pazaryeri',   'baslik' => 'Pazaryeri',   'url' => site_url('yonetim/pazaryeri'),   'ikon' => '⇄'),
             array('key' => 'feed',        'baslik' => 'API / Feed',  'url' => site_url('yonetim/feed'),        'ikon' => '⌁'),
+            array('key' => 'xml_ice',     'baslik' => 'XML İçe Aktar', 'url' => site_url('yonetim/xml_ice'),  'ikon' => '⇩'),
             array('key' => 'raporlar',    'baslik' => 'Raporlar',    'url' => site_url('yonetim/raporlar'),    'ikon' => '◉'),
             array('key' => 'bannerlar',   'baslik' => 'Bannerlar',   'url' => site_url('yonetim/bannerlar'),   'ikon' => '▦'),
             array('key' => 'yazilar',     'baslik' => 'Blog Yazıları', 'url' => site_url('yonetim/yazilar'),  'ikon' => '✎'),

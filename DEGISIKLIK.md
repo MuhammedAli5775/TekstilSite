@@ -19,6 +19,51 @@
 
 ---
 
+## 2026-08-19 (XXXVIII) — Hat birleştirme + XML içe aktarım (tedarikçi feed'i → katalog) — 185/185 PASS
+
+**Kullanıcı isteği:** Faz 5'e geç (XML içe aktarım — Faz 5'in tek eksik parçası;
+API feed/pazaryeri/e-fatura/SMS/cron zaten kuruluydu) + push onayı. Push reddiyle
+ortaya çıktı: repo ÇATALLANMIŞTI — 16-18 Ağustos işleri başka bir kopyada ilerleyip
+GitHub'a itilmiş (XX–XXXVII: çoklu dil TR/EN/RU/AR + RTL, blog, SEO cilası,
+güvenlik denetimleri, 167/167); bu yerel kopya 15-08 (XI)'te kalmıştı. Bugünkü
+yerel işlerin XII (favori/toast) ve XVI (filtre) kısımları uzaktaki ecaca01'de
+zaten vardı — atıldı; özgün değer (XML içe aktarım + kurulum zinciri düzeltmesi)
+uzak satır üzerine yeniden uygulandı (yerel 5 commit yedek dalda:
+`yedek-gun19-local`).
+
+**Yeni:** `xml_kaynaklari` + `xml_loglari` (`sql/migrate_faz5_xml_ice.sql`) —
+kaynak: URL + alan eşlemesi (JSON; NULL = kendi Xml_export biçimiz → api/Feed
+çıktısı aynen geri alınabilir) + varsayılan kategori + fiyat çarpanı + yeni-ürün
+izni. `Xml_ice_model`: URL çekme (yalnız http/https, 20 sn, 8 MB), çözümleme
+(SimpleXML + eşleme, TR fiyat biçimleri), içe aktarım (transaction; **önizleme =
+rollback'li kuru koşu**; stok_kodu anahtarlı güncelle/yeni; varyant eşleşmesi
+sku → (renk,beden) PHP tarafında — QB'da COALESCE/LOWER alan ifadesi bozuk SQL
+üretiyor). `yonetim/Xml_ice` (CRUD + önizleme + yalnız-POST gerçek aktarım + log)
++ 3 view + menü + `Yetki_model` sözlüğü + rol-2 seed'i **migrate_yetkiler.sql'de**
+(yetkiler tablosu zincirde seed.sql'den SONRA yaratılır — xml migrate'ında koşsaydı
+taze kurulum kilitlenirdi). `Cron::xml_ice_aktar` (calis() zincirine bağlı).
+
+**Değişen:** `MY_Controller.php` (menü), `Cron.php`, `Yetki_model.php`,
+`migrate_yetkiler.sql`, `DEPLOY.md` (§3 22 dosya + §6 cron), `tests/regresyon.php`
+(+18 kontrol, E2 bölümü).
+
+**Doğrulama:** tam regresyon **185/185 PASS** (167 uzak satır + 18 XML: kaynak
+CRUD, URL hata yolu, kendi feed gövdesiyle geri-okuma simetrisi — log urun_sayısı
+= feed'deki `<urun id=` sayısı, kuru koşu iz bırakmıyor, GET ile gerçek aktarım
+reddi, yeni ürün + TR fiyat 12,34→12.34 + moq + 2 varyant, mevcut ürün güncelleme,
+atlanan sayacı, idempotency, fiyat çarpanı ×1.25 → 123.45, temizlik). `php -l` temiz;
+mojibake temiz. Dev DB zaten uzak satır durumundaydı (yazilar vb. mevcut); xml
+tabloları bugün eklenmişti — uyumlu. Ders: Windows `php -S` tek iş parçacıklı —
+sunucu içinden localhost'a curl KENDİNE kilitlenir; testler feed gövdesini
+`xml_metin` ile verir.
+
+**[!] Canlıya taşı:** `sql/migrate_faz5_xml_ice.sql` + `migrate_yetkiler.sql`
+(yeniden koş — INSERT IGNORE xml_ice satırı ekler) + `Xml_ice_model.php`,
+`yonetim/Xml_ice.php`, `views/yonetim/xml_ice/*`, `MY_Controller.php`,
+`Cron.php`, `Yetki_model.php`, `tests/regresyon.php`, `DEPLOY.md`.
+
+---
+
 ## 2026-08-18 (XXXVII) — D2 SEO cilası: sitemap'e blog+CMS + canonical + Product JSON-LD — 167/167
 
 **Bağlam:** "sonraki adıma geç" — TAMAMLAMA_PLANI D2 (Rapor/SEO cilası) altından

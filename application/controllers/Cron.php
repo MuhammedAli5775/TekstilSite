@@ -34,6 +34,7 @@ class Cron extends CI_Controller
         $this->terk_sepet();
         $this->pazaryeri_senkron();
         $this->efatura_durum();
+        $this->xml_ice_aktar();
         $this->_out('=== Cron bitti ===');
     }
 
@@ -70,6 +71,19 @@ class Cron extends CI_Controller
         foreach ($bekleyen as $f) {
             $res = $this->efatura->durum_sorgula($f->id);
             $this->_out('efatura #' . $f->id . ': ' . ($res['ok'] ? 'OK ' : 'SKIP ') . $res['mesaj']);
+        }
+    }
+
+    /** Aktif XML kaynaklarını içe aktar (tedarikçi feed'leri — stok/fiyat tazele, yeni ürün aç). */
+    public function xml_ice_aktar()
+    {
+        if (! $this->db->table_exists('xml_kaynaklari')) { $this->_out('xml_ice_aktar: tablo yok, atlandi.'); return; }
+        $this->load->model('xml_ice_model');
+        $kaynaklar = $this->db->where('durum', 1)->get('xml_kaynaklari')->result();
+        if (! $kaynaklar) { $this->_out('xml_ice_aktar: aktif kaynak yok.'); return; }
+        foreach ($kaynaklar as $k) {
+            $r = $this->xml_ice_model->ice_aktar($k, TRUE);
+            $this->_out('xml_ice #' . $k->id . ' (' . $k->ad . '): ' . ($r['ok'] ? 'OK ' : 'HATA ') . $r['mesaj']);
         }
     }
 

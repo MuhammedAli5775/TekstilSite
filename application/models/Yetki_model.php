@@ -19,6 +19,7 @@ class Yetki_model extends CI_Model
         'faturalar'  => 'Faturalar',
         'pazaryeri'  => 'Pazaryeri',
         'feed'       => 'API / Feed',
+        'xml_ice'    => 'XML İçe Aktarım',
         'raporlar'   => 'Raporlar',
         'bannerlar'  => 'Bannerlar',
         'yazilar'    => 'Blog Yazıları',

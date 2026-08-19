@@ -93,6 +93,7 @@ mysql -u teksil_app -p teksilsite < sql/migrate_faz4.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_faz5_fatura.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_faz5_feed.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_faz5_pazaryeri.sql
+mysql -u teksil_app -p teksilsite < sql/migrate_faz5_xml_ice.sql     # XML içe aktarım (tedarikçi feed → katalog; yetki satırı migrate_yetkiler'de)
 mysql -u teksil_app -p teksilsite < sql/migrate_kuponlar.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_para_birimi.sql
 mysql -u teksil_app -p teksilsite < sql/migrate_2026_08_09.sql
@@ -169,7 +170,7 @@ SSL ile PHP hâlâ http görür ve formlar yine 403 verir.
 
 ## 6. Cron (B7)
 
-Terk sepet + pazaryeri senkronu + e-fatura durum sorgusu (hepsi tek komutta):
+Terk sepet + pazaryeri senkronu + e-fatura durum sorgusu + XML içe aktarım (hepsi tek komutta):
 
 ```cron
 */15 * * * * CI_ENV=production /usr/bin/php /home/KULLANICI/public_html/index.php cron calis >> /home/KULLANICI/teksil-cron.log 2>&1
@@ -179,7 +180,7 @@ Terk sepet + pazaryeri senkronu + e-fatura durum sorgusu (hepsi tek komutta):
 - PHP yolu panelden farklıysa (`/usr/local/bin/php` gibi) panele bak.
 - Web'den `cron/calis` çağrısı `is_cli()` guard'ı ile 403 verir — tasarım gereği.
 - Tek tek de koşulabilir: `cron terk_sepet 7`, `cron pazaryeri_senkron`,
-  `cron efatura_durum` (ayrıntı: `application/controllers/Cron.php`).
+  `cron efatura_durum`, `cron xml_ice_aktar` (ayrıntı: `application/controllers/Cron.php`).
 
 Elle ilk koşu + doğrulama: `CI_ENV=production php index.php cron calis` →
 stdout'a iş özetleri basılır; `teksil-cron.log`'a bak.

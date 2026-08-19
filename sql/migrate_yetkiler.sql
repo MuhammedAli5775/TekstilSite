@@ -33,6 +33,7 @@ INSERT IGNORE INTO yetkiler (rol_id, modul, goruntule, duzenle, sil) VALUES
   (2, 'faturalar',  1, 1, 1),
   (2, 'pazaryeri',  1, 1, 1),
   (2, 'feed',       1, 1, 1),
+  (2, 'xml_ice',    1, 1, 1),   -- XML içe aktarım (migrate_faz5_xml_ice.sql ile aynı anda; tablo burada yaratıldığı için satır da burada)
   (2, 'raporlar',   1, 1, 1),
   (2, 'bannerlar',  1, 1, 1),
   (2, 'yazilar',    1, 1, 1),
