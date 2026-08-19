@@ -19,6 +19,25 @@
 
 ---
 
+## 2026-08-19 (XXXIX) — Birleşik hat kanıtı: taze-DB zinciri (22 dosya) + prod provası 185/185
+
+**Kullanıcı isteği:** devam (canlıya taşıma hazırlığı; XXXVIII birleşiminden sonra).
+
+**Yapılan:** (1) DEPLOY.md §3'ün **22 dosyalık birleşik zinciri** sıfır scratch
+DB'de belgelenen sırayla koştu — 42 tablo; xml tabloları + rol-2 xml_ice yetkisi
++ footer/hukuki/yazilar seed'leri düştü; banner_dil/yazilar/kategori_dil
+migrate'ları taze kurulumda bilgi mesajıyla zarif atlıyor (kolonlar schema.sql'de
+— XXXVI tasarımı). (2) §0b yerel prod provası **birleşik hatta** yeniden koşuldu
+(Apache + öz-imzalı HTTPS + `SetEnv CI_ENV production`): çerezler `secure;
+HttpOnly` (CSRF Lax — XXIII hizalaması), `/sql/schema.sql` 403, **tam regresyon
+185/185 PASS** (`https://localhost:8443 --insecure`; log denetimi dahil).
+Teardown: Apache durduruldu, vhost yedeğinden geri alındı, kopya silindi.
+(3) CLAUDE.md sayıları güncellendi (§3 21→22 dosya, regresyon 112→185).
+
+**[!] Canlıya taşı:** yok (belge + prova; XXXVIII listesi geçerli).
+
+---
+
 ## 2026-08-19 (XXXVIII) — Hat birleştirme + XML içe aktarım (tedarikçi feed'i → katalog) — 185/185 PASS
 
 **Kullanıcı isteği:** Faz 5'e geç (XML içe aktarım — Faz 5'in tek eksik parçası;
