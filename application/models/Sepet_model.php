@@ -143,13 +143,14 @@ class Sepet_model extends CI_Model
         $satir = $this->db->where($where)->limit(1)->get('sepet')->row();
         if (! $satir) { return FALSE; }
 
-        $u = $this->db->select('moq, birim_adim')->where('id', $satir->urun_id)->limit(1)->get('urunler')->row();
-        $moq  = $u ? (int) $u->moq : 1;
-        $adim = max(1, $u ? (int) $u->birim_adim : 1);
+        $u = $this->db->select('moq')->where('id', $satir->urun_id)->limit(1)->get('urunler')->row();
+        $moq = $u ? (int) $u->moq : 1;
 
+        // XLV: adım-ızgarası YUVARLAMASI kalktı — eski round() adım-6 üründe
+        // 6'dan 9 yazımını 12'ye zıplatıyordu ("bazen 6'şar artıyor" şikâyeti).
+        // +1 artış artık aynen yazılır; MOQ tabanı ve varyant stok tavanı korunur.
+        // Adım, ürün sayfası stepper'ının görünen varsayılan artışı olarak yaşar.
         $adet = max($moq, (int) $adet);
-        $k = (int) round(($adet - $moq) / $adim);
-        $adet = $moq + $k * $adim;
 
         if ($satir->varyant_id) {
             $v = $this->db->select('stok')->where('id', $satir->varyant_id)->limit(1)->get('urun_varyantlari')->row();

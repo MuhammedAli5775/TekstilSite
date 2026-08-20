@@ -19,6 +19,50 @@
 
 ---
 
+## 2026-08-20 (XLV) — Sepet +1 zıplaması + özet boşluğu + ürün sayfası stok tavanı — 258/258 PASS
+
+**Kullanıcı isteği:** "sepet'te arttırınca bazen 6'şar artıyor" + "sepet-ozet-toplam'da
+spanlar bitişik (Toplam1.518,00 ₺)" + "ürün sayfasında sayaç stok üstüne çıkmasın, uyarı versin".
+
+**Yapılan (kod tarafı):**
+- **Sepet +6 zıplaması (kök neden):** `Sepet_model::guncelle` adedi `moq + k*adim`
+  ızgarasına **round ile yuvarlıyordu** — adım-6 üründe 6'dan 9 yazımı 12'ye
+  zıplatıyordu. Yuvarlama KALDIRILDI: +1 artış aynen yazılır; MOQ tabanı ve varyant
+  stok tavanı korunur. Adım, ürün sayfası stepper'ının görünen varsayılan artışı
+  olarak yaşamaya devam eder (görünür kural, sessiz sürpriz yok). `ekle()`'de zaten
+  ızgara yoktu — iki yol artık tutarlı.
+- **`sepet-ozet-toplam` boşluğu:** CSS'e `display:flex;justify-content:space-between;
+  align-items:baseline` eklendi (`.sepet-ozet-satr` ile hizalı). Tek kural; sınıfı
+  kullanan 4 görünümü (sepet, odeme, odeme/basarili, hesabım sipariş detayı) TÜM
+  DİLLERDE düzeltir — bitişiklik yapısal (yazılım çevirisi değil) olduğundan dile
+  özgü işlem gerekmedi.
+- **Ürün sayfası stok tavanı (XLV):** seçili varyantın stoğu sayaç tavanı olur —
+  `+`/yazma ile stok üstü denemede sayaç stokta kalır, altında çevrilmiş uyarı
+  çıkar ("En fazla N adet alabilirsiniz"); sayaç yanında "Stok: N adet" bilgisi
+  görünür ve renk/beden değişiminde tazelenir. Stok yalnız varyant düzeyinde
+  olduğundan (urun_varyantlari.stok; ürün düzeyi kolon yok) varyant seçili değilse
+  tavan yoktur. Uyarı/bilgi metinleri `pdVeri` JSON'una aktif dilden taşınır.
+- **Çoklu dil:** `detay_stok` + `detay_stok_ust` anahtarları 4 dil dosyasına eklendi
+  (TR/EN/RU/AR).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **258/258 PASS** (+4: `sepet-guncelle-art-bir-aynen`
+9→9 aynen yazar [eski kodda 12 olurdu]; `sepet-guncelle-moq-tabani` 1→MOQ 6;
+`sepet-guncelle-stok-tavani` 999999→stok; `sepet-guncelle-geri-6`). Ek canlı
+doğrulama: ürün detayı `stokBilgi`/`adetUyari` elemanları + çevirili `pdVeri.metin`
+render; CSS kuralı servis ediliyor. `php -l` temiz; mojibake temiz. NOT: ilk
+regresyon koşusu kullanıcının htdocs kopyasındaki bayat sunucuya (port 8000 dolu,
+`npm run dev` bağlanamadı) düştü — FAIL tam eski yuvarlamayı gösterdi; sunucu
+yenilenince 258/258.
+
+**[!] Canlıya taşı:** `application/models/Sepet_model.php`,
+`assets/magaza/css/teksil.css`, `application/views/magaza/urun/detay.php`,
+`assets/magaza/js/teksil.js`, 4× `application/language/*/teksil_lang.php`,
+`tests/regresyon.php`.
+
+---
+
 ## 2026-08-20 (XLIV) — Misafir siparişi kapatıldı: ödeme adımı giriş zorunlu — 254/254 PASS
 
 **Kullanıcı isteği:** "giriş yapmayan kullanıcılar sipariş veremesin."

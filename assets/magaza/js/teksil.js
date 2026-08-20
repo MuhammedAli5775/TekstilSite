@@ -138,6 +138,8 @@
                 Array.prototype.forEach.call(bedenBtns, function (x) { x.classList.remove('aktif'); });
                 if (renkSecili) { renkSecili.textContent = secRenk; }
                 bedenGuncelle();
+                stokTazele();   /* XLV: varyant değişti → yeni stok tavanı */
+                guncelle();
             });
         });
         Array.prototype.forEach.call(bedenBtns, function (b) {
@@ -146,6 +148,8 @@
                 Array.prototype.forEach.call(bedenBtns, function (x) { x.classList.remove('aktif'); });
                 b.classList.add('aktif');
                 secBeden = b.getAttribute('data-beden');
+                stokTazele();   /* XLV */
+                guncelle();
             });
         });
 
@@ -169,9 +173,33 @@
             return fiyat * (1 - yuzde / 100);
         }
         function fmt(n) { return (n / kur).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + pbSembol; }
+
+        /* XLV: seçili varyantın stoğu — sayaç tavanı + uyarı. Stok yalnız
+           varyant düzeyinde var; varyant seçili değilse tavan yoktur. */
+        var stokSiniri = null;
+        var stokBilgiEl = document.getElementById('stokBilgi');
+        var uyariEl = document.getElementById('adetUyari');
+        function seciliVaryant() {
+            if (!V.varyant || (!renkBtns.length && !bedenBtns.length)) { return null; }
+            return V.varyant[(secRenk || '') + '|' + (secBeden || '')] || null;
+        }
+        function stokTazele() {
+            var varr = seciliVaryant();
+            stokSiniri = (varr && varr.stok > 0) ? varr.stok : null;
+            if (stokBilgiEl) {
+                stokBilgiEl.hidden = (stokSiniri === null);
+                stokBilgiEl.textContent = String(V.metin && V.metin.stok ? V.metin.stok : 'Stok: %s adet').replace('%s', stokSiniri || 0);
+            }
+        }
         function guncelle() {
             var adet = snap(input.value);
+            var asti = (stokSiniri !== null && adet > stokSiniri);
+            if (asti) { adet = stokSiniri; }   /* sayaç stok üstüne çıkamaz — stokta kalır */
             input.value = adet;
+            if (uyariEl) {
+                uyariEl.hidden = !asti;
+                if (asti) { uyariEl.textContent = String(V.metin && V.metin.ust ? V.metin.ust : 'En fazla %s adet alabilirsiniz (mevcut stok).').replace('%s', stokSiniri); }
+            }
             var birim = birimFiyat(adet);
             if (toplamEl) { toplamEl.textContent = fmt(birim * adet); }
             if (birimEl) { birimEl.textContent = '(' + fmt(birim) + ' / adet)'; }
@@ -242,6 +270,7 @@
 
         if (renkBtns.length) { secRenk = renkBtns[0].getAttribute('data-renk'); }
         bedenGuncelle();
+        stokTazele();
         guncelle();
     }
 

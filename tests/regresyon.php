@@ -217,6 +217,19 @@ list($c, $r) = get('guest', '/');
 preg_match('/^Set-Cookie:\s*teksil_csrf_cookie=[^\r\n]*/mi', $r, $cm);
 check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax') !== FALSE && stripos($cm[0], 'SameSite=Strict') === FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
+
+// XLV: sepet adet güncelleme artık adım ızgarasına YUVARLAMAZ — +1 aynen yazılır
+// (eski round: adım-6 üründe 6'dan 9 → 12 zıplardı). MOQ tabanı + stok tavanı durur.
+$gSatir = (int) q1("SELECT id FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1 LIMIT 1");
+$gStok  = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1");
+list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 9));
+check('sepet-guncelle-art-bir-aynen', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 9);
+list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 1));
+check('sepet-guncelle-moq-tabani', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 6);
+list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 999999));
+check('sepet-guncelle-stok-tavani', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === $gStok);
+list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 6));
+check('sepet-guncelle-geri-6', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 6);
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 
 // Kapalı/bilinmeyen ödeme yöntemi reddedilmeli (POST'a güvenilmez): sipariş oluşmaz.

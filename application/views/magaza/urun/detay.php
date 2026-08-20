@@ -84,6 +84,8 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
                         <button type="button" id="adetArti" aria-label="<?= t('detay_artir', 'Artır') ?>">+</button>
                     </div>
                     <div class="pd-adet-bilgi"><?= t('detay_adet_min', "Min. %s adet · %s'li katlar", '<b>' . $moq . '</b>', $adim) ?></div>
+                    <div class="pd-adet-bilgi" id="stokBilgi" hidden></div>
+                    <div class="pd-beden-uyari" id="adetUyari" style="margin-top:4px" hidden></div>
                 </div>
 
                 <?php if (! empty($basamaklar)): ?>
@@ -173,6 +175,11 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
     'moq'      => $moq,
     'adim'     => $adim,
     'basamak'  => array_map(function ($x) { return array('min' => (int) $x->min_adet, 'yuzde' => (float) $x->indirim_yuzde); }, $basamaklar),
+    // XLV: stok tavanı uyarı/bilgi metinleri JS tarafında aktif dille verilir.
+    'metin'    => array(
+        'stok' => t('detay_stok', 'Stok: %s adet'),
+        'ust'  => t('detay_stok_ust', 'En fazla %s adet alabilirsiniz (mevcut stok).'),
+    ),
 ), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
 
 <?php

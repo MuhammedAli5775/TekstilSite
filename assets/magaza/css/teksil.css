@@ -333,7 +333,7 @@ header{position:sticky;top:0;z-index:50;}
 .sepet-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;}
 .sepet-ozet,.basari-ozet{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:20px;}
 .sepet-ozet-satr{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;color:var(--slate);}
-.sepet-ozet-toplam{font-size:18px;font-weight:700;color:var(--ink);border-top:1px solid var(--hairline);margin-top:6px;padding-top:14px;}
+.sepet-ozet-toplam{display:flex;justify-content:space-between;align-items:baseline;font-size:18px;font-weight:700;color:var(--ink);border-top:1px solid var(--hairline);margin-top:6px;padding-top:14px;}
 .sepet-adet{display:inline-flex;align-items:center;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);overflow:hidden;}
 .sepet-adet button{width:32px;height:34px;border:0;background:var(--surface-soft);font-size:16px;}
 .sepet-adet input{width:44px;height:34px;border:0;text-align:center;background:var(--canvas);}
