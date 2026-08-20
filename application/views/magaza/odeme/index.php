@@ -20,30 +20,30 @@ foreach ($odeme_yontemleri as $oy) { if ($oy->tip === 'havale') { $havale_var = 
         <?= csrf_field() ?>
 
         <h3 style="margin-bottom:12px"><?= t('odeme_teslimat', 'Teslimat Bilgileri') ?></h3>
-        <div class="odeme-alan"><label><?= t('odeme_ad_soyad', 'Ad Soyad') ?> <span class="zor">*</span></label><input type="text" name="teslimat_ad" value="<?= set_value('teslimat_ad', $bayi ? $bayi->yetkili_ad_soyad : '') ?>" required maxlength="150"></div>
-        <div class="odeme-alan"><label><?= t('odeme_adres', 'Adres') ?> <span class="zor">*</span></label><textarea name="teslimat_adres" rows="3" required maxlength="500"><?= set_value('teslimat_adres') ?></textarea></div>
+        <div class="odeme-alan"><label><?= t('odeme_ad_soyad', 'Ad Soyad') ?> <span class="zor">*</span></label><input type="text" name="teslimat_ad" minlength="2" value="<?= set_value('teslimat_ad', $bayi ? $bayi->yetkili_ad_soyad : '') ?>" required maxlength="150"></div>
+        <div class="odeme-alan"><label><?= t('odeme_adres', 'Adres') ?> <span class="zor">*</span></label><textarea name="teslimat_adres" rows="3" required minlength="10" maxlength="500"><?= set_value('teslimat_adres') ?></textarea></div>
         <div class="odeme-row">
             <div class="odeme-alan"><label><?= t('odeme_il', 'İl') ?> <span class="zor">*</span></label>
                 <select name="teslimat_il" required><option value=""><?= t('odeme_secin', 'Seçin') ?></option>
                 <?php foreach ($iller as $il): ?><option value="<?= e($il->ad) ?>" <?= set_select('teslimat_il', $il->ad) ?>><?= e($il->ad) ?></option><?php endforeach; ?>
                 </select>
             </div>
-            <div class="odeme-alan"><label><?= t('odeme_ilce', 'İlçe') ?></label><input type="text" name="teslimat_ilce" value="<?= set_value('teslimat_ilce') ?>"></div>
+            <div class="odeme-alan"><label><?= t('odeme_ilce', 'İlçe') ?></label><input type="text" name="teslimat_ilce" maxlength="60" value="<?= set_value('teslimat_ilce') ?>"></div>
         </div>
         <div class="odeme-row">
-            <div class="odeme-alan"><label><?= t('odeme_telefon', 'Telefon') ?> <span class="zor">*</span></label><input type="tel" name="teslimat_telefon" value="<?= set_value('teslimat_telefon', $bayi ? $bayi->telefon : '') ?>" required maxlength="30"></div>
+            <div class="odeme-alan"><label><?= t('odeme_telefon', 'Telefon') ?> <span class="zor">*</span></label><input type="tel" name="teslimat_telefon" pattern="[+]?[0-9 ()-]{10,19}" title="<?= e(t('val_telefon_gecersiz', 'Telefon biçimi geçersiz (örn. 5xx xxx xx xx).')) ?>" value="<?= set_value('teslimat_telefon', $bayi ? $bayi->telefon : '') ?>" required maxlength="20"></div>
             <div class="odeme-alan"><label><?= t('odeme_eposta', 'E-posta') ?> <span class="zor">*</span></label><input type="email" name="email" value="<?= set_value('email', $bayi ? $bayi->email : ($kullanici ? $kullanici->email : '')) ?>" <?= $kullanici ? 'readonly' : '' ?> required maxlength="150"></div>
         </div>
 
         <h3 style="margin:20px 0 12px"><?= t('odeme_fatura', 'Fatura Bilgileri') ?></h3>
         <label class="checkbox"><input type="checkbox" name="fatura_ayni" value="1" checked onchange="var f=document.getElementById('faturaAlan');if(this.checked){f.style.display='none'}else{f.style.display='block'}"> <?= t('odeme_fatura_ayni', 'Fatura bilgileri teslimat ile aynı') ?></label>
         <div id="faturaAlan" style="display:none">
-            <div class="odeme-alan"><label><?= t('odeme_fatura_ad', 'Fatura Ad / Ünvan') ?></label><input type="text" name="fatura_ad" value="<?= set_value('fatura_ad') ?>"></div>
-            <div class="odeme-alan"><label><?= t('odeme_fatura_adres', 'Fatura Adresi') ?></label><textarea name="fatura_adres" rows="2"><?= set_value('fatura_adres') ?></textarea></div>
+            <div class="odeme-alan"><label><?= t('odeme_fatura_ad', 'Fatura Ad / Ünvan') ?></label><input type="text" name="fatura_ad" maxlength="150" value="<?= set_value('fatura_ad') ?>"></div>
+            <div class="odeme-alan"><label><?= t('odeme_fatura_adres', 'Fatura Adresi') ?></label><textarea name="fatura_adres" rows="2" maxlength="500"><?= set_value('fatura_adres') ?></textarea></div>
         </div>
         <div class="odeme-row">
-            <div class="odeme-alan"><label><?= t('odeme_firma_unvan', 'Firma Ünvanı') ?></label><input type="text" name="firma_adi" value="<?= set_value('firma_adi', $bayi ? $bayi->firma_adi : '') ?>"></div>
-            <div class="odeme-alan"><label><?= t('odeme_vergi_no', 'Vergi / TC No') ?></label><input type="text" name="vergi_no" value="<?= set_value('vergi_no', $bayi ? $bayi->vergi_no : '') ?>"></div>
+            <div class="odeme-alan"><label><?= t('odeme_firma_unvan', 'Firma Ünvanı') ?></label><input type="text" name="firma_adi" maxlength="150" value="<?= set_value('firma_adi', $bayi ? $bayi->firma_adi : '') ?>"></div>
+            <div class="odeme-alan"><label><?= t('odeme_vergi_no', 'Vergi / TC No') ?></label><input type="text" name="vergi_no" maxlength="13" inputmode="numeric" value="<?= set_value('vergi_no', $bayi ? $bayi->vergi_no : '') ?>"></div>
         </div>
 
         <h3 style="margin:20px 0 12px"><?= t('odeme_kargo_odeme', 'Kargo & Ödeme') ?></h3>

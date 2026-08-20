@@ -448,6 +448,10 @@ $lang = array(
     'val_sozlesme_uyelik' => 'Üyelik ve mesafeli satış sözleşmesini onaylayın.',
     'val_kuladi_kural'    => 'Kullanıcı adı yalnızca harf, rakam, tire (-) ve alt çizgi (_) içerebilir.',
     'val_sozlesme_odeme'  => 'Mesafeli satış sözleşmesini onaylamanız gerekir.',
+    'val_telefon_gecersiz'   => 'Telefon biçimi geçersiz (örn. 5xx xxx xx xx).',
+    'val_il_gecersiz'        => 'Geçersiz il seçimi.',
+    'val_kargo_gecersiz'     => 'Geçersiz kargo firması.',
+    'val_odeme_yontem_gecersiz' => 'Geçersiz ödeme yöntemi.',
 
     // ---- footer ek (XXXIII) ----
     'ftr_toptan_sartlar' => 'Toptan Şartlar (MOQ)',

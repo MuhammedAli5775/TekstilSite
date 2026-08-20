@@ -447,6 +447,10 @@ $lang = array(
     'val_sozlesme_uyelik' => 'Please accept the membership and distance selling agreement.',
     'val_kuladi_kural'    => 'Username may contain only letters, digits, hyphen (-) and underscore (_).',
     'val_sozlesme_odeme'  => 'You must accept the distance sales agreement.',
+    'val_telefon_gecersiz'   => 'Invalid phone format (e.g. 5xx xxx xx xx).',
+    'val_il_gecersiz'        => 'Invalid province selection.',
+    'val_kargo_gecersiz'     => 'Invalid shipping carrier.',
+    'val_odeme_yontem_gecersiz' => 'Invalid payment method.',
 
     // ---- footer ek (XXXIII) ----
     'ftr_toptan_sartlar' => 'Wholesale Terms (MOQ)',

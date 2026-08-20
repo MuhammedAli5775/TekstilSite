@@ -240,13 +240,29 @@ check('sepet-stok-max-attr', $c === 200 && strpos($r, 'max="' . $gStok . '"') !=
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 
 // Kapalı/bilinmeyen ödeme yöntemi reddedilmeli (POST'a güvenilmez): sipariş oluşmaz.
+// XLIX: diğer alanlar GEÇERLİ gönderilir — ret tam olarak yöntem callback'inden gelmeli.
 $oncekiS = (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'");
 list($c, ) = post('bayi', '/odeme/tamamla', array(
-    'teslimat_ad' => 'Bogus', 'teslimat_adres' => 'x', 'teslimat_il' => 'Istanbul',
-    'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '555', 'email' => $E,
+    'teslimat_ad' => 'Regresyon Test', 'teslimat_adres' => 'Test mahalle cadde no 1',
+    'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112233', 'email' => $E,
     'fatura_ayni' => '1', 'odeme_yontemi' => 'kapali_yontem', 'kargo_firma_id' => 1, 'sozlesme' => '1',
 ));
 check('odeme-kapali-yontem-reddi', is_redir($c) && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'") === $oncekiS);
+
+// XLIX: ödeme formu validasyonu — hatalı telefon biçimi / var olmayan il reddedilir
+// (PRG redirect + sipariş oluşmaz).
+list($c, ) = post('bayi', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Regresyon Test', 'teslimat_adres' => 'Test mahalle cadde no 1',
+    'teslimat_il' => 'Istanbul', 'teslimat_telefon' => 'abc', 'email' => $E,
+    'fatura_ayni' => '1', 'odeme_yontemi' => 'havale', 'kargo_firma_id' => 1, 'sozlesme' => '1',
+));
+check('odeme-telefon-format-reddi', is_redir($c) && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'") === $oncekiS);
+list($c, ) = post('bayi', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Regresyon Test', 'teslimat_adres' => 'Test mahalle cadde no 1',
+    'teslimat_il' => 'Atlantis', 'teslimat_telefon' => '5551112233', 'email' => $E,
+    'fatura_ayni' => '1', 'odeme_yontemi' => 'havale', 'kargo_firma_id' => 1, 'sozlesme' => '1',
+));
+check('odeme-il-gecersiz-reddi', is_redir($c) && (int) q1("SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "'") === $oncekiS);
 
 // KDV ürün bazından gelmeli (hardcoded 20 değil): ürün 1 KDV'sini 10 yap, detayda 10 düşmeli.
 q("UPDATE urunler SET kdv=10 WHERE id=1");

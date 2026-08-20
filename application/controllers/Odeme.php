@@ -70,24 +70,35 @@ class Odeme extends Magaza_Controller
         }
 
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('teslimat_ad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|max_length[150]');
-        $this->form_validation->set_rules('teslimat_adres', t('odeme_adres', 'Adres'), 'trim|required|max_length[500]');
-        $this->form_validation->set_rules('teslimat_il', t('odeme_il', 'İl'), 'trim|required');
-        $this->form_validation->set_rules('teslimat_telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[30]');
+        // XLIX: alan biçimi + DB tutarlılığı (il / kargo / ödeme yöntemi) kuralları.
+        // Regex/callback mesajları 4 dilde; hatalı POST inline render yerine PRG
+        // ile odeme'ye döner (POST URL'de kalmasın — tarayıcı yenilemesi tekrar
+        // sipariş denemesin).
+        $this->form_validation->set_message('_il_gecerli', t('val_il_gecersiz', 'Geçersiz il seçimi.'));
+        $this->form_validation->set_message('_kargo_gecerli', t('val_kargo_gecersiz', 'Geçersiz kargo firması.'));
+        $this->form_validation->set_message('_odeme_yontemi_gecerli', t('val_odeme_yontem_gecersiz', 'Geçersiz ödeme yöntemi.'));
+        $this->form_validation->set_rules('teslimat_ad', t('odeme_ad_soyad', 'Ad Soyad'), 'trim|required|min_length[2]|max_length[150]');
+        $this->form_validation->set_rules('teslimat_adres', t('odeme_adres', 'Adres'), 'trim|required|min_length[10]|max_length[500]');
+        $this->form_validation->set_rules('teslimat_il', t('odeme_il', 'İl'), 'trim|required|callback__il_gecerli');
+        $this->form_validation->set_rules('teslimat_ilce', t('odeme_ilce', 'İlçe'), 'trim|max_length[60]');
+        $this->form_validation->set_rules('teslimat_telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[20]|regex_match[/^\+?[0-9 ()-]{10,19}$/]', array('regex_match' => t('val_telefon_gecersiz', 'Telefon biçimi geçersiz (örn. 5xx xxx xx xx).')));
         // E-posta kuralı yalnız bayi için — misafir ödeme kapalı (XLIV), giriş
         // yapmış KULLANICININ siparişi hesabının e-postasına işlenir (form değeri
         // eşleşmeyi koparamaz, XXV).
         if (! $this->kullanici()) {
             $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email|max_length[150]');
         }
-        $this->form_validation->set_rules('odeme_yontemi', t('odeme_yontem', 'Ödeme Yöntemi'), 'trim|required');
-        $this->form_validation->set_rules('kargo_firma_id', t('odeme_kargo_firma', 'Kargo Firması'), 'trim|required|integer');
+        $this->form_validation->set_rules('fatura_ad', t('odeme_fatura_ad', 'Fatura Ad / Ünvan'), 'trim|max_length[150]');
+        $this->form_validation->set_rules('fatura_adres', t('odeme_fatura_adres', 'Fatura Adresi'), 'trim|max_length[500]');
+        $this->form_validation->set_rules('firma_adi', t('odeme_firma_unvan', 'Firma Ünvanı'), 'trim|max_length[150]');
+        $this->form_validation->set_rules('vergi_no', t('odeme_vergi_no', 'Vergi / TC No'), 'trim|max_length[13]');
+        $this->form_validation->set_rules('odeme_yontemi', t('odeme_yontem', 'Ödeme Yöntemi'), 'trim|required|callback__odeme_yontemi_gecerli');
+        $this->form_validation->set_rules('kargo_firma_id', t('odeme_kargo_firma', 'Kargo Firması'), 'trim|required|integer|callback__kargo_gecerli');
         $this->form_validation->set_rules('sozlesme', 'Sözleşme onayı', 'trim|required', array('required' => t('val_sozlesme_odeme', 'Mesafeli satış sözleşmesini onaylamanız gerekir.')));
 
         if ($this->form_validation->run() === FALSE) {
-            $this->session->set_flashdata('bilgi', t('flash_zorunlu_alan', 'Lütfen zorunlu alanları doldurun.'));
-            $this->index();
-            return;
+            $this->session->set_flashdata('bilgi', t('flash_zorunlu_alan', 'Lütfen zorunlu alanları doğru biçimde doldurun.'));
+            redirect('odeme');
         }
 
         $fatura_ayni = (bool) $this->input->post('fatura_ayni');
@@ -171,5 +182,39 @@ class Odeme extends Magaza_Controller
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/odeme/basarili', array('sip' => $sip));
+    }
+
+    /* ---------- XLIX validasyon callback'leri ---------- */
+
+    /** İl, iller tablosunda var mı — Türkçe/asgi normalizasyonla (İstanbul=Istanbul). */
+    public function _il_gecerli($girilen)
+    {
+        if ($girilen === '') { return TRUE; }   // required kendi hata mesajını basar
+        $harf = array('İ' => 'i', 'I' => 'i', 'Ş' => 's', 'Ğ' => 'g', 'Ü' => 'u', 'Ö' => 'o', 'Ç' => 'c',
+                      'ı' => 'i', 'ş' => 's', 'ğ' => 'g', 'ü' => 'u', 'ö' => 'o', 'ç' => 'c');
+        $norm = function ($s) use ($harf) {
+            return preg_replace('/[^a-z0-9]/', '', mb_strtolower(strtr((string) $s, $harf), 'UTF-8'));
+        };
+        $girdi = $norm($girilen);
+        if ($girdi === '') { return FALSE; }
+        foreach ($this->db->select('ad')->get('iller')->result() as $il) {
+            if ($norm($il->ad) === $girdi) { return TRUE; }
+        }
+        return FALSE;
+    }
+
+    /** Kargo firması AKTİF kayıt mı (durum=1)? */
+    public function _kargo_gecerli($id)
+    {
+        if ((int) $id <= 0) { return FALSE; }
+        return (bool) $this->db->where('id', (int) $id)->where('durum', 1)->count_all_results('kargo_firmalari');
+    }
+
+    /** Ödeme yöntemi AKTİF kayıt mı (durum=1)? */
+    public function _odeme_yontemi_gecerli($kod)
+    {
+        $kod = trim((string) $kod);
+        if ($kod === '') { return FALSE; }
+        return (bool) $this->db->where('kod', $kod)->where('durum', 1)->count_all_results('odeme_yontemleri');
     }
 }

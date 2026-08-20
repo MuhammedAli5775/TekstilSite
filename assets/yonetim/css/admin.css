@@ -141,3 +141,12 @@ img{max-width:100%;display:block;}
 .adm-chart{position:relative;height:300px;margin-top:8px;}
 @media (max-width:1100px){.adm-charts{grid-template-columns:1fr 1fr;}.adm-chart-full{grid-column:1 / -1;}}
 @media (max-width:700px){.adm-charts{grid-template-columns:1fr;}}
+
+/* XLIX: marka paylaşım parçası (magaza/partial/brand) yönetim uyarlaması */
+.adm-sidebar-brand .brand__mark{width:24px;height:24px;flex:none;}
+.adm-sidebar-brand .brand__ad{font-size:18px;font-weight:600;color:#fff;}
+.adm-sidebar-brand .brand__ad b{color:#fff;letter-spacing:0;}
+.adm-sidebar-brand .brand__ad i{color:#c9a86a;}
+.adm-login-brand .brand__mark{width:26px;height:26px;flex:none;}
+.adm-login-brand .brand__ad{font-size:19px;font-weight:600;}
+.adm-login-brand .brand__ad i{color:#b98d5f;}

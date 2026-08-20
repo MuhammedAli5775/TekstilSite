@@ -2,8 +2,7 @@
 <section class="adm-login-sarma">
     <div class="adm-login">
         <div class="adm-login-brand">
-            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2C9 6 5 12 5 19a11 11 0 0 0 22 0c0-7-4-13-11-17Z" fill="#00ed64"/><path d="M16 8c-4 3-6 7-6 11a6 6 0 0 0 12 0c0-4-2-8-6-11Z" fill="#001e2b"/></svg>
-            <span><?= e($site_adi ?? 'Nesem Tesettür') ?></span>
+            <?php $this->load->view('magaza/partial/brand'); ?>
         </div>
         <h1>Yönetim Girişi</h1>
         <p class="alt">Devam etmek için yönetici hesabınızla giriş yapın.</p>

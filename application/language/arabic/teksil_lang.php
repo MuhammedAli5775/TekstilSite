@@ -451,6 +451,10 @@ $lang = array(
     'val_sozlesme_uyelik' => 'يرجى الموافقة على اتفاقية العضوية والبيع عن بعد.',
     'val_kuladi_kural'    => 'يمكن أن يحتوي اسم المستخدم على حروف وأرقام وشرطة (-) وشرطة سفلية (_) فقط.',
     'val_sozlesme_odeme'  => 'يجب الموافقة على اتفاقية البيع عن بعد.',
+    'val_telefon_gecersiz'   => 'تنسيق الهاتف غير صحيح (مثال 5xx xxx xx xx).',
+    'val_il_gecersiz'        => 'اختيار محافظة غير صحيح.',
+    'val_kargo_gecersiz'     => 'شركة شحن غير صحيحة.',
+    'val_odeme_yontem_gecersiz' => 'طريقة دفع غير صحيحة.',
 
     // ---- footer ek (XXXIII) ----
     'ftr_toptan_sartlar' => 'شروط الجملة (MOQ)',

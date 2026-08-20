@@ -19,6 +19,47 @@
 
 ---
 
+## 2026-08-20 (XLIX) — Ödeme formu validasyon kuralları + yönetim paneli logosu — 266/266 PASS
+
+**Kullanıcı isteği:** "ödeme sayfasındaki forma validasyon kuralları ekle" +
+"yönetim panelindeki logo hâlâ aynı, düzelt".
+
+**Yapılan (kod tarafı):**
+- **Sunucu tarafı (Odeme::tamamla):** alan biçimi + DB tutarlılığı kuralları —
+  ad min 2; adres min 10; telefon `regex_match[/^\+?[0-9 ()-]{10,19}$/]`; ilçe/
+  fatura/firma/vergi max uzunluklar; **il** iller tablosunda var mı (Türkçe
+  aksan normalizasyonuyla — 'Istanbul'='İstanbul'); **kargo firması** ve **ödeme
+  yöntemi** AKTİF (durum=1) kayıt mı (callback'ler PUBLIC — CI3 callback
+  sözleşmesi). Hatalı POST artık inline render yerine **PRG** ile odeme'ye döner
+  (POST URL kalmasın — yenileme tekrar sipariş denemesin); model katmanındaki
+  kapalı-yöntem kontrolü güvenlik ağı olarak duruyor.
+- **İstemci tarafı (odeme/index.php):** telefon `pattern` + çevrilmiş `title`
+  (tarayıcı ipucu), ad/adres `minlength`, ilce/fatura/firma/vergi `maxlength`,
+  vergi `inputmode=numeric`; email/required zaten vardı.
+- **Mesajlar 4 dilde:** `val_telefon_gecersiz`, `val_il_gecersiz`,
+  `val_kargo_gecersiz`, `val_odeme_yontem_gecersiz`.
+- **Yönetim paneli logosu:** sidebar + giriş sayfasındaki eski yeşil yaprak
+  SVG'leri kaldırıldı → mağaza markasıyla AYNI paylaşım parçası
+  (`partial/brand`); amblem renkleri CSS var **fallback**'li hale getirildi
+  (admin.css'te teksil değişkenleri yoktur); admin.css'e boyut/renk uyarlaması
+  (sidebar: 24px beyaz yazı; giriş: 26px).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **266/266 PASS** (+2: `odeme-telefon-format-reddi`,
+`odeme-il-gecersiz-reddi`; `odeme-kapali-yontem-reddi` artık geçerli dolguyla
+tam olarak yöntem callback'ini sınar). Admin sayfaları (sidebar partial'ıyla
+hepsi) regresyonda 200. Canlı: admin girişinde `brand__mark` + "Nesem" yazı
+markası. `php -l` temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `application/controllers/Odeme.php`,
+`application/views/magaza/odeme/index.php`,
+`application/views/yonetim/{layout/sidebar.php,giris/index.php}`,
+`application/views/magaza/partial/brand.php`, `assets/yonetim/css/admin.css`,
+4× `application/language/*/teksil_lang.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-20 (XLVIII) — Marka değişimi: "Nesem Tesettür" + yeni logo — 264/264 PASS
 
 **Kullanıcı isteği:** "logoyu kaldır. sitenin adı bundan sonra 'Nesem Tesettür'
