@@ -393,6 +393,7 @@ $lang = array(
     'flash_urun_cikarildi'   => 'أُزيل المنتج من السلة.',
     'flash_odeme_sepet_bos_a' => 'أضف منتجات إلى السلة قبل إتمام الشراء.',
     'flash_odeme_sepet_bos_b' => 'سلتك فارغة.',
+    'flash_odeme_giris_gerekli' => 'يجب تسجيل الدخول لإتمام الطلب.',
     'flash_zorunlu_alan'     => 'يرجى ملء الحقول الإلزامية.',
     'flash_kupon_uygulandi'  => 'تم تطبيق الكوبون: -%s (%s).',
     'flash_kupon_kaldirildi' => 'أُزيل الكوبون.',

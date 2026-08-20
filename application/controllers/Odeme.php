@@ -6,8 +6,23 @@ class Odeme extends Magaza_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->_giris_zorunlu();
         $this->load->model('sepet_model');
         $this->load->model('siparis_model');
+    }
+
+    /**
+     * Misafir siparişi kapalı (XLIV): ödeme adımı bayi VEYA kullanıcı girişi
+     * ister. Sepet serbest — misafir sepeti giriş anında hesaba devrolur
+     * (MY_Controller::_oturum_dondur / transfer_to_bayi), donus=odeme ile akış
+     * kaldığı yerden sürer.
+     */
+    private function _giris_zorunlu()
+    {
+        if (! $this->bayi() && ! $this->kullanici()) {
+            $this->session->set_flashdata('hata', t('flash_odeme_giris_gerekli', 'Sipariş vermek için giriş yapmalısınız.'));
+            redirect('kullanici/giris?donus=' . urlencode(ltrim($this->uri->uri_string(), '/')));
+        }
     }
 
     /** Checkout formu. */
@@ -59,8 +74,9 @@ class Odeme extends Magaza_Controller
         $this->form_validation->set_rules('teslimat_adres', t('odeme_adres', 'Adres'), 'trim|required|max_length[500]');
         $this->form_validation->set_rules('teslimat_il', t('odeme_il', 'İl'), 'trim|required');
         $this->form_validation->set_rules('teslimat_telefon', t('odeme_telefon', 'Telefon'), 'trim|required|max_length[30]');
-        // E-posta kuralı yalnız misafir/bayi için — giriş yapmış KULLANICININ siparişi
-        // hesabının e-postasına işlenir (form değeri eşleşmeyi koparamaz, XXV).
+        // E-posta kuralı yalnız bayi için — misafir ödeme kapalı (XLIV), giriş
+        // yapmış KULLANICININ siparişi hesabının e-postasına işlenir (form değeri
+        // eşleşmeyi koparamaz, XXV).
         if (! $this->kullanici()) {
             $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email|max_length[150]');
         }

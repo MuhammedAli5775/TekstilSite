@@ -389,6 +389,7 @@ $lang = array(
     'flash_urun_cikarildi'   => 'Product removed from cart.',
     'flash_odeme_sepet_bos_a' => 'Add products to your cart before checkout.',
     'flash_odeme_sepet_bos_b' => 'Your cart is empty.',
+    'flash_odeme_giris_gerekli' => 'You must sign in to place an order.',
     'flash_zorunlu_alan'     => 'Please fill in the required fields.',
     'flash_kupon_uygulandi'  => 'Coupon applied: -%s (%s).',
     'flash_kupon_kaldirildi' => 'Coupon removed.',

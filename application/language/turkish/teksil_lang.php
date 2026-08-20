@@ -390,6 +390,7 @@ $lang = array(
     'flash_urun_cikarildi'   => 'Ürün sepetten çıkarıldı.',
     'flash_odeme_sepet_bos_a' => 'Ödemeye geçmek için önce sepete ürün ekleyin.',
     'flash_odeme_sepet_bos_b' => 'Sepetiniz boş.',
+    'flash_odeme_giris_gerekli' => 'Sipariş vermek için giriş yapmalısınız.',
     'flash_zorunlu_alan'     => 'Lütfen zorunlu alanları doldurun.',
     'flash_kupon_uygulandi'  => 'Kupon uygulandı: -%s (%s).',
     'flash_kupon_kaldirildi' => 'Kupon kaldırıldı.',

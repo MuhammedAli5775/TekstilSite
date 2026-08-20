@@ -389,6 +389,7 @@ $lang = array(
     'flash_urun_cikarildi'   => 'Товар удалён из корзины.',
     'flash_odeme_sepet_bos_a' => 'Добавьте товары в корзину перед оформлением.',
     'flash_odeme_sepet_bos_b' => 'Ваша корзина пуста.',
+    'flash_odeme_giris_gerekli' => 'Для оформления заказа нужен вход.',
     'flash_zorunlu_alan'     => 'Заполните обязательные поля.',
     'flash_kupon_uygulandi'  => 'Купон применён: -%s (%s).',
     'flash_kupon_kaldirildi' => 'Купон удалён.',

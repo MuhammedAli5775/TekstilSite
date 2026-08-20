@@ -250,6 +250,22 @@ list($c, ) = get('bayi', '/odeme/basarili'); check('odeme-basarili-200', $c === 
 list($c, ) = get('bayi', "/paytr/basarili/$siparisId");  check('paytr-basarili-sahibine-200', $c === 200);
 list($c, ) = get('guest', "/paytr/basarili/$siparisId"); check('paytr-basarili-yabanci-red', is_redir($c));
 
+// Misafir ödeme kapalı (XLIV): ödeme yüzeyi giriş ister; POST'la da sipariş oluşmaz,
+// flash mesajı login sayfasında görünür.
+list($c, $r) = get('guest', '/odeme');
+check('misafir-odeme-giris-yonlendirme', is_redir($c) && strpos($r, 'kullanici/giris') !== FALSE);
+$mOnce = (int) q1('SELECT COUNT(*) FROM siparisler');
+list($c, $r) = post('guest', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Misafir Test', 'teslimat_adres' => 'Test mahalle cadde no 3',
+    'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5552223344',
+    'email' => "misafir$T@test.local", 'fatura_ayni' => '1', 'odeme_yontemi' => 'havale',
+    'kargo_firma_id' => 1, 'sozlesme' => '1',
+));
+check('misafir-odeme-tamamla-yonlendirme', is_redir($c) && strpos($r, 'kullanici/giris') !== FALSE);
+check('misafir-siparis-olusmadi', (int) q1('SELECT COUNT(*) FROM siparisler') === $mOnce);
+list($c, $r) = get('guest', '/kullanici/giris');
+check('misafir-odeme-flash-mesaj', $c === 200 && strpos($r, 'giriş yapmalısınız') !== FALSE);
+
 // PayTR callback provası (XXVII): test anahtarlarıyla — geçerli hash + YANLIŞ tutar
 // → 'tutar uyusmazligi' (ödendi işaretlenmez); DOĞRU tutar (kuruş) → 'OK' + odendi.
 // XXXVI: INSERT ODKU — taze §3 kurulumunda paytr_* satırları yoktur (seed etmez),

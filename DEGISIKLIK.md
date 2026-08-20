@@ -19,6 +19,42 @@
 
 ---
 
+## 2026-08-20 (XLIV) — Misafir siparişi kapatıldı: ödeme adımı giriş zorunlu — 254/254 PASS
+
+**Kullanıcı isteği:** "giriş yapmayan kullanıcılar sipariş veremesin."
+
+**Yapılan (kod tarafı):**
+- **`Odeme` controller'a giriş guard'ı**: `__construct`'ta `_giris_zorunlu()`
+  (Hesap deseninin aynısı) — bayi VEYA kullanıcı girişi yoksa flash hata +
+  `kullanici/giris?donus=<uri>` yönlendirmesi. Tek guard tüm ödeme yüzeyini
+  kapatır: `index`, `tamamla` (mağazadaki TEK sipariş oluşum girişi),
+  `kupon_uygula/kaldir`, `basarili`.
+- Sepet aşaması bilinçli SERBEST: misafir sepeti giriş anında hesaba devrolur
+  (mevcut `_oturum_dondur`/`transfer_to_bayi` mekanizması) + `donus=odeme` ile
+  kullanıcı ödeme adımına geri döner — akış kırılmaz.
+- PayTR sahiplik kontrolüne dokunulmadı: bayi_id + session `son_siparis_id`
+  bayi/kullanıcı akışını zaten kapsıyor; misafir artık `son_siparis_id`
+  edinemez.
+- `tamamla()`'daki e-posta zorunluluğu artık bayi-özel (misafir dalı ölü —
+  yorum güncellendi, kod aynı); kullanıcının siparişi hesap e-postasına
+  işlenmeye devam ediyor (XXV).
+- **Çoklu dil:** `flash_odeme_giris_gerekli` anahtarı 4 dil dosyasına eklendi
+  (TR/EN/RU/AR — `flash_odeme_sepet_bos_b`'nin ardına).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **254/254 PASS** (+4: `misafir-odeme-giris-yonlendirme`
+GET /odeme → login redirect; `misafir-odeme-tamamla-yonlendirme` geçerli görünümlü
+POST bile guard'a düşer; `misafir-siparis-olusmadi` siparisler satır sayısı değişmez;
+`misafir-odeme-flash-mesaj` login sayfasında mesaj görünür). `php -l` 6 dosya temiz;
+mojibake temiz.
+
+**[!] Canlıya taşı:** `application/controllers/Odeme.php`,
+`application/language/{turkish,english,russian,arabic}/teksil_lang.php`,
+`tests/regresyon.php`.
+
+---
+
 ## 2026-08-19 (XLIII) — Ertelenenler: havale "ödendi" butonu + D2 rapor cilası — 250/250 PASS
 
 **Kullanıcı isteği:** "ertelenenleri yap."
