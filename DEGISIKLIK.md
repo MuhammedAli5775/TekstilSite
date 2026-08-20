@@ -19,6 +19,40 @@
 
 ---
 
+## 2026-08-20 (XLVII) — Sepet adet girişine stok tavanı + Arapça RTL flip kaldırıldı — 263/263 PASS
+
+**Kullanıcı isteği:** "sepet sayfasındaki input'u ürünün stoğuyla sınırla, ürün
+sayfasında olduğu gibi" + "Arapça'ya geçince sayfadaki her şey yer değiştiriyor,
+düzelt".
+
+**Yapılan (kod tarafı):**
+- **Sepet stok tavanı:** varyantlı satırlarda adet girişine `max` + `data-stok`
+  (yerli oklar stokta durur, tarayıcı doğrulaması da üst sınırlar) + satır altına
+  uyarı div'i (`detay_stok_ust` mesajı stok sayısıyla gömülü, 4 dilde). Yeni
+  `initSepet()` JS'i: yazım/değişimde stok üstü değer STOKTA KALIR ve uyarı açılır
+  (ürün sayfasındaki sayaç davranışının aynısı); sayfa açılışında değer zaten
+  aşıyorsa yalnız uyarı gösterilir — mevcut değer kullanıcı dokunana kadar
+  sessizce değiştirilmez. Sunucu tarafı (guncelle stok cap'i) zaten vardı —
+  katmanlar artık tutarlı. Varyantsız satır (stok bilinmez) tavansız kalır.
+- **Arapça RTL flip kaldırıldı (sahibin kararı):** `head.php` artık tüm dillerde
+  `dir="ltr"` — AR dahil düzen yer değiştirmiyor, yalnız metinler Arapça.
+  `[dir="rtl"]` CSS kuralları (2 kural, dil seçici menü) ölü kaldı — silindi.
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **263/263 PASS** (+2: `sepet-stok-max-attr`
+[max/data-stok/stok-uyari render], `dil-ar-ltr-duzen` [AR sayfada dir="ltr" var,
+dir="rtl" yok]). Canlı spot: sepet satırında `max="230" data-stok="230"` +
+gizli uyarı; AR anasayfa `<html lang="ar" dir="ltr">`. `php -l` temiz; mojibake
+temiz; JS sözdizimi denetlendi. Bu turda da kullanıcı sunucusu portu tutmuştu —
+öldürülüp taze sunucuyla koşuldu (her turda port kontrolü rutini korundu).
+
+**[!] Canlıya taşı:** `application/views/magaza/layout/head.php`,
+`application/views/magaza/sepet/index.php`, `assets/magaza/{css/teksil.css,js/teksil.js}`,
+`tests/regresyon.php`.
+
+---
+
 ## 2026-08-20 (XLVI) — Stepper okları + sepet paket kuralı (floor) + renk çevirisi + sipariş ürün linki — 261/261 PASS
 
 **Kullanıcı isteği:** "ürün sayfası adet inputunda oklar gereksiz (−/+ var)" + "sepet

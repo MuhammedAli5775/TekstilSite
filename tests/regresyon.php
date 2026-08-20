@@ -232,6 +232,9 @@ list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 999999))
 check('sepet-guncelle-stok-tavani', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === $gStok);
 list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 6));
 check('sepet-guncelle-geri-6', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 6);
+// XLVII: sepet adet girişi varyant stoğuyla sınırlı — max/data-stok + satır uyarısı
+list($c, $r) = get('bayi', '/sepet');
+check('sepet-stok-max-attr', $c === 200 && strpos($r, 'max="' . $gStok . '"') !== FALSE && strpos($r, 'data-stok="' . $gStok . '"') !== FALSE && strpos($r, 'stok-uyari') !== FALSE);
 list($c, ) = get('bayi', '/odeme'); check('odeme-form-200', $c === 200);
 
 // Kapalı/bilinmeyen ödeme yöntemi reddedilmeli (POST'a güvenilmez): sipariş oluşmaz.
@@ -489,6 +492,10 @@ q("DELETE FROM bannerlar WHERE id = $regB");
 
 /* ---- XXXI: kalan yüzeyler + kategori adları çoklu dil ---- */
 $urunSlug = (string) q1("SELECT slug FROM urunler WHERE deleted_at IS NULL AND durum = 1 ORDER BY id ASC LIMIT 1");
+// XLVII: Arapça'da RTL yer değiştirme YOK — tüm diller LTR düzen (yalnız metin Arapça)
+list($c, ) = get('dil', '/dil/cevir/ar');
+list($c, $r) = get('dil', '/');
+check('dil-ar-ltr-duzen', $c === 200 && strpos($r, 'dir="ltr"') !== FALSE && strpos($r, 'dir="rtl"') === FALSE);
 list($c, ) = get('dil', '/dil/cevir/en');   // dil havuzu RU'dan geliyordu
 list($c, $r) = get('dil', '/katalog/ust-giyim');
 check('dil-en-kategori-baslik', $c === 200 && strpos($r, '<h1 class="kat-baslik">Tops</h1>') !== FALSE);

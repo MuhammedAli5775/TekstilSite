@@ -32,12 +32,14 @@ $satirlar = isset($satirlar) ? $satirlar : array();
                         </td>
                         <td><?= e(trim(((string) ($r->renk ?? '')) . ' ' . ((string) ($r->beden ?? '')))) ?: '-' ?></td>
                         <td>
+                            <?php $v_stok = ($r->varyant_stok !== NULL) ? (int) $r->varyant_stok : NULL; // XLVII: stok tavanı ?>
                             <form method="post" action="<?= site_url('sepet/guncelle/' . $r->sepet_id) ?>" style="display:flex;gap:4px;align-items:center">
                                 <?= csrf_field() ?>
-                                <input type="number" name="adet" value="<?= (int) $r->adet ?>" min="<?= (int) $r->moq ?>" step="<?= max(1, (int) $r->birim_adim) ?>" style="width:64px;height:34px;padding:0 6px;border:1px solid var(--hairline-strong);border-radius:6px;text-align:center">
+                                <input type="number" name="adet" value="<?= (int) $r->adet ?>" min="<?= (int) $r->moq ?>"<?= $v_stok !== NULL ? ' max="' . $v_stok . '" data-stok="' . $v_stok . '"' : '' ?> step="<?= max(1, (int) $r->birim_adim) ?>" style="width:64px;height:34px;padding:0 6px;border:1px solid var(--hairline-strong);border-radius:6px;text-align:center">
                                 <button type="submit" class="btn btn-ghost btn-sm"><?= t('sepet_guncelle', 'Güncelle') ?></button>
                             </form>
                             <small class="text-steel"><?= t('sepet_moq_not', 'MOQ %s · adım %s', (int) $r->moq, (int) $r->birim_adim) ?></small>
+                            <?php if ($v_stok !== NULL): ?><div class="pd-beden-uyari stok-uyari"<?= (int) $r->adet > $v_stok ? '' : ' hidden' ?>><?= t('detay_stok_ust', 'En fazla %s adet alabilirsiniz (mevcut stok).', $v_stok) ?></div><?php endif; ?>
                         </td>
                         <td class="sag"><?= para_formatla($r->birim_pb, $r->pb) ?></td>
                         <td class="sag"><b><?= para_formatla($r->ara_pb, $r->pb) ?></b></td>

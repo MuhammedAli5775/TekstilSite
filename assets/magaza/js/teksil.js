@@ -276,6 +276,32 @@
         guncelle();
     }
 
+    /* ---------- Sepet ---------- */
+    /* XLVII: sepet adet girişi varyant stoğuyla sınırlı (ürün sayfası gibi) —
+       yazım/anında stok üstü değer stokta kalır, satırda uyarı açılır.
+       Açılışta değer zaten aşıyorsa yalnız uyarı gösterilir; değer, kullanıcı
+       dokunana kadar olduğu gibi durur (sessizce değiştirilmez). */
+    function initSepet() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tablo-sepet input[name="adet"][data-stok]'), function (inp) {
+            var stok = parseInt(inp.getAttribute('data-stok'), 10);
+            if (!stok || stok <= 0) { return; }
+            var hucre = inp.closest('td');
+            var uyari = hucre ? hucre.querySelector('.stok-uyari') : null;
+            function uyariGuncelle() {
+                var v = parseInt(inp.value, 10);
+                if (uyari) { uyari.hidden = !( !isNaN(v) && v > stok ); }
+            }
+            function kis() {
+                var v = parseInt(inp.value, 10);
+                if (!isNaN(v) && v > stok) { inp.value = stok; }   /* sayaç stokta kalır */
+                uyariGuncelle();
+            }
+            inp.addEventListener('input', kis);
+            inp.addEventListener('change', kis);
+            uyariGuncelle();
+        });
+    }
+
     /* ---------- Checkout ---------- */
     function initCheckout() {
         var form = document.querySelector('.odeme-form');
@@ -353,7 +379,7 @@
         });
     }
 
-    function init() { initFiltre(); initUrunDetay(); initCheckout(); initYukariBtn(); initHeaderArama(); }
+    function init() { initFiltre(); initUrunDetay(); initSepet(); initCheckout(); initYukariBtn(); initHeaderArama(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
     else { init(); }
 })();

@@ -5,7 +5,9 @@ $_desc  = !empty($meta_desc)  ? $meta_desc  : t('meta_desc_default', 'Toptan kad
 $_index = isset($indexlenebilir) ? $indexlenebilir : TRUE;
 ?>
 <!DOCTYPE html>
-<html lang="<?= e($_dil) ?>" dir="<?= $_dil === 'ar' ? 'rtl' : 'ltr' ?>">
+<!-- XLVII: Arapça'da sayfa yer değiştirme (RTL flip) sahibin isteğiyle kaldırıldı —
+     AR dahil tüm diller LTR düzen; yalnızca metinler Arapça. -->
+<html lang="<?= e($_dil) ?>" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
