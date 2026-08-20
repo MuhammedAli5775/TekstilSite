@@ -23,6 +23,14 @@
     </div>
     <?php endif; ?>
     <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+    <div class="adm-filtre-alan"><label>Hızlı aralık</label>
+        <span style="display:inline-flex;gap:6px;flex-wrap:wrap">
+            <a class="btn btn-ghost btn-sm" href="?bas=<?= date('Y-m-d') ?>&son=<?= date('Y-m-d') ?>">Bugün</a>
+            <a class="btn btn-ghost btn-sm" href="?bas=<?= date('Y-m-d', strtotime('monday this week')) ?>&son=<?= date('Y-m-d') ?>">Bu hafta</a>
+            <a class="btn btn-ghost btn-sm" href="?bas=<?= date('Y-m-01') ?>&son=<?= date('Y-m-d') ?>">Bu ay</a>
+            <a class="btn btn-ghost btn-sm" href="?bas=<?= date('Y-m-01', strtotime('first day of last month')) ?>&son=<?= date('Y-m-t', strtotime('first day of last month')) ?>">Geçen ay</a>
+        </span>
+    </div>
 </form>
 
 <?php if ($rapor === 'satis' && isset($ozet)): $o = $ozet; $durum_etiket_map = array('onay_bekliyor'=>'Onay bekliyor','onaylandi'=>'Onaylandı','hazirlaniyor'=>'Hazırlanıyor','kargolandi'=>'Kargolandı','teslim_edildi'=>'Teslim edildi','iptal'=>'İptal','iade_talep'=>'İade talebi','iade_edildi'=>'İade edildi'); ?>
@@ -50,13 +58,13 @@
     <div class="adm-card adm-card--p0">
         <div class="adm-tbl-sar"><table class="adm-tbl">
             <thead><tr>
-                <?php foreach ($kolonlar as $label): ?><th class="<?= (strpos($label, 'Ciro') !== FALSE) ? 'sag' : '' ?>"><?= e($label) ?></th><?php endforeach; ?>
+                <?php foreach ($kolonlar as $label): ?><th class="<?= (strpos($label, 'Ciro') !== FALSE || strpos($label, 'İndirim') !== FALSE) ? 'sag' : '' ?>"><?= e($label) ?></th><?php endforeach; ?>
             </tr></thead>
             <tbody>
             <?php if ($satirlar): foreach ($satirlar as $r): ?>
                 <tr>
                 <?php foreach (array_keys($kolonlar) as $k): ?>
-                    <td class="<?= ($k === 'ciro') ? 'sag' : '' ?>"><?= ($k === 'ciro') ? para_tr($r->$k) : e($r->$k ?? '') ?></td>
+                    <td class="<?= in_array($k, array('ciro', 'indirim'), TRUE) ? 'sag' : '' ?>"><?= in_array($k, array('ciro', 'indirim'), TRUE) ? para_tr($r->$k) : e($r->$k ?? '') ?></td>
                 <?php endforeach; ?>
                 </tr>
             <?php endforeach; else: ?>

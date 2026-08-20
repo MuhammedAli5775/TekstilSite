@@ -102,4 +102,28 @@ class Rapor_model extends CI_Model
                         ->group_by('s.odeme_yontemi')->order_by('ciro', 'DESC')
                         ->get()->result();
     }
+
+    /** Günlük trend (XXXVIII): gün bazında sipariş/adet/ciro. */
+    public function gunluk_satis($bas, $son)
+    {
+        $this->_aralik($bas, $son);
+        return $this->db->select('DATE(s.olusturma_zaman) AS gun, COUNT(DISTINCT s.id) AS siparis, COALESCE(SUM(d.adet),0) AS adet, COALESCE(SUM(s.toplam * s.kur),0) AS ciro', FALSE)
+                        ->from('siparisler s')
+                        ->join('siparis_detaylari d', 'd.siparis_id = s.id', 'left')
+                        ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
+                        ->group_by('DATE(s.olusturma_zaman)')->order_by('gun', 'ASC')
+                        ->get()->result();
+    }
+
+    /** Kupon kullanımı (XXXVIII): kod bazında sipariş/indirim/ciro (atıflama siparisler.kupon_kod). */
+    public function kupon_kullanim($bas, $son)
+    {
+        $this->_aralik($bas, $son);
+        return $this->db->select('s.kupon_kod AS kod, COUNT(*) AS siparis, COALESCE(SUM(s.indirim * s.kur),0) AS indirim, COALESCE(SUM(s.toplam * s.kur),0) AS ciro', FALSE)
+                        ->from('siparisler s')
+                        ->where('s.kupon_kod IS NOT NULL', NULL, FALSE)
+                        ->where_not_in('s.durum', array('iptal', 'iade_edildi'))
+                        ->group_by('s.kupon_kod')->order_by('ciro', 'DESC')
+                        ->get()->result();
+    }
 }

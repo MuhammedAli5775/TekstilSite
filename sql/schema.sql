@@ -290,6 +290,7 @@ CREATE TABLE IF NOT EXISTS siparisler (
   kur             DECIMAL(10,4) NOT NULL DEFAULT 1,
   ara_toplam      DECIMAL(12,2) NOT NULL DEFAULT 0,
   indirim         DECIMAL(12,2) NOT NULL DEFAULT 0,
+  kupon_kod       VARCHAR(40)   NULL DEFAULT NULL,   -- uygulanan kupon (XXXVIII — kupon ROI raporu)
   islem_ucreti    DECIMAL(10,2) NOT NULL DEFAULT 0,   -- kart komisyonu / kapıda ek
   kargo_ucreti    DECIMAL(10,2) NOT NULL DEFAULT 0,   -- yalnız kargo
   toplam          DECIMAL(12,2) NOT NULL DEFAULT 0,
