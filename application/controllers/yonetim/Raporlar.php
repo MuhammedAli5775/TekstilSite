@@ -9,11 +9,13 @@ class Raporlar extends Admin_Controller
 {
     private $RAPORLAR = array(
         'satis'    => 'Satış Özeti',
+        'gunluk'   => 'Günlük Trend',
         'urun'     => 'Ürün Satışı',
         'kategori' => 'Kategori Satışı',
         'bayi'     => 'Bayi Satışı',
         'bolge'    => 'Bölge (İl/İlçe)',
         'odeme'    => 'Ödeme Yöntemi',
+        'kupon'    => 'Kupon Kullanımı',
     );
 
     /** Tablo kolon haritası (anahtar => başlık) — 'satis' hariç (özet kartı). */
@@ -23,6 +25,8 @@ class Raporlar extends Admin_Controller
         'bayi'     => array('bayi' => 'Bayi', 'email' => 'E-posta', 'siparis' => 'Sipariş', 'ciro' => 'Ciro'),
         'bolge'    => array('bolge' => 'Bölge', 'siparis' => 'Sipariş', 'ciro' => 'Ciro'),
         'odeme'    => array('yontem' => 'Yöntem', 'siparis' => 'Sipariş', 'ciro' => 'Ciro'),
+        'gunluk'   => array('gun' => 'Gün', 'siparis' => 'Sipariş', 'adet' => 'Adet', 'ciro' => 'Ciro'),
+        'kupon'    => array('kod' => 'Kupon', 'siparis' => 'Sipariş', 'indirim' => 'İndirim', 'ciro' => 'Ciro'),
     );
 
     public function __construct()
@@ -71,6 +75,8 @@ class Raporlar extends Admin_Controller
             case 'bayi':     return $this->rapor_model->bayi_satis($bas, $son);
             case 'bolge':    return $this->rapor_model->bolge_satis($bas, $son, $this->input->get('alan') === 'ilce' ? 'teslimat_ilce' : 'teslimat_il');
             case 'odeme':    return $this->rapor_model->odeme_satis($bas, $son);
+            case 'gunluk':   return $this->rapor_model->gunluk_satis($bas, $son);
+            case 'kupon':    return $this->rapor_model->kupon_kullanim($bas, $son);
             default:         return array();
         }
     }

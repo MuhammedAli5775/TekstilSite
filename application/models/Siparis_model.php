@@ -58,6 +58,8 @@ class Siparis_model extends CI_Model
             : (float) $oy->ek_ucret;
 
         $indirim_try = $this->_kupon_indirim($ara_toplam_try); // session kupon (TRY)
+        // XXXVIII: kupon atıflaması — indirim > 0 ise kod siparişe kalıcı yazılır (ROI raporu).
+        $kupon_kod   = ($indirim_try > 0) ? (string) $CI->session->userdata('kupon') : '';
         $toplam_try = $ara_toplam_try - $indirim_try + $islem_try + $kargo_try;
 
         $islem_snap   = $cevir($islem_try);
@@ -75,6 +77,7 @@ class Siparis_model extends CI_Model
             'kur'              => $kur,
             'ara_toplam'       => 0, // detaylardan toplanır, aşağıda güncellenir
             'indirim'          => $indirim_snap,
+            'kupon_kod'        => $kupon_kod !== '' ? $kupon_kod : NULL,
             'islem_ucreti'     => $islem_snap,
             'kargo_ucreti'     => $kargo_snap,
             'toplam'           => 0,
