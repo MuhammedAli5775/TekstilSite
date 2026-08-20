@@ -18,7 +18,7 @@ class Arama extends Magaza_Controller
             $sonuc  = $this->urun_model->mg_arama($q, $limit, $offset);
         }
 
-        $this->v['meta_title']     = $q !== '' ? (t('arama_title_q', 'Arama: %s', $q) . ' — ' . ayar('site_adi', 'TekstilSite')) : (t('arama_baslik', 'Arama') . ' — ' . ayar('site_adi', 'TekstilSite'));
+        $this->v['meta_title']     = $q !== '' ? (t('arama_title_q', 'Arama: %s', $q) . ' — ' . ayar('site_adi', 'Nesem Tesettür')) : (t('arama_baslik', 'Arama') . ' — ' . ayar('site_adi', 'Nesem Tesettür'));
         $this->v['indexlenebilir'] = FALSE; // arama sayfası noindex
 
         $this->render('magaza/arama/index', array(

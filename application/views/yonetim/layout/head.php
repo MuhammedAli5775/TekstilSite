@@ -1,5 +1,5 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-$_t = (! empty($sayfa_basligi) ? $sayfa_basligi : ($site_adi ?? 'TekstilSite')) . ' · Yönetim';
+$_t = (! empty($sayfa_basligi) ? $sayfa_basligi : ($site_adi ?? 'Nesem Tesettür')) . ' · Yönetim';
 ?>
 <!DOCTYPE html>
 <html lang="tr">

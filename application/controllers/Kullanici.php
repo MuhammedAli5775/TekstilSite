@@ -11,7 +11,7 @@ class Kullanici extends Magaza_Controller
     public function kayit()
     {
         if ($this->kullanici()) { redirect('hesabim'); }
-        $this->v['meta_title']     = t('kul_kayit_title', 'Kullanıcı Kaydı') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('kul_kayit_title', 'Kullanıcı Kaydı') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/kullanici/kayit');
     }
@@ -51,7 +51,7 @@ class Kullanici extends Magaza_Controller
     public function giris()
     {
         if ($this->kullanici()) { redirect('hesabim'); }
-        $this->v['meta_title']     = t('kul_giris_baslik', 'Kullanıcı Girişi') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('kul_giris_baslik', 'Kullanıcı Girişi') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->v['donus']          = $this->input->get('donus');
         $this->render('magaza/kullanici/giris');

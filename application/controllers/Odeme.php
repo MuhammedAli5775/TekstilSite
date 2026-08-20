@@ -54,7 +54,7 @@ class Odeme extends Magaza_Controller
             if (! $kr['ok']) { $data['kupon_mesaj'] = $kr['mesaj']; }
         }
 
-        $this->v['meta_title']     = t('odeme_baslik', 'Ödeme') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('odeme_baslik', 'Ödeme') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/odeme/index', $data);
@@ -167,7 +167,7 @@ class Odeme extends Magaza_Controller
         if (! $sip) { redirect(''); }
         $this->session->unset_userdata('son_siparis_id');
 
-        $this->v['meta_title']     = t('sonuc_title', 'Sipariş Alındı') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('sonuc_title', 'Sipariş Alındı') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/odeme/basarili', array('sip' => $sip));

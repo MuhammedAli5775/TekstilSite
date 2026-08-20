@@ -23,7 +23,7 @@ $lang = array(
     'hdr_sepet'      => 'Sepet',
 
     'meta_desc_default' => 'Toptan kadın giyim — üretici fiyatı, kaliteli kumaş, hızlı kargo.',
-    'meta_title_default' => 'TekstilSite — Toptan Kadın Giyim',
+    'meta_title_default' => 'Nesem Tesettür — Toptan Kadın Giyim',
 
     'ftr_tanim'          => "Toptan kadın giyimde üretici fiyatı ve kaliteli kumaş. İstanbul Merter'den Türkiye ve dünya.",
     'ftr_kategoriler'    => 'Kategoriler',
@@ -36,7 +36,7 @@ $lang = array(
     'ftr_iade'           => 'İade & Değişim',
     'ftr_gizlilik'       => 'Gizlilik & KVKK',
     'ftr_iletisim'       => 'İletişim',
-    'ftr_telif'          => '© %s TekstilSite. Tüm hakları saklıdır.',
+    'ftr_telif'          => '© %1$s %2$s. Tüm hakları saklıdır.',
     'ftr_guvenlik'       => 'SSL ile korumalı · 3D Secure ödeme',
 
     // ---- anasayfa (XXX) ----

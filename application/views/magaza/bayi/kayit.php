@@ -2,8 +2,7 @@
 <section class="auth-sarma">
     <div class="auth-kart">
         <a class="brand auth-brand" href="<?= site_url() ?>">
-            <svg class="brand__leaf" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2C9 6 5 12 5 19a11 11 0 0 0 22 0c0-7-4-13-11-17Z" fill="#00ed64"/><path d="M16 8c-4 3-6 7-6 11a6 6 0 0 0 12 0c0-4-2-8-6-11Z" fill="#001e2b"/></svg>
-            <span>TekstilSite</span>
+            <?php $this->load->view('magaza/partial/brand'); ?>
         </a>
         <h1 class="auth-baslik"><?= t('bayi_kayit_baslik', 'Bayi Hesabı Oluştur') ?></h1>
         <p class="auth-alt"><?= t('bayi_kayit_alt', 'Toptan fiyatlar, minimum sipariş ve XML/API erişimi için kaydolun.') ?></p>

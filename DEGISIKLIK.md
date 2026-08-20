@@ -19,6 +19,48 @@
 
 ---
 
+## 2026-08-20 (XLVIII) — Marka değişimi: "Nesem Tesettür" + yeni logo — 264/264 PASS
+
+**Kullanıcı isteği:** "logoyu kaldır. sitenin adı bundan sonra 'Nesem Tesettür'
+olacak. bunun için güzel bir logo yap."
+
+**Yapılan (kod tarafı):**
+- **Yeni logo (örtü kubbesi + altın tomurcuk amblemi):** `partial/brand.php`
+  paylaşım parçası — teal-deep örtü silüeti + altın tomurcuk/nokta (CSS
+  değişkenli, tema rengiyle yaşar) + İKİ TONLU serif yazı markası ("Nesem" koyu +
+  "Tesettür" altın; Georgia tabanlı). Yeni `--brand-gold` vurgu rengi. Eski
+  yeşil yaprak simgesi ve hardcode "TekstilSite" yazısı 6 yüzeyden
+  (header/footer/bayi+kullanıcı giriş ve kayıt) kaldırıldı.
+- **Site adı:** `ayarlar.site_adi` = "Nesem Tesettür" (dev DB güncellendi);
+  seed.sql aynı değeri eker (sıfır-DB provası uyumlu). Yazı markası ayardan
+  gelir — ilk kelime vurgulu basılır; kod fallback'leri ('TekstilSite') genel
+  sed ile 'Nesem Tesettür'e çevrildi.
+- **Görünür marka kalıntıları temizlendi:** `meta_title_default` 4 dilde +
+  Anasayfa default; telif satırı `ftr_telif` artık marka-parametreli
+  (%1$s yıl, %2$s site adı — çevirilerden marka bağımlılığı kalktı, 4 dil);
+  ev markası `markalar#1` "TekstilSite"→"Nesem Tesettür" (slug
+  nesem-tesettur; seed + dev DB); banka hesap sahibi "…Toptan Ltd." (seed +
+  dev DB); Hakkımızda + blog yazısı seed içerikleri; UA dizgileri
+  (NesemTesettur). Yorum satırları (rotalar/SQL başlıkları) bilinçli dokunulmadı.
+
+**DB değişikliği:** `ayarlar.site_adi`; `markalar#1` ad+slug;
+`banka_hesaplari.hesap_sahibi` (2 satır); `sayfalar`/`yazilar` içerik
+değişimi (dev DB'de UPDATE, taze kurulumda seed'den gelir).
+
+**Doğrulama:** tam regresyon **264/264 PASS** (+1: `anasayfa-marka-nesem` —
+anasayfada yeni marka var, "TekstilSite" hiçbir yerde yok; ilk koşuda meta
+başlıktaki kalıntıyı yakaladı → temizlendi). Canlı spot: `<title>Nesem Tesettür
+— Toptan Kadın Giyim</title>`, amblem + `<b>Nesem</b> <i>Tesettür</i>`,
+EN footer "© 2026 Nesem Tesettür. All rights reserved.". `php -l` temiz;
+mojibake temiz (DB hex doğrulaması: C3BC = ü).
+
+**[!] Canlıya taşı:** kod tarafı commit'te; **prod DB'de elle:**
+`UPDATE ayarlar SET deger='Nesem Tesettür' WHERE anahtar='site_adi'` +
+markalar#1 + banka_hesapları.hesap_sahibi (yukarıdaki UPDATE'ler) — prod'da
+seed'den kurulmadıysa.
+
+---
+
 ## 2026-08-20 (XLVII) — Sepet adet girişine stok tavanı + Arapça RTL flip kaldırıldı — 263/263 PASS
 
 **Kullanıcı isteği:** "sepet sayfasındaki input'u ürünün stoğuyla sınırla, ürün

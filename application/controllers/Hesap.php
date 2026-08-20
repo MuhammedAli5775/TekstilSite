@@ -66,7 +66,7 @@ class Hesap extends Magaza_Controller
             'aktif_sayi'    => $this->_aktif_sayi($siparisler),
             'menu_aktif'    => 'dashboard',
         );
-        $this->v['meta_title']     = t('hesap_baslik', 'Hesabım') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_baslik', 'Hesabım') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/dashboard', $data);
     }
@@ -86,7 +86,7 @@ class Hesap extends Magaza_Controller
             'siparisler' => $siparisler,
             'menu_aktif' => 'siparisler',
         );
-        $this->v['meta_title']     = t('hesap_siparisler_b', 'Siparişlerim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_siparisler_b', 'Siparişlerim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/siparisler', $data);
     }
@@ -109,7 +109,7 @@ class Hesap extends Magaza_Controller
             'faturalar' => $this->fatura_model->siparis_faturalari($s->id),
             'menu_aktif'=> 'siparisler',
         );
-        $this->v['meta_title']     = t('hesap_siparis_b', 'Sipariş %s', '#' . $s->siparis_no) . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_siparis_b', 'Sipariş %s', '#' . $s->siparis_no) . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/siparis_detay', $data);
     }
@@ -130,7 +130,7 @@ class Hesap extends Magaza_Controller
             'faturalar'  => $faturalar,
             'menu_aktif' => 'faturalar',
         );
-        $this->v['meta_title']     = t('hesap_faturalar_b', 'Faturalarım') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_faturalar_b', 'Faturalarım') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/faturalar', $data);
     }
@@ -139,7 +139,7 @@ class Hesap extends Magaza_Controller
     {
         if (! $this->_bayi_modu()) { $this->_kullanici_bilgiler(); return; }
         $data = array('b' => $this->bayi(), 'menu_aktif' => 'bilgiler');
-        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/bilgiler', $data);
     }
@@ -148,7 +148,7 @@ class Hesap extends Magaza_Controller
     private function _kullanici_bilgiler($menu_aktif = 'bilgiler')
     {
         $data = array('b' => $this->_kullanici_kart(), 'menu_aktif' => $menu_aktif);
-        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_bilgiler_b', 'Bilgilerim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/kullanici_bilgiler', $data);
     }
@@ -199,7 +199,7 @@ class Hesap extends Magaza_Controller
     {
         $b = $this->_bayi_modu() ? $this->bayi() : $this->_kullanici_kart();
         $data = array('b' => $b, 'menu_aktif' => 'sifre');
-        $this->v['meta_title']     = t('hesap_sifre_b', 'Şifre Değiştir') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_sifre_b', 'Şifre Değiştir') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/sifre', $data);
     }
@@ -249,7 +249,7 @@ class Hesap extends Magaza_Controller
             'duzenlenen' => $duzenle ? $this->kullanici_model->adres_getir($k->id, $duzenle) : NULL,
             'menu_aktif' => 'adresler',
         );
-        $this->v['meta_title']     = t('hesap_adresler_b', 'Adreslerim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('hesap_adresler_b', 'Adreslerim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/hesabim/adresler', $data);
     }

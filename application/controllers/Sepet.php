@@ -15,7 +15,7 @@ class Sepet extends Magaza_Controller
         $data = $this->sepet_model->liste();
         $data['esik'] = (float) ayar('ucretsiz_kargo_esik', 2000);
 
-        $this->v['meta_title']     = t('sepet_baslik', 'Sepetim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('sepet_baslik', 'Sepetim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
 
         $this->render('magaza/sepet/index', $data);

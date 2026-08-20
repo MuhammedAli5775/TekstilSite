@@ -94,7 +94,7 @@ class Xml_ice_model extends CI_Model
             CURLOPT_TIMEOUT        => self::ZAMAN_ASIMI,
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_MAXFILESIZE    => self::BOYUT_SINIRI,
-            CURLOPT_USERAGENT      => 'TekstilSite-XmlIce/1.0',
+            CURLOPT_USERAGENT      => 'NesemTesettur-XmlIce/1.0',
             CURLOPT_SSL_VERIFYPEER => TRUE,
         ));
         $govde = curl_exec($cizgi);

@@ -134,7 +134,7 @@ class Magaza_Controller extends MY_Controller
     {
         $this->load->model('kategori_model');
         $this->load->model('sepet_model');
-        $this->v['site_adi']    = ayar('site_adi', 'TekstilSite');
+        $this->v['site_adi']    = ayar('site_adi', 'Nesem Tesettür');
         $this->v['meta_title']  = '';
         $this->v['meta_desc']   = '';
         $this->v['menu']        = $this->db_hazir() ? $this->kategori_model->mg_menu() : array();
@@ -199,7 +199,7 @@ class Admin_Controller extends MY_Controller
     {
         $data['admin']      = $this->admin;
         $data['menu_aktif'] = $data['menu_aktif'] ?? '';
-        $data['site_adi']   = ayar('site_adi', 'TekstilSite');
+        $data['site_adi']   = ayar('site_adi', 'Nesem Tesettür');
         $data['menu']       = array(
             array('key' => 'dashboard',   'baslik' => 'Dashboard',   'url' => site_url('yonetim/dashboard'),   'ikon' => '▦'),
             array('key' => 'siparisler',  'baslik' => 'Siparişler',  'url' => site_url('yonetim/siparisler'),  'ikon' => '▥'),
@@ -246,7 +246,7 @@ class Admin_Controller extends MY_Controller
     /** Login sayfası (sidebarsız) için minimal render — login view'i kendi kapatır. */
     protected function render_bare($view, $data = array())
     {
-        $data['site_adi'] = ayar('site_adi', 'TekstilSite');
+        $data['site_adi'] = ayar('site_adi', 'Nesem Tesettür');
         $this->load->view('yonetim/layout/head', $data);
         $this->load->view($view, $data);
     }

@@ -31,7 +31,7 @@ class Paytr extends Magaza_Controller
             else            { $data['hata'] = $res['mesaj']; }
         }
 
-        $this->v['meta_title']     = 'Kartla Ödeme — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = 'Kartla Ödeme — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/odeme/paytr', $data);
     }
@@ -45,7 +45,7 @@ class Paytr extends Magaza_Controller
         if (! $s || ! $this->_sahip($s)) { redirect(''); }
 
         $this->session->set_userdata('son_siparis_id', $id);
-        $this->v['meta_title']     = 'Ödeme Alındı — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = 'Ödeme Alındı — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/odeme/paytr', array('s' => $s, 'token' => NULL, 'hata' => NULL, 'bekle' => TRUE));
     }
@@ -54,7 +54,7 @@ class Paytr extends Magaza_Controller
     {
         $s = $this->siparis_model->mg_getir((int) $id);
         if (! $s || ! $this->_sahip($s)) { redirect(''); }   // sahiplik ŞART (XXVI)
-        $this->v['meta_title']     = 'Ödeme Başarısız — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = 'Ödeme Başarısız — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/odeme/paytr_basarisiz', array('s' => $s));
     }

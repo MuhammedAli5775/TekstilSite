@@ -33,7 +33,7 @@ $ent_durum = array(
         <div>
             <div class="adm-card">
                 <div class="adm-card-baslik"><h3>Site &amp; Genel</h3></div>
-                <div class="fld"><label>Site Adı</label><input type="text" name="site_adi" value="<?= e($g('site_adi', 'TekstilSite')) ?>"></div>
+                <div class="fld"><label>Site Adı</label><input type="text" name="site_adi" value="<?= e($g('site_adi', 'Nesem Tesettür')) ?>"></div>
                 <div class="fld-row">
                     <div class="fld"><label>İletişim Telefonu</label><input type="text" name="iletisim_telefon" value="<?= e($g('iletisim_telefon')) ?>"></div>
                     <div class="fld"><label>WhatsApp (uluslararası)</label><input type="text" name="whatsapp" value="<?= e($g('whatsapp')) ?>"></div>

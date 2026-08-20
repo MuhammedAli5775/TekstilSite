@@ -8,6 +8,7 @@
 :root {
   /* Brand & accent */
   --brand-green:      #00ed64;
+  --brand-gold:       #b98d5f;   /* XLVIII: logo altın vurgu — yazı markası ikinci tonu */
   --primary-pressed:  #008c34;
   --on-primary:       #001e2b;
 
@@ -163,8 +164,11 @@ ul{margin:0;padding:0;list-style:none;}
 header{position:sticky;top:0;z-index:50;}
 .header-main{background:var(--canvas);border-bottom:1px solid var(--hairline);box-shadow:var(--sh-1);}
 .site-header__row{display:flex;align-items:center;gap:24px;height:72px;}
-.brand{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--teal-deep);}
-.brand__leaf{width:30px;height:30px;}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--teal-deep);}
+.brand__mark{width:32px;height:32px;flex:none;}
+.brand__ad{font-family:Georgia,'Times New Roman',serif;font-size:21px;line-height:1.1;}
+.brand__ad b{font-weight:700;letter-spacing:.01em;color:var(--teal-deep);}
+.brand__ad i{font-style:normal;font-weight:500;color:var(--brand-gold);letter-spacing:.03em;}
 .brand:hover{color:var(--teal-deep);}
 
 .header-search{flex:0 1 560px;margin:0 auto;display:flex;align-items:center;background:var(--surface-soft);border:1px solid var(--hairline);border-radius:var(--r-full);padding:4px 4px 4px 18px;transition:border-color .15s,box-shadow .15s;}
@@ -399,6 +403,7 @@ header{position:sticky;top:0;z-index:50;}
 .footer{background:var(--teal-deep);color:#c8d6df;padding:56px 0 28px;margin-top:var(--s-20);}
 .footer__grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:32px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.1);}
 .footer__brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:#fff;margin-bottom:12px;}
+.footer__brand .brand__ad b{color:#fff;}   /* XLVIII: koyu footer zemininde yazı markası beyaz */
 .footer h4{color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;}
 .footer a{display:block;padding:5px 0;font-size:14px;color:#a9b8c2;}
 .footer a:hover{color:#fff;}

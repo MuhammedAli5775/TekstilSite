@@ -35,7 +35,7 @@ class Urun extends Magaza_Controller
             'favorilerde'  => in_array((int) $u->id, array_map('intval', (array) $this->session->userdata('favoriler')), TRUE),
         );
 
-        $this->v['meta_title'] = ! empty($u->meta_title) ? $u->meta_title : ($u->ad . ' — ' . ayar('site_adi', 'TekstilSite'));
+        $this->v['meta_title'] = ! empty($u->meta_title) ? $u->meta_title : ($u->ad . ' — ' . ayar('site_adi', 'Nesem Tesettür'));
         $this->v['meta_desc']  = ! empty($u->meta_description) ? $u->meta_description : character_limiter(strip_tags((string) $u->aciklama), 150);
 
         $this->render('magaza/urun/detay', $data);

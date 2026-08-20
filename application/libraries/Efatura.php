@@ -65,7 +65,7 @@ class Efatura
             'test'       => ((string) ayar('efatura_test') === '1'),
             'satıcı' => array(
                 'vkn'   => ayar('efatura_firma_vkn'),
-                'unvan' => ayar('efatura_firma_unvan') ?: ayar('site_adi', 'TekstilSite'),
+                'unvan' => ayar('efatura_firma_unvan') ?: ayar('site_adi', 'Nesem Tesettür'),
             ),
             'alıcı' => array(
                 'unvan'  => $s->firma_adi ?: $s->teslimat_ad,

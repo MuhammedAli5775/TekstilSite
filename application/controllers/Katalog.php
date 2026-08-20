@@ -75,7 +75,7 @@ class Katalog extends Magaza_Controller
             'sayfa_sayisi'    => max(1, (int) ceil($toplam / $limit)),
         );
 
-        $this->v['meta_title'] = $baslik . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title'] = $baslik . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['meta_desc']  = t('kat_meta_desc', '%s — toptan kadın giyim, üretici fiyatı, gerçek stok.', $baslik);
 
         $this->render('magaza/katalog/index', $data);

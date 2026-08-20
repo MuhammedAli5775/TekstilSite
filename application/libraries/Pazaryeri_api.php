@@ -128,7 +128,7 @@ class Pazaryeri_api
             CURLOPT_SSL_VERIFYPEER  => TRUE,
             CURLOPT_HTTPHEADER      => array(
                 'Authorization: ' . $auth,
-                'User-Agent: TekstilSite',
+                'User-Agent: NesemTesettur',
                 'Accept: application/json',
                 'Content-Type: application/json',
             ),

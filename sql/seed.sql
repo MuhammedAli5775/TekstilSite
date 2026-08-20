@@ -24,7 +24,7 @@ INSERT INTO bayi_gruplari (id, ad, indirim_yuzde) VALUES
 
 TRUNCATE TABLE ayarlar;
 INSERT INTO ayarlar (anahtar, deger, grup) VALUES
-  ('site_adi',          'TekstilSite', 'genel'),
+  ('site_adi',          'Nesem Tesettür', 'genel'),
   -- XXXVI: meta değerleri boş tohumlanır — boş = vitrinde dile göre çevrilmiş
   -- varsayılan (t('meta_title/desc_default')); admin doldurursa tüm dillerde override olur.
   ('meta_title',        '', 'seo'),
@@ -56,7 +56,7 @@ INSERT INTO kategoriler (ust_id, ad, slug, sira, durum) VALUES
 
 TRUNCATE TABLE markalar;
 INSERT INTO markalar (id, ad, slug, durum) VALUES
-  (1, 'TekstilSite', 'teksilsite', 1);
+  (1, 'Nesem Tesettür', 'nesem-tesettur', 1);
 
 -- Vitrin ürünleri (homepage mg_vitrin çeker; vitrin=1)
 TRUNCATE TABLE urunler;
@@ -93,8 +93,8 @@ INSERT INTO odeme_yontemleri (id, kod, ad, tip, ek_ucret, ek_ucret_tip, sira, du
 
 TRUNCATE TABLE banka_hesaplari;
 INSERT INTO banka_hesaplari (banka_adi, hesap_sahibi, iban, sube, durum) VALUES
-  ('Türkiye İş Bankası', 'TekstilSite Toptan Ltd.', 'TR00 0000 0000 0000 0000 0000 00', 'Merter', 1),
-  ('Ziraat Bankası',     'TekstilSite Toptan Ltd.', 'TR11 1111 1111 1111 1111 1111 11', 'Merter', 1);
+  ('Türkiye İş Bankası', 'Nesem Tesettür Toptan Ltd.', 'TR00 0000 0000 0000 0000 0000 00', 'Merter', 1),
+  ('Ziraat Bankası',     'Nesem Tesettür Toptan Ltd.', 'TR11 1111 1111 1111 1111 1111 11', 'Merter', 1);
 
 TRUNCATE TABLE kargo_firmalari;
 INSERT INTO kargo_firmalari (id, ad, takip_url, durum) VALUES
@@ -108,7 +108,7 @@ INSERT INTO kargo_ucretleri (firma_id, min_desi, max_desi, ucret) VALUES
 
 TRUNCATE TABLE sayfalar;
 INSERT INTO sayfalar (baslik, slug, icerik, durum) VALUES
-  ('Hakkımızda', 'hakkimizda', '<p>TekstilSite — 2006''dan bu yana toptan kadın giyim. Merter''de üretim, dünya geneline sevkiyat.</p>', 1),
+  ('Hakkımızda', 'hakkimizda', '<p>Nesem Tesettür — 2006''dan bu yana toptan kadın giyim. Merter''de üretim, dünya geneline sevkiyat.</p>', 1),
   ('Mesafeli Satış Sözleşmesi', 'mesafeli-satis', '<p>6502 sayılı kanuna göre mesafeli satış sözleşmesi. Cayma süresi 14 gündür.</p>', 1),
   ('İade ve Değişim', 'iade-degisim', '<p>İade ve değişim koşulları.</p>', 1),
   ('Gizlilik ve KVKK', 'gizlilik', '<p>6698 sayılı KVKK kapsamında gizlilik politikası.</p>', 1),

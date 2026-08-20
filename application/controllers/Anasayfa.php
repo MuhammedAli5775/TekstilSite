@@ -9,7 +9,7 @@ class Anasayfa extends Magaza_Controller
         // (XXXVI prova bulgusu — ayar satırı yokken/boşken her dil TR meta alıyordu).
         $mt = trim((string) ayar('meta_title'));
         $md = trim((string) ayar('meta_description'));
-        $this->v['meta_title'] = $mt !== '' ? $mt : t('meta_title_default', 'TekstilSite — Toptan Kadın Giyim');
+        $this->v['meta_title'] = $mt !== '' ? $mt : t('meta_title_default', 'Nesem Tesettür — Toptan Kadın Giyim');
         $this->v['meta_desc']  = $md !== '' ? $md : t('meta_desc_default', 'Toptan kadın giyim — üretici fiyatı, kaliteli kumaş, hızlı kargo.');
 
         // Anasayfa artık ürün VİTRİNİ göstermez — kategoriler, değer önerileri,

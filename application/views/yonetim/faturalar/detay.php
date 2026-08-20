@@ -67,7 +67,7 @@ $dm = $durum_map[$f->durum] ?? array($f->durum, 'gri');
 
         <div class="adm-card" style="margin-top:16px">
             <div class="adm-card-baslik"><h3>Satıcı</h3></div>
-            <div class="adm-kv"><span>Ünvan</span><b><?= e(ayar('efatura_firma_unvan') ?: ayar('site_adi', 'TekstilSite')) ?></b></div>
+            <div class="adm-kv"><span>Ünvan</span><b><?= e(ayar('efatura_firma_unvan') ?: ayar('site_adi', 'Nesem Tesettür')) ?></b></div>
             <div class="adm-kv"><span>VKN</span><b><?= e(ayar('efatura_firma_vkn') ?: '— (Ayarlar’dan girin)') ?></b></div>
             <?php if (! $this->efatura->hazir()): ?>
             <small style="color:var(--stone)">Entegratör yapılandırılmamış — fatura “bekliyor”. Ayarlar → E-Fatura’dan API URL + token + satıcı VKN girilince otomatik gönderilir.</small>

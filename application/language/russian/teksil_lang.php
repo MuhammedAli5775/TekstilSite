@@ -22,7 +22,7 @@ $lang = array(
     'hdr_sepet'      => 'Корзина',
 
     'meta_desc_default' => 'Оптовая женская одежда — цены производителя, качественные ткани, быстрая доставка.',
-    'meta_title_default' => 'TekstilSite — Оптовая женская одежда',
+    'meta_title_default' => 'Nesem Tesettür — Оптовая женская одежда',
 
     'ftr_tanim'          => 'Оптовая женская одежда по ценам производителя из качественных тканей. Из Стамбула (Мертер) по Турции и всему миру.',
     'ftr_kategoriler'    => 'Категории',
@@ -35,7 +35,7 @@ $lang = array(
     'ftr_iade'           => 'Возврат и обмен',
     'ftr_gizlilik'       => 'Конфиденциальность',
     'ftr_iletisim'       => 'Контакты',
-    'ftr_telif'          => '© %s TekstilSite. Все права защищены.',
+    'ftr_telif'          => '© %1$s %2$s. Все права защищены.',
     'ftr_guvenlik'       => 'Защищено SSL · Оплата 3D Secure',
 
     // ---- anasayfa (XXX) ----

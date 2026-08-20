@@ -49,7 +49,7 @@ class Sms
         $params = array(
             'usercode'  => ayar('sms_kullanici'),
             'password'  => ayar('sms_sifre'),
-            'msgheader' => ayar('sms_gonderen') ?: ayar('site_adi', 'TekstilSite'),
+            'msgheader' => ayar('sms_gonderen') ?: ayar('site_adi', 'Nesem Tesettür'),
             'gsmno'     => $gsm,
             'message'   => $mesaj,
             'dil'       => 'TR',
@@ -66,7 +66,7 @@ class Sms
             CURLOPT_RETURNTRANSFER => TRUE,
             CURLOPT_TIMEOUT        => 12,
             CURLOPT_SSL_VERIFYPEER => TRUE,
-            CURLOPT_USERAGENT      => 'TekstilSite/SMS',
+            CURLOPT_USERAGENT      => 'NesemTesettur/SMS',
         ));
         $yanit = curl_exec($ch);
         $hata  = curl_error($ch);
@@ -92,7 +92,7 @@ class Sms
         $this->CI->load->model('siparis_model');
         $s = $this->CI->siparis_model->mg_getir($siparis_id);
         if (! $s) { return FALSE; }
-        $mesaj = ayar('site_adi', 'TekstilSite') . ': Siparişiniz alındı (#' . $s->siparis_no
+        $mesaj = ayar('site_adi', 'Nesem Tesettür') . ': Siparişiniz alındı (#' . $s->siparis_no
                . '). Toplam ' . number_format((float) $s->toplam, 2, ',', '.') . ' TL. '
                . rtrim((string) base_url(), '/') . 'hesabim';
         return $this->gonder($s->teslimat_telefon, $mesaj);
@@ -104,7 +104,7 @@ class Sms
         $this->CI->load->model('siparis_model');
         $s = $this->CI->siparis_model->mg_admin_getir($siparis_id);
         if (! $s) { return FALSE; }
-        $mesaj = ayar('site_adi', 'TekstilSite') . ': #' . $s->siparis_no . ' siparişinizin durumu: ' . $durum_etiket . '.';
+        $mesaj = ayar('site_adi', 'Nesem Tesettür') . ': #' . $s->siparis_no . ' siparişinizin durumu: ' . $durum_etiket . '.';
         if (! empty($s->kargo_takip_no)) {
             $mesaj .= ' Kargo takip: ' . $s->kargo_takip_no . '.';
         }

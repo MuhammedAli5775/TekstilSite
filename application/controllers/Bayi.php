@@ -9,7 +9,7 @@ class Bayi extends Magaza_Controller
     public function kayit()
     {
         if ($this->bayi()) { redirect('hesabim'); }
-        $this->v['meta_title']     = t('ftr_bayi_kayit', 'Bayi Kaydı') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('ftr_bayi_kayit', 'Bayi Kaydı') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/bayi/kayit');
     }
@@ -54,7 +54,7 @@ class Bayi extends Magaza_Controller
     public function giris()
     {
         if ($this->bayi()) { redirect('hesabim'); }
-        $this->v['meta_title']     = t('bayi_giris_baslik', 'Bayi Girişi') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('bayi_giris_baslik', 'Bayi Girişi') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->v['donus']          = $this->input->get('donus');
         $this->render('magaza/bayi/giris');

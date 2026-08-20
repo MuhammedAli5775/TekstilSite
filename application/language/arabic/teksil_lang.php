@@ -26,7 +26,7 @@ $lang = array(
     'hdr_sepet'      => 'السلة',
 
     'meta_desc_default' => 'ملابس نسائية بالجملة — أسعار المصنع، أقمشة عالية الجودة، شحن سريع.',
-    'meta_title_default' => 'TekstilSite — ملابس نسائية بالجملة',
+    'meta_title_default' => 'Nesem Tesettür — ملابس نسائية بالجملة',
 
     'ftr_tanim'          => 'ملابس نسائية بالجملة بأسعار المصنع وأقمشة عالية الجودة. من مرتر إسطنبول إلى تركيا والعالم.',
     'ftr_kategoriler'    => 'الفئات',
@@ -39,7 +39,7 @@ $lang = array(
     'ftr_iade'           => 'الإرجاع والاستبدال',
     'ftr_gizlilik'       => 'الخصوصية',
     'ftr_iletisim'       => 'اتصل بنا',
-    'ftr_telif'          => '© %s TekstilSite. جميع الحقوق محفوظة.',
+    'ftr_telif'          => '© %1$s %2$s. جميع الحقوق محفوظة.',
     'ftr_guvenlik'       => 'محمي بـ SSL · دفع 3D Secure',
 
     // ---- anasayfa (XXX) ----

@@ -32,7 +32,7 @@ class Eposta
             return FALSE;
         }
 
-        $konu = ayar('site_adi', 'TekstilSite') . ' — Siparişiniz alındı (' . $s->siparis_no . ')';
+        $konu = ayar('site_adi', 'Nesem Tesettür') . ' — Siparişiniz alındı (' . $s->siparis_no . ')';
         $govde = $this->_govde($s);
 
         if (! $this->hazir()) {
@@ -41,7 +41,7 @@ class Eposta
         }
 
         $this->CI->email->initialize($this->_smtp_ayarlari());
-        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'TekstilSite'));
+        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'Nesem Tesettür'));
         $this->CI->email->to($s->email);
         $this->CI->email->subject($konu);
         $this->CI->email->message($govde);
@@ -59,8 +59,8 @@ class Eposta
         $s = $this->CI->siparis_model->mg_admin_getir($siparis_id);
         if (! $s || empty($s->email)) { log_message('error', 'Eposta: durum bildirimi — e-posta yok, atlandı.'); return FALSE; }
         if (! $this->hazir()) { log_message('error', 'Eposta: SMTP yok — durum bildirimi atlandı (graceful).'); return FALSE; }
-        $site = htmlspecialchars(ayar('site_adi', 'TekstilSite'));
-        $konu = ayar('site_adi', 'TekstilSite') . ' — Sipariş #' . $s->siparis_no . ' durumu: ' . $durum_etiket;
+        $site = htmlspecialchars(ayar('site_adi', 'Nesem Tesettür'));
+        $konu = ayar('site_adi', 'Nesem Tesettür') . ' — Sipariş #' . $s->siparis_no . ' durumu: ' . $durum_etiket;
         $govde = '<div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:auto;color:#001e2b">'
             . '<div style="background:#001e2b;color:#00ed64;padding:16px 20px;font-size:18px;font-weight:600">' . $site . '</div>'
             . '<div style="padding:20px"><h1 style="font-size:20px;margin:0 0 8px">Sipariş durumu güncellendi</h1>'
@@ -68,7 +68,7 @@ class Eposta
             . ($notu ? '<p style="color:#5c6c7a">' . htmlspecialchars($notu) . '</p>' : '')
             . '</div></div>';
         $this->CI->email->initialize($this->_smtp_ayarlari());
-        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'TekstilSite'));
+        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'Nesem Tesettür'));
         $this->CI->email->to($s->email);
         $this->CI->email->subject($konu);
         $this->CI->email->message($govde);
@@ -95,7 +95,7 @@ class Eposta
 
     private function _govde($s)
     {
-        $site = ayar('site_adi', 'TekstilSite');
+        $site = ayar('site_adi', 'Nesem Tesettür');
         $satirlar = '';
         foreach ($s->detaylar as $d) {
             $satirlar .= '<tr>'

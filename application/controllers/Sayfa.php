@@ -13,7 +13,7 @@ class Sayfa extends Magaza_Controller
     /** Yardım / SSS + iletişim. */
     public function yardim()
     {
-        $this->v['meta_title']     = t('syf_yardim_b', 'Yardım') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_yardim_b', 'Yardım') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/yardim');
     }
@@ -27,7 +27,7 @@ class Sayfa extends Magaza_Controller
                 ->order_by('yayin_tarihi', 'DESC')->order_by('id', 'DESC')
                 ->limit(24)->get('yazilar')->result();
         }
-        $this->v['meta_title']     = t('syf_blog_b', 'Blog') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_blog_b', 'Blog') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->render('magaza/sayfa/blog', array('yazilar' => $yazilar));
     }
 
@@ -40,7 +40,7 @@ class Sayfa extends Magaza_Controller
             $yazi = $this->db->where('slug', $slug)->where('durum', 1)->limit(1)->get('yazilar')->row();
         }
         if (! $yazi) { show_404(); }
-        $this->v['meta_title'] = $yazi->baslik . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title'] = $yazi->baslik . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['meta_desc']  = mb_substr(trim(strip_tags($yazi->ozet)), 0, 300);
         $this->render('magaza/sayfa/yazi', array('yazi' => $yazi));
     }
@@ -56,7 +56,7 @@ class Sayfa extends Magaza_Controller
             $urunler = $this->urun_model->seri_ekle($urunler);
         }
         $data = array('urunler' => $urunler);
-        $this->v['meta_title']     = t('syf_favoriler_b', 'Favorilerim') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_favoriler_b', 'Favorilerim') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/favorilerim', $data);
     }
@@ -119,7 +119,7 @@ class Sayfa extends Magaza_Controller
                 $data['hata'] = 'Sipariş bulunamadı. Sipariş no ve e-postayı kontrol edin.';
             }
         }
-        $this->v['meta_title']     = t('syf_takip_b', 'Sipariş Takibi') . ' — ' . ayar('site_adi', 'TekstilSite');
+        $this->v['meta_title']     = t('syf_takip_b', 'Sipariş Takibi') . ' — ' . ayar('site_adi', 'Nesem Tesettür');
         $this->v['indexlenebilir'] = FALSE;
         $this->render('magaza/sayfa/siparis_takip', $data);
     }
@@ -132,7 +132,7 @@ class Sayfa extends Magaza_Controller
         if (! $sayfa) { show_404(); }
         $this->v['meta_title'] = ! empty($sayfa->seo_title)
             ? $sayfa->seo_title
-            : ($sayfa->baslik . ' — ' . ayar('site_adi', 'TekstilSite'));
+            : ($sayfa->baslik . ' — ' . ayar('site_adi', 'Nesem Tesettür'));
         $this->v['meta_desc']  = ! empty($sayfa->seo_description) ? $sayfa->seo_description : '';
         $this->render('magaza/sayfa/sayfa', array('sayfa' => $sayfa));
     }

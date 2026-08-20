@@ -89,7 +89,7 @@ class Raporlar extends Admin_Controller
                 'rapor_adi' => $this->RAPORLAR[$rapor], 'bas' => $bas, 'son' => $son,
                 'kolonlar' => $kolonlar, 'satirlar' => $this->_yukle($rapor, $bas, $son),
                 'ozet' => ($rapor === 'satis') ? $this->rapor_model->satis_ozet($bas, $son) : NULL,
-                'site_adi' => ayar('site_adi', 'TekstilSite'),
+                'site_adi' => ayar('site_adi', 'Nesem Tesettür'),
             );
             $this->load->view('yonetim/raporlar/disa_pdf', $data);  // bağımsız yazdırılabilir HTML (admin layout yok)
             return;

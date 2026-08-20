@@ -62,7 +62,7 @@ INSERT IGNORE INTO yazilar (slug, baslik, ozet, icerik, gorsel, durum, yayin_tar
 <p>Gramaj, dikiş ve çekme payı numunede kontrol edin; fotoğraf üzerinden karar vermeyin.</p>
 <h2>4. XML/API entegrasyonu sunan firmaları tercih edin</h2>
 <p>Stok ve fiyat güncellemeleri manuel giriş yerine entegrasyonla akarsa mağazanız boş vitrinle satış yapmaz.</p>
-<p>TekstilSite olarak XML/API fidi ile ürün ve stoklarınızı anında kendi mağazanıza aktarabilirsiniz.</p>',
+<p>Nesem Tesettür olarak XML/API fidi ile ürün ve stoklarınızı anında kendi mağazanıza aktarabilirsiniz.</p>',
    'https://picsum.photos/seed/teksil-blog-2/1200/630', 1, '2026-08-10'),
 
   ('moq-ve-basamakli-fiyatlandirma',

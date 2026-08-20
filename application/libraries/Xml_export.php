@@ -14,7 +14,7 @@ class Xml_export
     public function json(array $urunler)
     {
         return json_encode(array(
-            'site'        => ayar('site_adi', 'TekstilSite'),
+            'site'        => ayar('site_adi', 'Nesem Tesettür'),
             'olusturma'   => date('c'),
             'paraBirimi'  => 'TRY',
             'urunSayisi'  => count($urunler),
@@ -29,7 +29,7 @@ class Xml_export
         $dom->formatOutput = TRUE;
 
         $root = $dom->createElement('katalog');
-        $root->setAttribute('site', ayar('site_adi', 'TekstilSite'));
+        $root->setAttribute('site', ayar('site_adi', 'Nesem Tesettür'));
         $root->setAttribute('paraBirimi', 'TRY');
         $root->setAttribute('olusturma', date('c'));
         $root->setAttribute('urunSayisi', (string) count($urunler));

@@ -106,6 +106,8 @@ echo "hedef: $BASE | test e-posta: $E\n---\n";
 /* ---- A) yayın sayfaları (guest) ------------------------------------------- */
 list($c, $r) = get('guest', '/');            check('anasayfa-200', $c === 200);
 check('anasayfa-css', strpos($r, 'teksil.css') !== FALSE);
+// XLVIII: marka yenilendi — "Nesem Tesettür" görünür, eski ad hiçbir yerde yok
+check('anasayfa-marka-nesem', strpos($r, 'Nesem Tesettür') !== FALSE && strpos($r, 'TekstilSite') === FALSE);
 list($c, $r) = get('guest', '/katalog');     check('katalog-200', $c === 200);
 check('katalog-urun-karti', strpos($r, 'urun/') !== FALSE);
 list($c, ) = get('guest', '/katalog?sira=fiyat_asc'); check('katalog-fiyat-siralama-200', $c === 200);

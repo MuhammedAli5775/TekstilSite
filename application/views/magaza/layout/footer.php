@@ -6,11 +6,7 @@ $yil = date('Y');
         <div class="footer__grid">
             <div>
                 <div class="footer__brand">
-                    <svg class="brand__leaf" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="width:26px;height:26px">
-                        <path d="M16 2C9 6 5 12 5 19a11 11 0 0 0 22 0c0-7-4-13-11-17Z" fill="#00ed64"/>
-                        <path d="M16 8c-4 3-6 7-6 11a6 6 0 0 0 12 0c0-4-2-8-6-11Z" fill="#001e2b"/>
-                    </svg>
-                    TekstilSite
+                    <?php $this->load->view('magaza/partial/brand'); ?>
                 </div>
                 <p style="font-size:14px;max-width:34ch"><?= t('ftr_tanim', "Toptan kadın giyimde üretici fiyatı ve kaliteli kumaş. İstanbul Merter'den Türkiye ve dünya.") ?></p>
                 <p style="margin-top:14px;font-size:13px">info@teksilsite.com<br>+90 212 481 36 92</p>
@@ -40,7 +36,7 @@ $yil = date('Y');
             </div>
         </div>
         <div class="footer__bottom">
-            <span><?= t('ftr_telif', '© %s TekstilSite. Tüm hakları saklıdır.', (int) $yil) ?></span>
+            <span><?= t('ftr_telif', '© %1$s %2$s. Tüm hakları saklıdır.', (int) $yil, e($site_adi ?? 'Nesem Tesettür')) ?></span>
             <span><?= t('ftr_guvenlik', 'SSL ile korumalı · 3D Secure ödeme') ?></span>
         </div>
     </div>
