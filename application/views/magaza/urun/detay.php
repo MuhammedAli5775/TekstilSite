@@ -55,10 +55,10 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
 
                 <?php if (! empty($renkler)): ?>
                 <div class="pd-opt">
-                    <div class="pd-opt-label"><?= t('detay_renk', 'Renk') ?>: <b id="renkSecili"><?= e($renk_secili) ?></b></div>
+                    <div class="pd-opt-label"><?= t('detay_renk', 'Renk') ?>: <b id="renkSecili"><?= e(renk_adi($renk_secili)) ?></b></div>
                     <div class="pd-renkler">
                         <?php foreach ($renkler as $r): ?>
-                            <button type="button" class="renk-sw<?= $r === $renk_secili ? ' aktif' : '' ?>" data-renk="<?= e($r) ?>" style="background:<?= e(renk_hex($r)) ?>" title="<?= e($r) ?>" aria-label="<?= e($r) ?>"></button>
+                            <button type="button" class="renk-sw<?= $r === $renk_secili ? ' aktif' : '' ?>" data-renk="<?= e($r) ?>" style="background:<?= e(renk_hex($r)) ?>" title="<?= e(renk_adi($r)) ?>" aria-label="<?= e(renk_adi($r)) ?>"></button>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -165,7 +165,11 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
     </div>
 </section>
 <?php endif; ?>
-
+<?php
+// XLVI: JS, renk etiketini aktif dille göstersin (renkSecili güncellemesi).
+$renk_ad_ceviri = array();
+foreach ($renkler as $_rn) { $renk_ad_ceviri[$_rn] = renk_adi($_rn); }
+?>
 <script id="pdVeri" type="application/json"><?= json_encode(array(
     'id'       => (int) $u->id,
     'varyant'  => $varyant_map,
@@ -174,6 +178,7 @@ $pb_kod = aktif_para_birimi();   // XXXIV: teslimat ülkesi → vitrin para biri
     'sembol'   => para_sembol($pb_kod),
     'moq'      => $moq,
     'adim'     => $adim,
+    'renk_ad'  => $renk_ad_ceviri,   // XLVI: ham ad → çevrilmiş ad (JS etiket güncellemesi)
     'basamak'  => array_map(function ($x) { return array('min' => (int) $x->min_adet, 'yuzde' => (float) $x->indirim_yuzde); }, $basamaklar),
     // XLV: stok tavanı uyarı/bilgi metinleri JS tarafında aktif dille verilir.
     'metin'    => array(

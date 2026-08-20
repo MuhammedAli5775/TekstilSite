@@ -472,7 +472,9 @@ header{position:sticky;top:0;z-index:50;}
 .pd-adet-satir{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
 .pd-stepper{display:inline-flex;align-items:center;border:1px solid var(--hairline-strong);border-radius:var(--r-full);overflow:hidden;}
 .pd-stepper button{width:42px;height:46px;border:0;background:var(--surface-soft);font-size:20px;color:var(--ink);}
-.pd-stepper input{width:70px;height:46px;border:0;text-align:center;font-size:17px;font-weight:600;background:var(--canvas);}
+.pd-stepper input{width:70px;height:46px;border:0;text-align:center;font-size:17px;font-weight:600;background:var(--canvas);-moz-appearance:textfield;appearance:textfield;}
+/* XLVI: -/+ butonları varken yerli oklar gereksiz */
+.pd-stepper input::-webkit-outer-spin-button,.pd-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .pd-adet-bilgi{font-size:13px;color:var(--steel);}
 .pd-basamak{background:var(--surface);border-radius:var(--r-md);padding:12px 14px;margin-bottom:20px;}
 .pd-basamak-baslik{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--steel);margin-bottom:8px;}

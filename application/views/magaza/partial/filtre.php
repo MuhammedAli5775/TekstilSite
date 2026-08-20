@@ -25,7 +25,7 @@ $sira = isset($filtre['sira']) ? $filtre['sira'] : 'yeni';
             <label class="filtre-check">
                 <input type="checkbox" name="renk[]" value="<?= e($r->renk) ?>" <?= in_array($r->renk, $secili_renk, TRUE) ? 'checked' : '' ?>>
                 <span class="swatch" style="background:<?= e(renk_hex($r->renk)) ?>"></span>
-                <span class="filtre-etiket"><?= e($r->renk) ?> <small>(<?= (int) $r->adet ?>)</small></span>
+                <span class="filtre-etiket"><?= e(renk_adi($r->renk)) ?> <small>(<?= (int) $r->adet ?>)</small></span>
             </label>
         <?php endforeach; ?>
     </div>

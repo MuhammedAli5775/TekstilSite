@@ -136,7 +136,7 @@
                 secRenk = sw.getAttribute('data-renk');
                 secBeden = null;
                 Array.prototype.forEach.call(bedenBtns, function (x) { x.classList.remove('aktif'); });
-                if (renkSecili) { renkSecili.textContent = secRenk; }
+                if (renkSecili) { renkSecili.textContent = (V.renk_ad && V.renk_ad[secRenk]) || secRenk; }
                 bedenGuncelle();
                 stokTazele();   /* XLV: varyant değişti → yeni stok tavanı */
                 guncelle();
@@ -164,7 +164,9 @@
         function snap(v) {
             v = parseInt(v, 10); if (isNaN(v)) { v = moq; }
             if (v < moq) { return moq; }
-            var k = Math.round((v - moq) / adim);
+            /* XLVI: floor — sunucu (Sepet_model) ile aynı kural: ızgara dışı
+               yazılan değerin izin verilen EN BÜYÜĞÜNE iner, yukarı zıplamaz. */
+            var k = Math.floor((v - moq) / adim);
             return moq + k * adim;
         }
         function birimFiyat(adet) {

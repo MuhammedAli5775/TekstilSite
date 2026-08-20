@@ -372,3 +372,18 @@ if ( ! function_exists('para_goster'))
         return para_formatla(para_cevir($tutar_try, $kod), $kod);
     }
 }
+
+if ( ! function_exists('renk_adi'))
+{
+    /**
+     * Renk adını aktif dilde döndürür (XLVI) — dil dosyasında renk_<ad> anahtarı
+     * yoksa DB'deki ad aynen gösterilir. Filtre VALUE'ları daima ham addır
+     * (DB eşleşmesi); yalnızca görünen etiket çevrilir.
+     */
+    function renk_adi($renk)
+    {
+        $ad = trim((string) $renk);
+        if ($ad === '') { return $ad; }
+        return t('renk_' . mb_strtolower($ad, 'UTF-8'), $ad);
+    }
+}

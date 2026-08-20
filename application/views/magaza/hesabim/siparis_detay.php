@@ -26,7 +26,14 @@ $fatura_durum = array(
                 <tbody>
                 <?php foreach ($detaylar as $d): ?>
                     <tr>
-                        <td><?= e($d->urun_adi) ?><br><small class="mono text-steel"><?= e($d->stok_kodu) ?></small></td>
+                        <td><?php
+                        // XLVI: ürün satıştaysa ad ürüne linklenir (sepet görünümüyle aynı stil)
+                        if (! empty($d->urun_slug)) {
+                            echo '<a class="b" href="' . e(site_url('urun/' . $d->urun_slug)) . '">' . e($d->urun_adi) . '</a>';
+                        } else {
+                            echo e($d->urun_adi);
+                        }
+                        ?><br><small class="mono text-steel"><?= e($d->stok_kodu) ?></small></td>
                         <td><?= e($d->varyant_bilgi ?: '-') ?></td>
                         <td class="sag"><?= (int) $d->adet ?></td>
                         <td class="sag"><?= para_formatla($d->birim_fiyat * $d->adet, $s->para_birimi) ?></td>

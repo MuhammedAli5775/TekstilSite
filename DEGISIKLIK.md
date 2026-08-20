@@ -19,6 +19,54 @@
 
 ---
 
+## 2026-08-20 (XLVI) — Stepper okları + sepet paket kuralı (floor) + renk çevirisi + sipariş ürün linki — 261/261 PASS
+
+**Kullanıcı isteği:** "ürün sayfası adet inputunda oklar gereksiz (−/+ var)" + "sepet
+inputu hâlâ +1 artıyor, kötüye kullanılabilir" + "katalog sidebar renkleri her dilde
+Türkçe kalıyor" + "hesabim/siparis sayfasında ürün adı ürüne götürsün".
+
+**Yapılan (kod tarafı):**
+- **Stepper okları kalktı:** `.pd-stepper input` yerli okları CSS ile gizlendi
+  (`-moz-appearance:textfield` + webkit pseudo); −/+ butonları tek kontrol.
+- **Sepet paket kuralı (XLV revizyonu):** XLV'de round-yuvarlaması kalkınca ızgara
+  tamamen serbest kalmıştı — sahibin isteği: **paket (adım) kuralı sunucuda
+  ZORUNLU, ama FLOOR ile** (asla yukarı zıplama yok). `Sepet_model::ekle` VE
+  `guncelle` artık adedi `moq + k*adım` ızgarasına `intdiv` ile OTURTUR: 9 yazımı
+  adım-6 üründe 12 değil 6 olur; MOQ tabanı + varyant stok tavanı (son parti
+  ızgara dışı kalabilir) aynen. Sepet inputu `step=adım` aldı (oklar artık
+  paketlemtteb artar); ürün sayfası JS `snap()` de round→floor (sunucuyla birebir).
+- **Renk çevirisi:** `renk_adi()` helper'ı (`renk_<ad>` dil anahtarı, yoksa ham
+  ad). Katalog filtre sidebar'ı + ürün sayfası renk etiketleri (başlangıç değeri,
+  swatch title/aria, JS'te `pdVeri.renk_ad` haritasıyla canlı güncelleme) aktif
+  dilde. Filtre VALUE'ları ham kalır (DB eşleşmesi bozulmaz). 18 renk anahtarı
+  4 dil dosyasına eklendi (DB'deki 12 + renk_hex setindeki yaygın 6).
+- **Sipariş → ürün linki:** `Siparis_model::detay_slug_isaretle()` (paylaşımlı;
+  `mg_getir` + `Bayi_model/Kullanici_model::mg_siparis_getir` çağırır — hesabım
+  sayfası bayi modunda Bayi_model'den geliyordu, ilk denemede yanlış metoda
+  konmuştu, test yakaladı). Satıştaki (durum=1, silinmemiş) ürünün adı linke
+  döner; değilse düz metin.
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **261/261 PASS** (+3: `sepet-ekle-izgara-floor`
+[ekle 9→6], `dil-en-renk-etiket` [EN katalog '>Black<' var, 'Siyah <small>' yok],
+`bayi-siparis-detay-urun-link`; XLV'in `sepet-guncelle-art-bir-aynen` testi
+`sepet-guncelle-izgara-floor` oldu [güncelle 9→6]). Canlı spot: EN katalog
+'>Black <small>', pdVeri `renk_ad:{Beyaz:White,…Taş:Stone}`, CSS'te
+appearance:textfield. `php -l` temiz; mojibake temiz; JS `new Function` ile
+sözdizimi denetlendi. NOT: bu turda da kullanıcının htdocs'tan başlattığı bayat
+sunucu port 8000'i tuttu (4 FAIL) — öldürülünce temiz; commit sonrası iki kopya
+da eşitlendi (aşağıda).
+
+**[!] Canlıya taşı:** `application/models/Sepet_model.php`,
+`application/models/Siparis_model.php`, `application/models/Bayi_model.php`,
+`application/models/Kullanici_model.php`, `application/helpers/teksil_helper.php`,
+`application/views/magaza/{sepet/index.php,urun/detay.php,partial/filtre.php,
+hesabim/siparis_detay.php}`, `assets/magaza/{css/teksil.css,js/teksil.js}`,
+4× `application/language/*/teksil_lang.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-20 (XLV) — Sepet +1 zıplaması + özet boşluğu + ürün sayfası stok tavanı — 258/258 PASS
 
 **Kullanıcı isteği:** "sepet'te arttırınca bazen 6'şar artıyor" + "sepet-ozet-toplam'da

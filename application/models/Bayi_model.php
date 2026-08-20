@@ -93,6 +93,9 @@ class Bayi_model extends CI_Model
         if (! $s) { return NULL; }
         $s->detaylar = $this->db->where('siparis_id', (int) $siparis_id)->order_by('id', 'ASC')->get('siparis_detaylari')->result();
         $s->gecmis   = $this->db->where('siparis_id', (int) $siparis_id)->order_by('id', 'ASC')->get('siparis_durum_gecmisi')->result();
+        // XLVI: ürün adları ürüne linklensin (paylaşımlı zenginleştirici).
+        get_instance()->load->model('siparis_model');
+        get_instance()->siparis_model->detay_slug_isaretle($s->detaylar);
         return $s;
     }
 

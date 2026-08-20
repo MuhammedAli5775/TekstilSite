@@ -34,7 +34,7 @@ $satirlar = isset($satirlar) ? $satirlar : array();
                         <td>
                             <form method="post" action="<?= site_url('sepet/guncelle/' . $r->sepet_id) ?>" style="display:flex;gap:4px;align-items:center">
                                 <?= csrf_field() ?>
-                                <input type="number" name="adet" value="<?= (int) $r->adet ?>" min="<?= (int) $r->moq ?>" style="width:64px;height:34px;padding:0 6px;border:1px solid var(--hairline-strong);border-radius:6px;text-align:center">
+                                <input type="number" name="adet" value="<?= (int) $r->adet ?>" min="<?= (int) $r->moq ?>" step="<?= max(1, (int) $r->birim_adim) ?>" style="width:64px;height:34px;padding:0 6px;border:1px solid var(--hairline-strong);border-radius:6px;text-align:center">
                                 <button type="submit" class="btn btn-ghost btn-sm"><?= t('sepet_guncelle', 'Güncelle') ?></button>
                             </form>
                             <small class="text-steel"><?= t('sepet_moq_not', 'MOQ %s · adım %s', (int) $r->moq, (int) $r->birim_adim) ?></small>

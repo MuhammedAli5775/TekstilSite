@@ -184,10 +184,11 @@ list($c, $r) = get('bayi', '/hesabim'); check('hesabim-200', $c === 200);
 list($c, $r) = get('bayi', '/hesabim/bilgiler');
 check('bayi-bilgiler-200', $c === 200 && strpos($r, 'yetkili_ad_soyad') !== FALSE);
 
-list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6)); // moq=6
+list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 9)); // moq=6, adım=6 → ızgara FLOOR: 6 (XLVI)
 $jr = json_decode(trim(strstr($r, '{"'), "\r\n"), TRUE);   // header'lı gövdeden JSON çekilemezse strstr sonrası satır
 if ($jr === NULL && preg_match('/\{.*\}/s', $r, $m)) { $jr = json_decode($m[0], TRUE); }
 check('sepet-ekle-json-ok', is_array($jr) && ! empty($jr['ok']));
+check('sepet-ekle-izgara-floor', (int) q1("SELECT adet FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1") === 6);
 
 // CSRF sözleşmesi (XXII): geçerli çerez + bayat hash → 403 + text/html.
 // teksil.js bu sözleşmeye dayanır ('csrf' dalı → yenileme kurtarması);
@@ -218,12 +219,13 @@ preg_match('/^Set-Cookie:\s*teksil_csrf_cookie=[^\r\n]*/mi', $r, $cm);
 check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax') !== FALSE && stripos($cm[0], 'SameSite=Strict') === FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 
-// XLV: sepet adet güncelleme artık adım ızgarasına YUVARLAMAZ — +1 aynen yazılır
-// (eski round: adım-6 üründe 6'dan 9 → 12 zıplardı). MOQ tabanı + stok tavanı durur.
+// XLV+XLVI: sepet adet güncelleme ızgaraya FLOOR ile oturur (yukarı zıplama YOK —
+// 9 yazımı adım-6 üründe 12 değil 6 olur; eski round 12'ye zıplatıyordu). MOQ tabanı
+// + stok tavanı kalır; ızgara dışı miktar yazılamaz (paket kuralı sunucuda zorunlu).
 $gSatir = (int) q1("SELECT id FROM sepet WHERE bayi_id=$bayiId AND urun_id=1 AND varyant_id=1 LIMIT 1");
 $gStok  = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1");
 list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 9));
-check('sepet-guncelle-art-bir-aynen', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 9);
+check('sepet-guncelle-izgara-floor', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 6);
 list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 1));
 check('sepet-guncelle-moq-tabani', is_redir($c) && (int) q1("SELECT adet FROM sepet WHERE id=$gSatir") === 6);
 list($c, ) = post('bayi', '/sepet/guncelle/' . $gSatir, array('adet' => 999999));
@@ -339,6 +341,8 @@ check('bayi-faturalar-liste', strpos($r, $siparisNo) !== FALSE && strpos($r, 'Be
 list($c, $r) = get('bayi', "/hesabim/siparis/$siparisId");
 check('bayi-siparis-detay-200', $c === 200 && strpos($r, $siparisNo) !== FALSE);
 check('bayi-siparis-detay-fatura', strpos($r, 'Bekliyor') !== FALSE);
+// XLVI: ürün adı satıştaki ürünün detayına linkli (ürün 1 → slug'ı)
+check('bayi-siparis-detay-urun-link', strpos($r, 'urun/suprem-v-yaka-body') !== FALSE);
 
 /* ---- D) yetki matrisi (rol-2) ---------------------------------------------- */
 q("INSERT INTO yoneticiler (rol_id, ad_soyad, email, sifre, durum) VALUES (2, 'Reg Rol2', 'reg2$T@test.local', '"
@@ -459,6 +463,8 @@ list($c, $r) = get('dil', '/');
 check('dil-en-anasayfa', $c === 200 && strpos($r, 'Tops') !== FALSE && strpos($r, 'Kategorilere göz atın') === FALSE);
 list($c, $r) = get('dil', '/katalog');
 check('dil-en-katalog', $c === 200 && strpos($r, 'New Arrivals') !== FALSE && strpos($r, 'Fiyat (Artan)') === FALSE);
+// XLVI: sidebar renk etiketleri aktif dilde — EN'de "Black" görünür, "Siyah" etiketi gitmiş olmalı
+check('dil-en-renk-etiket', strpos($r, '>Black') !== FALSE && strpos($r, 'Siyah <small>') === FALSE);
 list($c, $r) = get('dil', '/sepet');
 check('dil-en-sepet', $c === 200 && strpos($r, 'Your cart is empty.') !== FALSE);
 

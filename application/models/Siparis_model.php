@@ -206,7 +206,36 @@ class Siparis_model extends CI_Model
         if (! $s) { return NULL; }
         $s->detaylar = $this->db->where('siparis_id', (int) $id)
                                 ->order_by('id', 'ASC')->get('siparis_detaylari')->result();
+        $this->detay_slug_isaretle($s->detaylar);
         return $s;
+    }
+
+    /**
+     * Sipariş detay satırlarına vitrin slug'ı işaretler (XLVI): satıştaki ürünün
+     * adı hesabım/sipariş sayfasında ürüne linklenir. Bayi/Kullanıcı modellerinin
+     * mg_siparis_getir'leri de aynı zenginleştirmeyi çağırır. Join yerine ikinci
+     * sorgu (CI3 QB join-escape tuzağına girmeden); satışta olmayan/silinmiş
+     * ürün slug'sız kalır → görünüm düz metin basar.
+     */
+    public function detay_slug_isaretle($detaylar)
+    {
+        if (! $detaylar) { return; }
+        $urun_idler = array();
+        foreach ($detaylar as $d) {
+            if ((int) $d->urun_id > 0) { $urun_idler[(int) $d->urun_id] = TRUE; }
+        }
+        $slug_map = array();
+        if ($urun_idler) {
+            $rows = $this->db->select('id, slug')
+                             ->where_in('id', array_keys($urun_idler))
+                             ->where('durum', 1)
+                             ->where('deleted_at IS NULL', NULL, FALSE)
+                             ->get('urunler')->result();
+            foreach ($rows as $r) { $slug_map[(int) $r->id] = $r->slug; }
+        }
+        foreach ($detaylar as $d) {
+            $d->urun_slug = $slug_map[(int) $d->urun_id] ?? NULL;
+        }
     }
 
     /** Yönetim: tek sipariş (bayi + kargo join, detaylar + durum geçmişi). */

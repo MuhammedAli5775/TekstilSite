@@ -59,6 +59,10 @@ class Sepet_model extends CI_Model
         $adim = max(1, (int) $u->birim_adim);
         $adet = (int) $adet;
         if ($adet < $moq) { $adet = $moq; }
+        // XLVI: paket kuralı sunucuda da zorlanır — ızgaraya FLOOR ile oturur
+        // (asla yukarı zıplama yok: 9 yazımı adım-6 üründe 12 değil 6 olur).
+        $k = intdiv($adet - $moq, $adim);
+        $adet = $moq + $k * $adim;
 
         $varyant = NULL;
         if ($varyant_id) {
@@ -143,14 +147,17 @@ class Sepet_model extends CI_Model
         $satir = $this->db->where($where)->limit(1)->get('sepet')->row();
         if (! $satir) { return FALSE; }
 
-        $u = $this->db->select('moq')->where('id', $satir->urun_id)->limit(1)->get('urunler')->row();
-        $moq = $u ? (int) $u->moq : 1;
+        $u = $this->db->select('moq, birim_adim')->where('id', $satir->urun_id)->limit(1)->get('urunler')->row();
+        $moq  = $u ? (int) $u->moq : 1;
+        $adim = max(1, $u ? (int) $u->birim_adim : 1);
 
-        // XLV: adım-ızgarası YUVARLAMASI kalktı — eski round() adım-6 üründe
-        // 6'dan 9 yazımını 12'ye zıplatıyordu ("bazen 6'şar artıyor" şikâyeti).
-        // +1 artış artık aynen yazılır; MOQ tabanı ve varyant stok tavanı korunur.
-        // Adım, ürün sayfası stepper'ının görünen varsayılan artışı olarak yaşar.
+        // XLV: sessiz yuvarlama sürprizi kalktı; XLVI: paket kuralı FLOOR ile
+        // geri geldi — ızgara (moq + k*adim) dışı miktar yazılamaz ama değer
+        // ASLA yukarı zıplamaz (yazılanın izin verilen en büyüğüne iner).
+        // Stok tavanı en son uygulanır: kalan son parti ızgara dışı olabilir.
         $adet = max($moq, (int) $adet);
+        $k = intdiv($adet - $moq, $adim);
+        $adet = $moq + $k * $adim;
 
         if ($satir->varyant_id) {
             $v = $this->db->select('stok')->where('id', $satir->varyant_id)->limit(1)->get('urun_varyantlari')->row();
