@@ -39,16 +39,18 @@ Gerçek rehberler:
 - Her değişiklik DEGISIKLIK.md'e kaydolur (dosya + DB + doğrulama); commit
   mesajı kısa Türkçe + test sayısı (örn. "… — 112/112")
 
-## Durum özeti (2026-08-18)
+## Durum özeti (2026-08-21)
 
-Zorunlu dev işi **TAMAM** — D0/C1–C5/C7/E1–E4 ✓, regresyon 167/167 (dev) +
-sıfır-DB provası 160/160 (XXXVI).
-Mağaza çoklu dil tamam: TR varsayılan + EN/RU/AR (+RTL), tüm mağaza
-yüzeyleri + kategori adları + doğrulama mesajları + dil-bazlı slider
-setleri (XXIX–XXXIII); teslimat ülkesi seçici → ülkeye göre ürün para
-birimi (XXXIV); blog admin CRUD + vitrin (D3/XXXV); SEO cilası — sitemap'e
-blog+CMS + canonical + Product JSON-LD (D2-SEO/XXXVII).
-Kalan engelleyiciler dev dışı: **İş** Faz A kimlikleri
-(`FAZ_A_REHBERI.md`), **Ops** Faz B hosting (`DEPLOY.md`), hukuki yer tutucular
-(E4). Bilinçli ertelenmişler: D1 pazaryeri adapter'ları, D2 cila, D3 blog,
-C6 canlı Trendyol testi. Güncel ayrıntı: TAMAMLAMA_PLANI.md.
+Zorunlu dev işi **TAMAM** (D0/C1–C5/C7/E1–E4) + 2026-08-20/21 cila paketleri
+tamam: marka "Nesem Tesettür" (XLVIII), ödeme validasyonu (XLIX), oturum
+döndürme düzeltmesi (L), footer zenginleştirme (LI), favicon+OG/Twitter kartı
+(LII), yönetici sipariş bildirimi (LIII), e-bülten (LV), kupon atıflaması +
+raporlar + markalı 404 (LVI), şifre kurtarma panelleri + çerez bandı + onaylı
+GA/FB piksel (LVII). Regresyon **304/304** (dev) + sıfır-DB provası
+**304/304** (2026-08-21, §3 22 dosya — yeni tablo/kolon provayla kanıtlı).
+Çoklu dil + blog + SEO önceki fazlarda ✓. Kalan engelleyiciler dev dışı:
+**İş** Faz A kimlikleri (`FAZ_A_REHBERI.md` — SMTP gelince şifremi-unuttum
+self-service, e-bülten gönderim, terk-sepet hatırlatma devreye alınacak),
+**Ops** Faz B hosting (`DEPLOY.md`), hukuki metin kararı (E4). Bilinçli
+ertelenmişler: D1 pazaryeri adapter'ları, C6 canlı Trendyol testi.
+Güncel ayrıntı: TAMAMLAMA_PLANI.md.

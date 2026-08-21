@@ -5,16 +5,22 @@
 > farkı somut görevlere yayar. Görevler **Sahip** (Dev / İş / Ops) ve **Efor** (S/M/L) ile
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
-> **Durum (2026-08-18):** Zorunlu dev işi **TAMAM** — D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓
-> (ayrıntılar maddelerin altında); regresyon **167/167 PASS** (dev) + yerel prod ve
-> sıfır-DB kurulum provası **160/160** (2026-08-18 XXXVI yenilemesi — §3 artık 21
-> dosya; provanın bulduğu 4 §3 hatası + meta çoklu dil gap'i kapatıldı). Mağaza çoklu
-> dil katmanı tamamlandı (XXIX kabuk +
-> XXX ana sayfalar + XXXI tüm kalan yüzeyler + kategori adları çoklu dil + XXXII
-> doğrulama mesajları + XXXIII dil-bazlı slider setleri/footer + XXXIV teslimat
-> ülkesi → para birimi) + D3 blog ✓ (XXXV). Kalan gap'in tamamı **İş/Ops
-> tarafında**: kimlikler (Faz A), hosting+deploy (Faz B), hukuki metin kararı —
-> artı bilinçli ertelenmişler (C6 canlı pazaryeri, D1 ek adapter'lar, D2'nin rapor yarısı — SEO yarısı ✓ XXXVII).
+> **Durum (2026-08-21):** Zorunlu dev işi **TAMAM** (D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓)
+> + 2026-08-20/21 cila paketleri tamamlandı: XLIX ödeme validasyonu, L misafir/B2C
+> sepeti oturum-döndürme düzeltmesi, LI footer zenginleştirme (5 kolon + DB güven
+> şeridi), LII favicon + OG/Twitter paylaşım kartı, LIII yönetici yeni-sipariş
+> bildirimi (SMTP-gated), LIV misafir/B2C sepet testleri, LV e-bülten aboneliği,
+> LVI kupon atıflaması + Günlük Trend/Kupon raporları + markalı 404 (D2'nin rapor
+> yarısının kupon/trend kısmı ✓), LVII şifre kurtarma (bayi + Kullanıcılar B2C
+> paneli) + çerez onay bandı + onaylı GA/FB piksel. Regresyon **304/304 PASS**
+> (dev) + sıfır-DB kurulum provası **304/304** (2026-08-21 — §3 22 dosya;
+> `ebulten_aboneler` + `siparisler.kupon_kod` şemaya girdi, provayla kanıtlandı).
+> Çoklu dil (XXIX–XXXIV) + blog (XXXV) + SEO (XXXVII) önceki fazlarda ✓. Kalan
+> gap'in tamamı **İş/Ops tarafında**: kimlikler (Faz A — SMTP gelince
+> şifremi-unuttum self-service, e-bülten gönderim, terk-sepet hatırlatma
+> devreye alınacak), hosting+deploy (Faz B — §8 checklist'ine arama_index adımı
+> eklendi LVII), hukuki metin kararı — artı bilinçli ertelenmişler (C6 canlı
+> pazaryeri, D1 ek adapter'lar).
 
 ---
 
