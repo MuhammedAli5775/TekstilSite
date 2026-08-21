@@ -316,6 +316,15 @@ check('misafir-siparis-olusmadi', (int) q1('SELECT COUNT(*) FROM siparisler') ==
 list($c, $r) = get('guest', '/kullanici/giris');
 check('misafir-odeme-flash-mesaj', $c === 200 && strpos($r, 'giriş yapmalısınız') !== FALSE);
 
+// LIV: saf misafir sepeti — ekleme + SAYFA render'ı (yalnız DB satırı değil);
+// guard önceliği: sepeti olsa bile misafir ödeme formuna giremez.
+list($c, $r) = post('guest', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 2));
+check('misafir-sepet-ekle-ok', $c === 200 && strpos($r, '"ok":true') !== FALSE);
+list($c, $r) = get('guest', '/sepet');
+check('misafir-sepet-sayfa-render', $c === 200 && strpos($r, 'prem') !== FALSE);   // "Süprem" — ASCII güvenli parça
+list($c, ) = get('guest', '/odeme');
+check('misafir-sepetli-odeme-guard', is_redir($c));
+
 // PayTR callback provası (XXVII): test anahtarlarıyla — geçerli hash + YANLIŞ tutar
 // → 'tutar uyusmazligi' (ödendi işaretlenmez); DOĞRU tutar (kuruş) → 'OK' + odendi.
 // XXXVI: INSERT ODKU — taze §3 kurulumunda paytr_* satırları yoktur (seed etmez),
@@ -412,6 +421,9 @@ list($c, ) = post('kullanici', '/kullanici/giris_yap', array('email' => $EK, 'si
 check('kullanici-giris-redirect', is_redir($c));
 check('kullanici-giris-oturum-doner', ($SES['kullanici']['teksil_sess'] ?? '') !== $sessOnce);
 check('kullanici-giris-sepet-devredi', (int) q1("SELECT COUNT(*) FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "' AND bayi_id IS NULL AND urun_id=1 AND varyant_id=1") === 1);
+// LIV: devri SAYFA düzeyinde de doğrula — giriş sonrası /sepet ürünü göstersin
+list($c, $r) = get('kullanici', '/sepet');
+check('kullanici-sepet-sayfa-render', $c === 200 && strpos($r, 'prem') !== FALSE);
 
 // Kullanıcı siparişi hesabına işlenmeli (XXV): formda yanlış e-posta olsa bile
 // sipariş hesabın e-postasıyla kaydedilir (hesabım eşleşmesi bu alandan).

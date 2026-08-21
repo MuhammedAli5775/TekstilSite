@@ -19,6 +19,37 @@
 
 ---
 
+## 2026-08-21 (LIV) — Misafir/B2C sepet testleri: sayfa render + sepetli guard — 277/277 PASS
+
+**Kullanıcı isteği:** eksik analizi 4 numaralı madde ("o sıralamayla
+gidebilirsin") — dünkü oturum-döndürme hatasının sınıfını yakalayan davranış
+testleri.
+
+**Tespit (düzeltme):** mevcut kapsam sandığımızdan iyiydi — giriş anı oturum-ID
+dönüşü + sepet devri (DB düzeyi) hem bayi hem B2C'de, tam B2C ödeme akışı
+(XXV/XXXIV) ve hesabım sayfaları zaten testli. Kayıt otomatik giriş yapmadığı
+için kayıt-anı devri de gerekmiyor. Kalan gerçek boşluklar sayfa-düzeyi
+doğrulamalardı.
+
+**Yapılan (test tarafı, +4):**
+- `misafir-sepet-ekle-ok` + `misafir-sepet-sayfa-render` — saf misafir:
+  sepete ekleme ve **/sepet sayfasında ürünün görünmesi** (yalnız DB satırı
+  değil; oturum-anahtarlı render zinciri).
+- `misafir-sepetli-odeme-guard` — sepeti OLSA bile misafir ödeme formuna
+  giremez (guard önceliği).
+- `kullanici-sepet-sayfa-render` — B2C giriş sonrası devredilen sepetin
+  **sayfada** görünmesi (mevcut DB düzeyi kontrolünün tamamlayıcısı).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **277/277 PASS**. `temizlik-tamam` belirli test
+satırlarını sayar — misafir sepet satırı (bayi_id NULL) etkilemez, doğrulandı.
+`php -l` temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (LIII) — Yöneticiye yeni sipariş e-posta bildirimi — 273/273 PASS
 
 **Kullanıcı isteği:** eksik analizi 2 numaralı madde ("o sıralamayla gidebilirsin")
