@@ -19,6 +19,44 @@
 
 ---
 
+## 2026-08-21 (LII) — Favicon seti + sosyal paylaşım kartı (OG/Twitter) — 273/273 PASS
+
+**Kullanıcı isteği:** eksik analizinde önerilen 1 numaralı madde ("o sıralamayla
+gidebilirsin") — WhatsApp vb. link paylaşımında ürün/marka görselsiz çıkıyordu.
+
+**Yapılan (kod tarafı):**
+- **Favicon seti (yeni `assets/magaza/img/`):** `favicon.svg` (modern tarayıcılar,
+  amblem uyarlaması: teal karo + altın tomurcuk/nokta), `favicon-32.png` (PNG
+  fallback), `apple-touch-icon.png` (180×180, iOS ana ekran).
+- **Paylaşım görseli:** `og-default.png` (1200×630) — teal zemin + kubbe/tomurcuk
+  amblemi + Georgia "Nesem **Tesettür**" yazı markası (iki tonlu) + slogan.
+- **Üretici betik `scripts/ikon_uret.php`:** PNG'ler GD ile üretilir (bir kez;
+  çıktılar repoya commitlenir, hostingte GD gerekmez). Marka değişirse betik
+  yeniden koşulur. NOT: üretim için XAMPP `php.ini`'de `extension=gd`
+  açıldı (ortam değişikliği).
+- **`head.php`:** favicon linkleri + OG/Twitter metası — `og:type/site_name/
+  locale/title/description/url/image` (og:url kanonikle aynı), `twitter:card`
+  (summary_large_image) vb. Ürün sayfası `$og_gorsel/$og_tip` ile override
+  eder; varsayılan görsel marka kartı. og:locale aktif dilden (tr_TR/en_US/
+  ru_RU/ar_AR).
+- **`Urun.php::detay`:** `og_tip='product'` + `og_gorsel`=ürünün ana görseli
+  (dış URL ise olduğu gibi, kök-göreliyse base_url ile mutlaklaştırılır) —
+  WhatsApp'ta ürün linki ürünün FOTOĞRAFIYLA paylaşılır.
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **273/273 PASS** (+3: `anasayfa-favicon`,
+`anasayfa-og-meta`, `urun-detay-og-urun` — ürün og:image beklentisi DB'den
+okunur, seed değişse test bozulmaz). PNG'ler piksel-bazlı doğrulandı (zemin
+#001e2b, altın #b98d5f, yazı bölgeleri beyaz+altın dolu). `php -l` temiz;
+mojibake temiz. İkinci bayat-sunucu vakası: regresyon öncesi PID 2348 öldürüldü.
+
+**[!] Canlıya taşı:** `assets/magaza/img/` (4 dosya), `scripts/ikon_uret.php`,
+`application/views/magaza/layout/head.php`,
+`application/controllers/Urun.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (LI) — Footer zenginleştirme: iletişim bloğu + keşif/dil kolonları + güven şeridi — 270/270 PASS
 
 **Kullanıcı isteği:** "footer'a daha fazla şey ekle".

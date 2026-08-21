@@ -108,6 +108,9 @@ list($c, $r) = get('guest', '/');            check('anasayfa-200', $c === 200);
 check('anasayfa-css', strpos($r, 'teksil.css') !== FALSE);
 // XLVIII: marka yenilendi — "Nesem Tesettür" görünür, eski ad hiçbir yerde yok
 check('anasayfa-marka-nesem', strpos($r, 'Nesem Tesettür') !== FALSE && strpos($r, 'TekstilSite') === FALSE);
+// LII: favicon seti + sosyal paylaşım kartı (OG/Twitter) — link önizlemesi görselli çıksın
+check('anasayfa-favicon', strpos($r, 'favicon.svg') !== FALSE && strpos($r, 'apple-touch-icon') !== FALSE);
+check('anasayfa-og-meta', strpos($r, 'property="og:image"') !== FALSE && strpos($r, 'og-default.png') !== FALSE && strpos($r, 'name="twitter:card"') !== FALSE && strpos($r, 'og:locale" content="tr_TR"') !== FALSE);
 list($c, $r) = get('guest', '/katalog');     check('katalog-200', $c === 200);
 check('katalog-urun-karti', strpos($r, 'urun/') !== FALSE);
 list($c, ) = get('guest', '/katalog?sira=fiyat_asc'); check('katalog-fiyat-siralama-200', $c === 200);
@@ -116,6 +119,8 @@ list($c, ) = get('guest', '/katalog?bedenler[]=S');   check('katalog-beden-filtr
 list($c, $r) = get('guest', '/urun/suprem-v-yaka-body');
 check('urun-detay-200', $c === 200);
 check('urun-detay-pdVeri', strpos($r, 'pdVeri') !== FALSE);
+// LII: ürün sayfası sosyal kartı — tip 'product' + og:image DB'deki ana_görsel
+check('urun-detay-og-urun', strpos($r, 'og:type" content="product"') !== FALSE && strpos($r, 'og:image" content="' . q1('SELECT ana_gorsel FROM urunler WHERE id=1')) !== FALSE);
 list($c, $r) = get('guest', '/arama?q=suprem'); check('arama-200', $c === 200);
 
 foreach (array('mesafeli-satis','iade-degisim','gizlilik','cerez','hakkimizda','iletisim','toptan-sartlari') as $slug) {

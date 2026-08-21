@@ -22,6 +22,31 @@ unset($_kanonik_qs['beden'], $_kanonik_qs['renk'], $_kanonik_qs['min'], $_kanoni
 $_kanonik = site_url(uri_string() === '' ? '' : uri_string()) . ($_kanonik_qs ? '?' . http_build_query($_kanonik_qs) : '');
 ?>
 <link rel="canonical" href="<?= e($_kanonik) ?>">
+<?php
+// LII: favicon seti + sosyal paylaşım kartı (OG/Twitter) — WhatsApp vb. link
+// önizlemesi görselsiz çıkmasın. Ürün sayfası $og_gorsel/$og_tip ile ürünün
+// ana görselini ve 'product' tipini override eder; varsayılanlar marka kartı.
+$_og_tip      = $og_tip ?? 'website';
+$_og_baslik   = $og_baslik ?? $_title;
+$_og_aciklama = ! empty($og_aciklama) ? $og_aciklama : $_desc;
+$_og_gorsel   = $og_gorsel ?? asset('magaza/img/og-default.png');
+$_og_lcl      = array('tr' => 'tr_TR', 'en' => 'en_US', 'ru' => 'ru_RU', 'ar' => 'ar_AR');
+$_og_lcl      = $_og_lcl[$_dil] ?? 'tr_TR';
+?>
+<link rel="icon" href="<?= asset('magaza/img/favicon.svg') ?>" type="image/svg+xml">
+<link rel="icon" href="<?= asset('magaza/img/favicon-32.png') ?>" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="<?= asset('magaza/img/apple-touch-icon.png') ?>">
+<meta property="og:type" content="<?= e($_og_tip) ?>">
+<meta property="og:site_name" content="<?= e($site_adi ?? 'Nesem Tesettür') ?>">
+<meta property="og:locale" content="<?= e($_og_lcl) ?>">
+<meta property="og:title" content="<?= e($_og_baslik) ?>">
+<meta property="og:description" content="<?= e($_og_aciklama) ?>">
+<meta property="og:url" content="<?= e($_kanonik) ?>">
+<meta property="og:image" content="<?= e($_og_gorsel) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= e($_og_baslik) ?>">
+<meta name="twitter:description" content="<?= e($_og_aciklama) ?>">
+<meta name="twitter:image" content="<?= e($_og_gorsel) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">

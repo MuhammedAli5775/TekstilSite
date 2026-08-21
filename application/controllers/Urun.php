@@ -38,6 +38,14 @@ class Urun extends Magaza_Controller
         $this->v['meta_title'] = ! empty($u->meta_title) ? $u->meta_title : ($u->ad . ' — ' . ayar('site_adi', 'Nesem Tesettür'));
         $this->v['meta_desc']  = ! empty($u->meta_description) ? $u->meta_description : character_limiter(strip_tags((string) $u->aciklama), 150);
 
+        // LII: sosyal kart — ürünün ana görseli paylaşım önizlemesinde çıksın
+        // (og:image). Görsel dış URL (CDN/seed) ya da kök-göreli yol olabilir.
+        $this->v['og_tip'] = 'product';
+        if (! empty($u->ana_gorsel)) {
+            $this->v['og_gorsel'] = (strpos($u->ana_gorsel, 'http://') === 0 || strpos($u->ana_gorsel, 'https://') === 0)
+                ? $u->ana_gorsel : base_url(ltrim($u->ana_gorsel, '/'));
+        }
+
         $this->render('magaza/urun/detay', $data);
     }
 
