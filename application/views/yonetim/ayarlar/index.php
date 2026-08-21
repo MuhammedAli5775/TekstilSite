@@ -71,7 +71,8 @@ $ent_durum = array(
                     <div class="fld"><label>Şifre</label><input type="password" name="smtp_sifre" value="<?= e($g('smtp_sifre')) ?>" autocomplete="new-password"></div>
                 </div>
                 <div class="fld"><label>Gönderen E-postası</label><input type="email" name="gonderen_eposta" value="<?= e($g('gonderen_eposta')) ?>"></div>
-                <small style="color:var(--stone)">SMTP girilince sipariş onayı ve durum bildirimleri otomatik gönderilir.</small>
+                <div class="fld"><label>Yönetici Bildirim E-postası</label><input type="email" name="bildirim_eposta" value="<?= e($g('bildirim_eposta')) ?>" placeholder="siparis@site.com"></div>
+                <small style="color:var(--stone)">SMTP girilince sipariş onayı ve durum bildirimleri otomatik gönderilir; bildirim e-postası doluysa yeni her sipariş size de iletilir.</small>
             </div>
 
             <div class="adm-card" style="margin-top:16px">

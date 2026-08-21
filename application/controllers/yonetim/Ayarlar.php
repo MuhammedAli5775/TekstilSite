@@ -8,7 +8,7 @@ class Ayarlar extends Admin_Controller
         'iletisim_telefon', 'iletisim_eposta', 'iletisim_adres', 'whatsapp',
         'ucretsiz_kargo_esik', 'duyuru_1', 'duyuru_2', 'duyuru_3',
         'arama_index', 'ga_id', 'fb_pixel', 'facebook_domain_verification', 'google_site_verification',
-        'smtp_sunucu', 'smtp_port', 'smtp_sifrelem', 'smtp_kullanici', 'smtp_sifre', 'gonderen_eposta',
+        'smtp_sunucu', 'smtp_port', 'smtp_sifrelem', 'smtp_kullanici', 'smtp_sifre', 'gonderen_eposta', 'bildirim_eposta',
         'sms_aktif', 'sms_kullanici', 'sms_sifre', 'sms_gonderen',
         'paytr_merchant_id', 'paytr_merchant_key', 'paytr_merchant_salt', 'paytr_test',
         'efatura_entegrator', 'efatura_api_url', 'efatura_token', 'efatura_firma_vkn', 'efatura_firma_unvan', 'efatura_test',

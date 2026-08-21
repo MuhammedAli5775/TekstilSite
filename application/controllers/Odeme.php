@@ -131,6 +131,8 @@ class Odeme extends Magaza_Controller
         // Onay e-postası (graceful — başarısızsa siparişi bozmaz)
         $this->load->library('eposta');
         $this->eposta->siparis_onay($res['siparis_id']);
+        // LIII: yöneticiye yeni sipariş bildirimi (bildirim_eposta ayarlıysa, graceful)
+        @$this->eposta->yonetici_bildirim($res['siparis_id']);
 
         // SMS bildirimi (graceful — pasif/hata siparişi bozmaz)
         $this->load->library('sms');

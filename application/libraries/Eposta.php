@@ -53,6 +53,53 @@ class Eposta
         return TRUE;
     }
 
+    /**
+     * Yeni sipariş yönetici bildirimi (graceful).
+     * Ayarlar → "Yönetici Bildirim E-postası" (bildirim_eposta) doluysa her yeni
+     * siparişte özet gider; boşsa sessizce atlanır.
+     */
+    public function yonetici_bildirim($siparis_id)
+    {
+        $hedef = trim((string) ayar('bildirim_eposta', ''));
+        if ($hedef === '' || ! filter_var($hedef, FILTER_VALIDATE_EMAIL)) { return FALSE; }
+        if (! $this->hazir()) { log_message('error', 'Eposta: SMTP yok — yönetici bildirimi atlandı (graceful).'); return FALSE; }
+
+        $this->CI->load->model('siparis_model');
+        $s = $this->CI->siparis_model->mg_getir($siparis_id);
+        if (! $s) { log_message('error', 'Eposta: yönetici bildirimi — sipariş yok (id=' . $siparis_id . ').'); return FALSE; }
+
+        $site    = htmlspecialchars(ayar('site_adi', 'Nesem Tesettür'));
+        $musteri = trim((string) ($s->teslimat_ad ?: $s->email ?: '-'));
+        $konu    = '[Yeni Sipariş] #' . $s->siparis_no . ' — ' . number_format((float) $s->toplam, 2, ',', '.') . ' ₺';
+        $satir   = function($etiket, $deger) {
+            return '<tr><td style="padding:4px 12px 4px 0;color:#5c6c7a;white-space:nowrap">' . $etiket
+                . '</td><td><b>' . $deger . '</b></td></tr>';
+        };
+        $govde = '<div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:auto;color:#001e2b">'
+            . '<div style="background:#001e2b;color:#00ed64;padding:16px 20px;font-size:18px;font-weight:600">' . $site . '</div>'
+            . '<div style="padding:20px"><h1 style="font-size:20px;margin:0 0 12px">Yeni sipariş alındı</h1>'
+            . '<table style="font-size:14px">'
+            . $satir('Sipariş no', '#' . htmlspecialchars($s->siparis_no))
+            . $satir('Müşteri', htmlspecialchars($musteri))
+            . $satir('E-posta', htmlspecialchars($s->email ?: '-'))
+            . $satir('Toplam', number_format((float) $s->toplam, 2, ',', '.') . ' ₺')
+            . $satir('Ödeme', htmlspecialchars($s->odeme_yontemi ?: '-'))
+            . '</table>'
+            . '<p style="margin-top:16px"><a href="' . site_url('yonetim/siparisler/detay/' . (int) $s->id) . '" style="background:#001e2b;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Yönetim panelinde aç</a></p>'
+            . '</div></div>';
+
+        $this->CI->email->initialize($this->_smtp_ayarlari());
+        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'Nesem Tesettür'));
+        $this->CI->email->to($hedef);
+        $this->CI->email->subject($konu);
+        $this->CI->email->message($govde);
+        if (! $this->CI->email->send(FALSE)) {
+            log_message('error', 'Eposta yönetici bildirimi gönderilemedi: ' . strip_tags($this->CI->email->print_debugger(array('headers'))));
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     public function durum_bildirim($siparis_id, $durum_etiket, $notu = '')
     {
         $this->CI->load->model('siparis_model');

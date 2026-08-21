@@ -19,6 +19,39 @@
 
 ---
 
+## 2026-08-21 (LIII) — Yöneticiye yeni sipariş e-posta bildirimi — 273/273 PASS
+
+**Kullanıcı isteği:** eksik analizi 2 numaralı madde ("o sıralamayla gidebilirsin")
+— sipariş e-postası akışının eksikleri.
+
+**Tespit:** müşteri tarafı zaten tamamdı (`Eposta::siparis_onay` Odeme'de,
+`durum_bildirim` yönetim durum güncellemesinde + PayTR bildiriminde; SMTP'siz
+graceful). Gerçek eksik: **yöneticiye "yeni sipariş geldi" bildirimi** yoktu.
+
+**Yapılan (kod tarafı):**
+- **`Eposta::yonetici_bildirim($siparis_id)`:** yeni siparişte yöneticiye özet
+  mail — sipariş no, müşteri, e-posta, toplam, ödeme yöntemi + yönetim
+  panelinde sipariş detayı butonu. Ayarlar'daki **bildirim_eposta** doluysa
+  gider; boşsa/geçersizse sessiz atlanır. SMTP'siz graceful (mevcut desen).
+- **`Odeme::tamamla`:** müşteri onayının ardına `@$this->eposta->yonetici_bildirim()`
+  çağrısı (havale/kapıda anında; PayTR akışında sipariş yine tamamla'da
+  oluştuğundan ikisini de kapsar — ödeme sonucu panelden izlenir).
+- **Yönetim → Ayarlar → SMTP kartı:** "Yönetici Bildirim E-postası" alanı
+  (`bildirim_eposta` whitelist'e eklendi).
+
+**DB değişikliği:** yok (`ayarlar` satırı kayıtta kendiliğinden oluşur).
+
+**Doğrulama:** tam regresyon **273/273 PASS** — mevcut `odeme-tamamla` akışları
+yeni çağrıyı graceful yoldan koşar (SMTP/bildirim_eposta boş → sessiz atlama;
+sipariş oluşumu etkilenmez). `php -l` temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `application/libraries/Eposta.php`,
+`application/controllers/Odeme.php`,
+`application/controllers/yonetim/Ayarlar.php`,
+`application/views/yonetim/ayarlar/index.php`.
+
+---
+
 ## 2026-08-21 (LII) — Favicon seti + sosyal paylaşım kartı (OG/Twitter) — 273/273 PASS
 
 **Kullanıcı isteği:** eksik analizinde önerilen 1 numaralı madde ("o sıralamayla
