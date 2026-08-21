@@ -138,6 +138,10 @@ class Magaza_Controller extends MY_Controller
         $this->v['meta_title']  = '';
         $this->v['meta_desc']   = '';
         $this->v['menu']        = $this->db_hazir() ? $this->kategori_model->mg_menu() : array();
+        // LI: footer güven şeridi — aktif ödeme yöntemleri + kargo firmaları DB'den;
+        // yöntem/firma yönetimden açılınca rozet kendiliğinden belirir.
+        $this->v['ftr_odemeler'] = $this->db_hazir() ? $this->db->where('durum', 1)->order_by('sira', 'ASC')->get('odeme_yontemleri')->result_array() : array();
+        $this->v['ftr_kargolar'] = $this->db_hazir() ? $this->db->where('durum', 1)->order_by('ad', 'ASC')->get('kargo_firmalari')->result_array() : array();
         $this->v['sepet_adet']  = $this->db_hazir() ? $this->sepet_model->sayi() : 0;
         $this->v['bayi']        = $this->db_hazir() ? $this->bayi() : NULL;
         $this->v['bayi_indirim']= $this->v['bayi'] ? bayi_indirim() : 0.0;

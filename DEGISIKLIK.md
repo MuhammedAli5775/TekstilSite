@@ -19,6 +19,53 @@
 
 ---
 
+## 2026-08-21 (LI) — Footer zenginleştirme: iletişim bloğu + keşif/dil kolonları + güven şeridi — 270/270 PASS
+
+**Kullanıcı isteği:** "footer'a daha fazla şey ekle".
+
+**Yapılan (kod tarafı):**
+- **Footer 4 → 5 kolon** (`footer.php` + `teksil.css` grid `1.5fr 1fr 1fr 1fr .8fr`;
+  1100px altı 2 kolon, 640px altı 1 kolon — mevcut kırılımlar):
+  1. **Marka kolonu:** tanımın altına ikonlu iletişim bloğu — adres, telefon,
+     e-posta (mailto), çalışma saatleri. Değerler **ayarlar tablosundan**
+     (`iletisim_adres`/`iletisim_telefon`/`iletisim_eposta` — yönetim → Ayarlar
+     formundaki mevcut alanlar); boşsa kalıcı yer tutucular (Merter, İstanbul /
+     +90 212 481 36 92 / info@teksilsite.com / Pzt–Cmt 09.00–18.00 — Faz A'da
+     gerçek veriyle doldurulacak). `whatsapp` ayarı doluysa yeşil WhatsApp
+     butonu (numara uluslararası biçime normalize: yerelse 90 öneki).
+  2. **Kategoriler:** DB menüsü + **Tüm Ürünler** (`katalog`) + **Yeni
+     Gelenler** (`katalog/yeni`) keşif bağlantıları.
+  3. **Toptancı:** değişmedi.
+  4. **Yardım & Kurumsal:** + **Blog** (`/blog`) + **Çerez Politikası**
+     (`sayfa/cerez` — sayfa vardı, footer'da hiç bağlanmamıştı).
+  5. **Dil / Language:** 4 dil bağlantısı (`dil/cevir/*`, aktif dil işaretli) —
+     `Dil::cevir` referer-dönüşlü olduğundan footer'dan da sayfayı kaybetmeden
+     dil değişir.
+- **Güven şeridi (yeni `footer__strip`):** aktif **ödeme yöntemleri** ve
+  **kargo firmaları** DB'den rozet olarak (MY_Controller `_ortak_veri` — menü
+  deseni; `odeme_yontemleri.durum=1` sırayla, `kargo_firmalari.durum=1`
+  ada göre). PayTR yönetimden açılınca kart rozeti kendiliğinden belirir.
+- **10 yeni dil anahtarı 4 dilde:** `ftr_adres_varsayilan`, `ftr_calisma`,
+  `ftr_whatsapp`, `ftr_tum_urunler`, `ftr_yeni_gelenler`, `ftr_blog`,
+  `ftr_cerez`, `ftr_dil`, `ftr_odeme`, `ftr_kargo`.
+
+**DB değişikliği:** yok (ayar anahtarları zaten mevcut; yalnız okunuyor).
+
+**Doğrulama:** tam regresyon **270/270 PASS** (+3: `footer-zengin-yapi`,
+`footer-kesif-baglantilari`, `footer-guven-seridi`). Canlı kontrol: TR/EN/RU
+footer render — rozetler "Havale / EFT", "Kapıda Nakit Ödeme", "Aras Kargo",
+"Yurtiçi Kargo"; dil kolonu aktif işaretli. `php -l` temiz; mojibake temiz.
+NOT: ilk koşuda 3 FAIL bayat sunucudan geldi (kullanıcı htdocs tarzı ayrı
+`php -S` başlatmıştı — öldürülüp OneDrive kopyasından sunucuyla tekrar
+267+3=270 tam geçti).
+
+**[!] Canlıya taşı:** `application/core/MY_Controller.php`,
+`application/views/magaza/layout/footer.php`,
+`assets/magaza/css/teksil.css`, 4×
+`application/language/*/teksil_lang.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (L) — Misafir/B2C sepetini boşaltan oturum-ID döndürmesi kapatıldı — 267/267 PASS
 
 **Kullanıcı isteği:** ödeme formunu doldurmak 5+ dakika süren misafir/B2C

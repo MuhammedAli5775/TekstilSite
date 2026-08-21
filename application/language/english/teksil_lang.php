@@ -37,6 +37,17 @@ $lang = array(
     'ftr_iletisim'       => 'Contact',
     'ftr_telif'          => '© %1$s %2$s. All rights reserved.',
     'ftr_guvenlik'       => 'Secured with SSL · 3D Secure payment',
+    // ---- footer enrichment (LI) ----
+    'ftr_adres_varsayilan' => 'Merter, Istanbul, Türkiye',
+    'ftr_calisma'        => 'Mon – Sat · 09.00 – 18.00',
+    'ftr_whatsapp'       => 'Chat on WhatsApp',
+    'ftr_tum_urunler'    => 'All Products',
+    'ftr_yeni_gelenler'  => 'New Arrivals',
+    'ftr_blog'           => 'Blog',
+    'ftr_cerez'          => 'Cookie Policy',
+    'ftr_dil'            => 'Language',
+    'ftr_odeme'          => 'Payment Methods',
+    'ftr_kargo'          => 'Shipping',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Tops',

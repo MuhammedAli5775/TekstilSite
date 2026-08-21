@@ -38,6 +38,17 @@ $lang = array(
     'ftr_iletisim'       => 'İletişim',
     'ftr_telif'          => '© %1$s %2$s. Tüm hakları saklıdır.',
     'ftr_guvenlik'       => 'SSL ile korumalı · 3D Secure ödeme',
+    // ---- footer zenginleştirme (LI) ----
+    'ftr_adres_varsayilan' => 'Merter, İstanbul',
+    'ftr_calisma'        => 'Pzt – Cmt · 09.00 – 18.00',
+    'ftr_whatsapp'       => "WhatsApp'tan Yazın",
+    'ftr_tum_urunler'    => 'Tüm Ürünler',
+    'ftr_yeni_gelenler'  => 'Yeni Gelenler',
+    'ftr_blog'           => 'Blog',
+    'ftr_cerez'          => 'Çerez Politikası',
+    'ftr_dil'            => 'Dil / Language',
+    'ftr_odeme'          => 'Ödeme Yöntemleri',
+    'ftr_kargo'          => 'Kargo',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Üst Giyim',

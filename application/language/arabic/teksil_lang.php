@@ -41,6 +41,17 @@ $lang = array(
     'ftr_iletisim'       => 'اتصل بنا',
     'ftr_telif'          => '© %1$s %2$s. جميع الحقوق محفوظة.',
     'ftr_guvenlik'       => 'محمي بـ SSL · دفع 3D Secure',
+    // ---- footer enrichment (LI) ----
+    'ftr_adres_varsayilan' => 'مرتر، إستانبول، تركيا',
+    'ftr_calisma'        => 'الاثنين – السبت · 09.00 – 18.00',
+    'ftr_whatsapp'       => 'تواصل عبر واتساب',
+    'ftr_tum_urunler'    => 'جميع المنتجات',
+    'ftr_yeni_gelenler'  => 'وصل حديثاً',
+    'ftr_blog'           => 'المدونة',
+    'ftr_cerez'          => 'سياسة ملفات تعريف الارتباط',
+    'ftr_dil'            => 'اللغة',
+    'ftr_odeme'          => 'طرق الدفع',
+    'ftr_kargo'          => 'الشحن',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'ملابس علوية',

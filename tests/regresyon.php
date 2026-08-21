@@ -222,6 +222,12 @@ check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax')
 // L: periyodik oturum-ID döndürmesi KAPALI kalmalı — açılırsa oturum-anahtarlı
 // (bayi_id'siz) misafir/B2C sepetleri 5 dk sonra yetim kalır ("sepet boş").
 check('oturum-periyodik-donme-kapali', strpos(file_get_contents('application/config/config.php'), "sess_time_to_update'] = 0") !== FALSE);
+// LI: zengin footer — yapı (iletişim bloğu + güven şeridi + rozetler), keşif
+// bağlantıları (çerez sayfası / yeni gelenler / blog) ve DB rozetleri (ödeme/kargo).
+list($c, $r) = get('guest', '/');
+check('footer-zengin-yapi', $c === 200 && strpos($r, 'footer__iletisim') !== FALSE && strpos($r, 'footer__strip') !== FALSE && strpos($r, 'footer__rozet') !== FALSE);
+check('footer-kesif-baglantilari', strpos($r, 'sayfa/cerez') !== FALSE && strpos($r, 'katalog/yeni') !== FALSE && strpos($r, '/blog') !== FALSE);
+check('footer-guven-seridi', strpos($r, 'Havale') !== FALSE && strpos($r, 'Kargo') !== FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 
 // XLV+XLVI: sepet adet güncelleme ızgaraya FLOOR ile oturur (yukarı zıplama YOK —

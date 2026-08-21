@@ -37,6 +37,17 @@ $lang = array(
     'ftr_iletisim'       => 'Контакты',
     'ftr_telif'          => '© %1$s %2$s. Все права защищены.',
     'ftr_guvenlik'       => 'Защищено SSL · Оплата 3D Secure',
+    // ---- footer enrichment (LI) ----
+    'ftr_adres_varsayilan' => 'Мертер, Стамбул, Турция',
+    'ftr_calisma'        => 'Пн – Сб · 09.00 – 18.00',
+    'ftr_whatsapp'       => 'Написать в WhatsApp',
+    'ftr_tum_urunler'    => 'Все товары',
+    'ftr_yeni_gelenler'  => 'Новинки',
+    'ftr_blog'           => 'Блог',
+    'ftr_cerez'          => 'Политика cookie',
+    'ftr_dil'            => 'Язык',
+    'ftr_odeme'          => 'Способы оплаты',
+    'ftr_kargo'          => 'Доставка',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Верх',

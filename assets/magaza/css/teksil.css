@@ -401,12 +401,24 @@ header{position:sticky;top:0;z-index:50;}
 
 /* --- footer --- */
 .footer{background:var(--teal-deep);color:#c8d6df;padding:56px 0 28px;margin-top:var(--s-20);}
-.footer__grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:32px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.1);}
+/* LI: beşinci kolon (dil seçici) — marka + 4 menü */
+.footer__grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr .8fr;gap:32px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.1);}
 .footer__brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:#fff;margin-bottom:12px;}
 .footer__brand .brand__ad b{color:#fff;}   /* XLVIII: koyu footer zemininde yazı markası beyaz */
 .footer h4{color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;}
 .footer a{display:block;padding:5px 0;font-size:14px;color:#a9b8c2;}
 .footer a:hover{color:#fff;}
+.footer a.aktif{color:#fff;font-weight:600;}          /* LI: footer dil seçicisi — aktif dil */
+.footer__tanim{font-size:14px;max-width:34ch;}         /* LI: eskiden inline stil */
+.footer__iletisim{display:flex;flex-direction:column;gap:7px;margin-top:14px;font-size:13px;}
+.footer__iletisim span{display:flex;align-items:flex-start;gap:8px;}
+.footer__iletisim svg{flex:none;opacity:.7;margin-top:2px;}
+.footer__wa{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:600;color:#8fdca8;}
+.footer__wa:hover{color:#c6f2d4;}
+.footer__strip{display:flex;flex-wrap:wrap;gap:14px 48px;padding-top:22px;}
+.footer__strip h5{color:#8aa0ac;font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.footer__rozetler{display:flex;flex-wrap:wrap;gap:8px;}
+.footer__rozet{display:inline-block;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.045);border-radius:999px;padding:4px 12px;font-size:12px;color:#d7e2e8;}
 .footer__bottom{display:flex;justify-content:space-between;padding-top:20px;font-size:13px;color:#8aa0ac;flex-wrap:wrap;gap:10px;}
 
 /* --- responsive --- */
