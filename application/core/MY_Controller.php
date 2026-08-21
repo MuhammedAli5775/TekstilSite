@@ -217,6 +217,7 @@ class Admin_Controller extends MY_Controller
             array('key' => 'feed',        'baslik' => 'API / Feed',  'url' => site_url('yonetim/feed'),        'ikon' => '⌁'),
             array('key' => 'xml_ice',     'baslik' => 'XML İçe Aktar', 'url' => site_url('yonetim/xml_ice'),  'ikon' => '⇩'),
             array('key' => 'raporlar',    'baslik' => 'Raporlar',    'url' => site_url('yonetim/raporlar'),    'ikon' => '◉'),
+            array('key' => 'ebulten',     'baslik' => 'E-Bülten',    'url' => site_url('yonetim/ebulten'),     'ikon' => '✉'),
             array('key' => 'bannerlar',   'baslik' => 'Bannerlar',   'url' => site_url('yonetim/bannerlar'),   'ikon' => '▦'),
             array('key' => 'yazilar',     'baslik' => 'Blog Yazıları', 'url' => site_url('yonetim/yazilar'),  'ikon' => '✎'),
             array('key' => 'sayfalar',    'baslik' => 'Sayfalar',    'url' => site_url('yonetim/sayfalar'),    'ikon' => '☰'),
@@ -236,6 +237,7 @@ class Admin_Controller extends MY_Controller
                 if ($key === 'dashboard') { $filtre[] = $m; continue; }                   // her zaman görünür
                 if ($super)               { $filtre[] = $m; continue; }
                 $modul = ($key === 'para_birimi') ? 'ayarlar' : $key;                     // para_birimi -> ayarlar izni
+                $modul = ($key === 'ebulten') ? 'raporlar' : $modul;                     // LV: e-bülten -> raporlar izni
                 if ($this->auth_admin->yetki($modul, 'goruntule')) { $filtre[] = $m; }
             }
             $data['menu'] = $filtre;

@@ -52,6 +52,14 @@ $lang = array(
     'ftr_dil'            => 'اللغة',
     'ftr_odeme'          => 'طرق الدفع',
     'ftr_kargo'          => 'الشحن',
+    // ---- newsletter (LV) ----
+    'ebulten_baslik'       => 'كن أول من يعرف بالمجموعات الجديدة',
+    'ebulten_aciklama'     => 'الإعلانات والعروض — رسالة أو رسالتان شهرياً، بلا إزعاج.',
+    'ebulten_ph'           => 'بريدك الإلكتروني',
+    'ebulten_buton'        => 'اشترك',
+    'flash_ebulten_ok'     => 'شكراً لاشتراكك!',
+    'flash_ebulten_zaten'  => 'هذا البريد مشترك بالفعل.',
+    'flash_ebulten_gecersiz' => 'أدخل بريداً إلكترونياً صحيحاً.',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'ملابس علوية',

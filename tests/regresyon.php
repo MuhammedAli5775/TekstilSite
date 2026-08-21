@@ -233,6 +233,15 @@ list($c, $r) = get('guest', '/');
 check('footer-zengin-yapi', $c === 200 && strpos($r, 'footer__iletisim') !== FALSE && strpos($r, 'footer__strip') !== FALSE && strpos($r, 'footer__rozet') !== FALSE);
 check('footer-kesif-baglantilari', strpos($r, 'sayfa/cerez') !== FALSE && strpos($r, 'katalog/yeni') !== FALSE && strpos($r, '/blog') !== FALSE);
 check('footer-guven-seridi', strpos($r, 'Havale') !== FALSE && strpos($r, 'Kargo') !== FALSE);
+// LV: e-bülten — footer formu + kayıt akışı (ODKU çift kaydı engeller)
+check('ebulten-form-render', strpos($r, 'ebulten/kayit') !== FALSE);
+list($c, ) = post('guest', '/ebulten/kayit', array('eposta' => "bulten$T@test.local"));
+check('ebulten-kayit-redirect', is_redir($c));
+check('ebulten-kayit-db', (int) q1("SELECT COUNT(*) FROM ebulten_aboneler WHERE eposta='" . esc("bulten$T@test.local") . "'") === 1);
+list($c, ) = post('guest', '/ebulten/kayit', array('eposta' => "bulten$T@test.local"));
+check('ebulten-cift-kayit-engelli', is_redir($c) && (int) q1("SELECT COUNT(*) FROM ebulten_aboneler WHERE eposta='" . esc("bulten$T@test.local") . "'") === 1);
+list($c, ) = post('guest', '/ebulten/kayit', array('eposta' => "kotu-eposta$T"));
+check('ebulten-gecersiz-reddi', is_redir($c) && (int) q1("SELECT COUNT(*) FROM ebulten_aboneler WHERE eposta='kotu-eposta$T'") === 0);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 
 // XLV+XLVI: sepet adet güncelleme ızgaraya FLOOR ile oturur (yukarı zıplama YOK —
@@ -360,10 +369,15 @@ list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@t
 check('admin-giris-redirect', is_redir($c));
 check('admin-giris-oturum-doner', ($SES['admin']['teksil_sess'] ?? '') !== $sessOnce);
 foreach (array('dashboard','urunler','kategoriler','markalar','siparisler','bayiler','stok',
-               'kuponlar','bannerlar','sayfalar','faturalar','raporlar','feed','ayarlar','yetkiler','pazaryeri') as $m) {
+               'kuponlar','bannerlar','sayfalar','faturalar','raporlar','ebulten','feed','ayarlar','yetkiler','pazaryeri') as $m) {
     list($c, ) = get('admin', "/yonetim/$m");
     check("admin-$m-200", $c === 200);
 }
+// LV: e-bülten yönetim — abone listede + CSV (başlık ve içerik)
+list($c, $r) = get('admin', '/yonetim/ebulten');
+check('admin-ebulten-liste', $c === 200 && strpos($r, "bulten$T@test.local") !== FALSE);
+list($c, $r) = get('admin', '/yonetim/ebulten/csv');
+check('admin-ebulten-csv', $c === 200 && strpos($r, 'text/csv') !== FALSE && strpos($r, "bulten$T@test.local") !== FALSE);
 list($c, $r) = get('admin', "/yonetim/siparisler/detay/$siparisId");
 check('admin-siparis-detay-200', $c === 200 && strpos($r, $siparisNo) !== FALSE);
 
@@ -927,6 +941,7 @@ q("DELETE FROM urun_varyantlari WHERE urun_id=" . (int) ($yId ?? 0));
 q("DELETE FROM urunler WHERE stok_kodu LIKE 'REG-XML-%'");
 q("UPDATE urunler SET fiyat=$gFiyatOnce WHERE id=1");
 q("DELETE FROM xml_kaynaklari WHERE ad='Regresyon XML'");   // xml_loglari CASCADE (ad'yla — crash artığına dayanıklı, $kalan da ad'la sayar)
+q("DELETE FROM ebulten_aboneler WHERE eposta LIKE 'bulten%@test.local'");   // LV: e-bülten test aboneleri (geçersiz e-posta hiç yazılmaz)
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
     q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ")");

@@ -48,6 +48,14 @@ $lang = array(
     'ftr_dil'            => 'Язык',
     'ftr_odeme'          => 'Способы оплаты',
     'ftr_kargo'          => 'Доставка',
+    // ---- newsletter (LV) ----
+    'ebulten_baslik'       => 'Узнавайте первыми о новых коллекциях',
+    'ebulten_aciklama'     => 'Анонсы и акции — одно-два письма в месяц, без спама.',
+    'ebulten_ph'           => 'Ваш e-mail',
+    'ebulten_buton'        => 'Подписаться',
+    'flash_ebulten_ok'     => 'Спасибо за подписку!',
+    'flash_ebulten_zaten'  => 'Этот e-mail уже подписан.',
+    'flash_ebulten_gecersiz' => 'Введите корректный e-mail.',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Верх',

@@ -49,6 +49,14 @@ $lang = array(
     'ftr_dil'            => 'Dil / Language',
     'ftr_odeme'          => 'Ödeme Yöntemleri',
     'ftr_kargo'          => 'Kargo',
+    // ---- e-bülten (LV) ----
+    'ebulten_baslik'       => 'Yeni koleksiyonlardan ilk siz haberdar olun',
+    'ebulten_aciklama'     => 'Duyurular ve kampanyalar — ayda bir-iki e-posta, spam yok.',
+    'ebulten_ph'           => 'E-posta adresiniz',
+    'ebulten_buton'        => 'Abone Ol',
+    'flash_ebulten_ok'     => 'Abone olduğunuz için teşekkürler!',
+    'flash_ebulten_zaten'  => 'Bu e-posta zaten abone listesinde.',
+    'flash_ebulten_gecersiz' => 'Geçerli bir e-posta adresi girin.',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Üst Giyim',

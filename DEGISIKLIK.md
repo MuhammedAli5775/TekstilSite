@@ -19,6 +19,50 @@
 
 ---
 
+## 2026-08-21 (LV) — E-bülten aboneliği: footer formu + kayıt akışı + yönetim listesi/CSV — 285/285 PASS
+
+**Kullanıcı isteği:** eksik analizi 5 numaralı (son) madde ("o sıralamayla
+gidebilirsin") — toptan müşteri kitlesi için duyuru kanalı.
+
+**Yapılan (kod tarafı):**
+- **DB — yeni tablo `ebulten_aboneler`** (eposta UNIQUE, dil, durum, kayit_ip,
+  created_at): dev DB'ye uygulandı + `sql/schema.sql`'e eklendi (taze §3
+  kurulumu otomatik kapsar; dosya sırası değişmez) + **`sql/migrate_ebulten.sql`**
+  mevcut DB'ler için (CREATE TABLE IF NOT EXISTS).
+- **Mağaza `Ebulten::kayit`** (yeni denetçi): POST-only; CSRF CI otomatik;
+  `filter_var` e-posta doğrulama; **INSERT ODKU (id=id)** ile çift kayıt engeli
+  (affected_rows 1=yeni / 0=zaten abone → farklı flash mesajı); dil=aktif dil,
+  IP kaydı; dönüş aynı-site referer sayfasına (Dil::cevir deseni — dış referer
+  yoksayılır, PRG).
+- **Footer e-bülten şeridi** (`footer__bulten`, güven şeridi ile alt bant
+  arasında): başlık + açıklama + e-posta girişi + Abone Ol; sonuç mesajı
+  (flash `bulten`) form içinde render edilir — hangi sayfadan gelindiyse
+  orada görünür. CSS: altın buton, koyu giriş, responsive wrap.
+- **Yönetim → E-Bülten** (menüde Raporlar ardında, ✉): abone listesi (son 500,
+  aktif sayısı başlıkta) + **CSV İndir** (UTF-8 BOM + ';' — Raporlar deseni).
+  Erişim/menü **raporlar iznine eşlendi** (para_birimi→ayarlar örneği izlendi;
+  yeni yetki modülü seed'i gerekmedi).
+- **7 yeni dil anahtarı 4 dilde:** `ebulten_baslik/aciklama/ph/buton`,
+  `flash_ebulten_ok/zaten/gecersiz`.
+
+**DB değişikliği:** `ebulten_aboneler` tablosu (yukarıda).
+
+**Doğrulama:** tam regresyon **285/285 PASS** (+8: `ebulten-form-render`,
+`ebulten-kayit-redirect`, `ebulten-kayit-db`, `ebulten-cift-kayit-engelli`,
+`ebulten-gecersiz-reddi`, `admin-ebulten-200` (menü döngüsü otomatik),
+`admin-ebulten-liste`, `admin-ebulten-csv`; temizlik DELETE'i eklendi). Canlı:
+TR "Abone Ol" + EN "Subscribe" render. `php -l` temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `sql/schema.sql`, `sql/migrate_ebulten.sql` (mevcut
+canlı DB'ye uygula), `application/controllers/Ebulten.php`,
+`application/controllers/yonetim/Ebulten.php`,
+`application/views/yonetim/ebulten/index.php`,
+`application/views/magaza/layout/footer.php`,
+`application/core/MY_Controller.php`, `assets/magaza/css/teksil.css`, 4×
+`application/language/*/teksil_lang.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (LIV) — Misafir/B2C sepet testleri: sayfa render + sepetli guard — 277/277 PASS
 
 **Kullanıcı isteği:** eksik analizi 4 numaralı madde ("o sıralamayla

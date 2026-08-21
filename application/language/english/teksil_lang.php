@@ -48,6 +48,14 @@ $lang = array(
     'ftr_dil'            => 'Language',
     'ftr_odeme'          => 'Payment Methods',
     'ftr_kargo'          => 'Shipping',
+    // ---- newsletter (LV) ----
+    'ebulten_baslik'       => 'Be the first to hear about new collections',
+    'ebulten_aciklama'     => 'Announcements and offers — one or two emails a month, no spam.',
+    'ebulten_ph'           => 'Your e-mail address',
+    'ebulten_buton'        => 'Subscribe',
+    'flash_ebulten_ok'     => 'Thanks for subscribing!',
+    'flash_ebulten_zaten'  => 'This e-mail is already subscribed.',
+    'flash_ebulten_gecersiz' => 'Enter a valid e-mail address.',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Tops',

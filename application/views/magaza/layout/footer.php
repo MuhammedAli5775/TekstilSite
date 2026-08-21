@@ -97,6 +97,26 @@ if ($ftr_wa_no !== '' && strncmp($ftr_wa_no, '90', 2) !== 0) {
                 </div>
             </div>
         </div>
+        <?php /* LV: e-bülten kaydı — sonuç mesajı (flash) burada render edilir ki
+               hangi sayfadan gelindiyse orada görünsün */ ?>
+        <div class="footer__bulten">
+            <form action="<?= site_url('ebulten/kayit') ?>" method="post">
+                <div class="footer__bulten-metin">
+                    <strong><?= t('ebulten_baslik', 'Yeni koleksiyonlardan ilk siz haberdar olun') ?></strong>
+                    <span><?= t('ebulten_aciklama', 'Duyurular ve kampanyalar — ayda bir-iki e-posta, spam yok.') ?></span>
+                </div>
+                <div class="footer__bulten-giris">
+                    <input type="email" name="eposta" maxlength="150" required
+                           placeholder="<?= t('ebulten_ph', 'E-posta adresiniz') ?>"
+                           aria-label="<?= t('ebulten_ph', 'E-posta adresiniz') ?>">
+                    <button type="submit"><?= t('ebulten_buton', 'Abone Ol') ?></button>
+                </div>
+                <?php if ($bulten_m = $this->session->flashdata('bulten')): ?>
+                    <span class="footer__bulten-mesaj"><?= e($bulten_m) ?></span>
+                <?php endif; ?>
+                <input type="hidden" name="<?= e($this->security->get_csrf_token_name()) ?>" value="<?= e($this->security->get_csrf_hash()) ?>">
+            </form>
+        </div>
         <div class="footer__bottom">
             <span><?= t('ftr_telif', '© %1$s %2$s. Tüm hakları saklıdır.', (int) $yil, e($site_adi ?? 'Nesem Tesettür')) ?></span>
             <span><?= t('ftr_guvenlik', 'SSL ile korumalı · 3D Secure ödeme') ?></span>
