@@ -379,7 +379,56 @@
         });
     }
 
-    function init() { initFiltre(); initUrunDetay(); initSepet(); initCheckout(); initYukariBtn(); initHeaderArama(); }
+    /* ---------- Çerez onayı (LVII) ---------- */
+    /* Analiz izleyicileri (GA gtag / FB Pixel) YALNIZ 'Kabul' kararıyla yüklenir;
+       kimlikler footer'dan window.tkIzleyici ile gelir (ayar boşsa nesne hiç yok). */
+    function izleyiciYukle() {
+        var iz = window.tkIzleyici;
+        if (!iz || iz.yuklendi) { return; }
+        iz.yuklendi = true;
+        if (iz.ga) {
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(iz.ga);
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { window.dataLayer.push(arguments); };
+            window.gtag('js', new Date());
+            window.gtag('config', iz.ga, { anonymize_ip: true });
+        }
+        if (iz.fb && !window.fbq) {
+            (function (f, b, e, v) {
+                var n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+                if (!f._fbq) { f._fbq = n; }
+                n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+                var t = b.createElement(e); t.async = true; t.src = v;
+                var s0 = b.getElementsByTagName(e)[0];
+                s0.parentNode.insertBefore(t, s0);
+            })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+            window.fbq('init', iz.fb);
+            window.fbq('track', 'PageView');
+        }
+    }
+
+    function initCerezBant() {
+        var bant = document.getElementById('cerezBant');
+        if (!bant) { return; }
+        var durum = null;
+        try { durum = localStorage.getItem('cerezOnay'); } catch (e) { /* localStorage engelliyse karar yok say */ }
+        if (durum === '1') { izleyiciYukle(); return; }         // dönüşte izleyici hemen
+        if (durum !== '0') { bant.hidden = false; }             // karar yok → bandı göster
+        var karar = function (deger) {
+            try { localStorage.setItem('cerezOnay', deger); } catch (e) {}
+            bant.hidden = true;
+            if (deger === '1') { izleyiciYukle(); }
+        };
+        var kabul = document.getElementById('cerezKabul');
+        var red = document.getElementById('cerezRed');
+        if (kabul) { kabul.addEventListener('click', function () { karar('1'); }); }
+        if (red) { red.addEventListener('click', function () { karar('0'); }); }
+    }
+
+    function init() { initFiltre(); initUrunDetay(); initSepet(); initCheckout(); initYukariBtn(); initHeaderArama(); initCerezBant(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
     else { init(); }
 })();

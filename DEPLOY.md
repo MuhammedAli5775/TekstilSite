@@ -223,6 +223,9 @@ yaşadığını gösterir). Bildirim e-postası: işletme adresi.
       (hosting panelinden "Force HTTPS" ya da .htaccess'e rewrite kuralı)
 - [ ] Sayfa kaynağında tüm asset URL'leri `https://alanadin.com/...` (karışık içerik yok)
 - [ ] `https://alanadin.com/robots.txt` → `Sitemap: https://alanadin.com/sitemap.xml`
+- [ ] Yönetim → Ayarlar → **"Arama motoru indekslemesi açık (yayında)"** işaretli
+      (`arama_index=1` — işaretlenmedikçe robots.txt tüm siteyi `Disallow: /` ile
+      engellemeye devam eder; LVII'de checklist'e eklendi)
 - [ ] `https://alanadin.com/sitemap.xml` XML listesi geliyor
 - [ ] `https://alanadin.com/yonetim` → yönetim girişi (admin giriş sonrası dashboard)
 - [ ] **Admin şifresi İLK GİRİŞTE DEĞİŞTİRİLSİN** — GitHub tarihçesinde eski dev

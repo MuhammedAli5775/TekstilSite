@@ -56,6 +56,10 @@ $lang = array(
     'flash_ebulten_ok'     => 'Спасибо за подписку!',
     'flash_ebulten_zaten'  => 'Этот e-mail уже подписан.',
     'flash_ebulten_gecersiz' => 'Введите корректный e-mail.',
+    // ---- cookie consent (LVII) ----
+    'cerez_bant_metin'    => 'Мы используем файлы cookie для улучшения вашего опыта; аналитические работают только с вашего согласия.',
+    'cerez_kabul'         => 'Принять',
+    'cerez_reddet'        => 'Только необходимые',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Верх',

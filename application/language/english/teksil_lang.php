@@ -56,6 +56,10 @@ $lang = array(
     'flash_ebulten_ok'     => 'Thanks for subscribing!',
     'flash_ebulten_zaten'  => 'This e-mail is already subscribed.',
     'flash_ebulten_gecersiz' => 'Enter a valid e-mail address.',
+    // ---- cookie consent (LVII) ----
+    'cerez_bant_metin'    => 'We use cookies to improve your experience; analytics cookies work only with your consent.',
+    'cerez_kabul'         => 'Accept',
+    'cerez_reddet'        => 'Essential Only',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Tops',

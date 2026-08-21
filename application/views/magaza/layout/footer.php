@@ -126,6 +126,16 @@ if ($ftr_wa_no !== '' && strncmp($ftr_wa_no, '90', 2) !== 0) {
 <button type="button" id="yukariBtn" class="yukari-btn" aria-label="<?= t('ftr_yukari_aria', 'Sayfanın başına dön') ?>" title="<?= t('ftr_yukari', 'Yukarı çık') ?>">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
 </button>
+<?php /* LVII: çerez onay bandı — analiz pikselleri (GA/FB) yalnız "Kabul" ile yüklenir
+       (teksil.js: cerezOnay). Politika sayfası: sayfa/cerez. */ ?>
+<div class="cerez-bant" id="cerezBant" hidden role="region" aria-label="Cookie consent">
+    <span><?= t('cerez_bant_metin', 'Sitemizde deneyiminizi iyileştirmek için çerezler kullanılır; analiz çerezleri yalnız onayınızla çalışır.') ?>
+        <a href="<?= site_url('sayfa/cerez') ?>"><?= t('ftr_cerez', 'Çerez Politikası') ?></a></span>
+    <span class="cerez-bant-butonlar">
+        <button type="button" id="cerezRed"><?= t('cerez_reddet', 'Yalnız Zorunlu') ?></button>
+        <button type="button" id="cerezKabul" class="kabul"><?= t('cerez_kabul', 'Kabul Et') ?></button>
+    </span>
+</div>
 <?php /* tkBase: origin-göreli uygulama kökü (php -S kökünde '/', Apache alt-dizinde '/TekstilSite/').
        DİKKAT: Windows PHP dirname('/index.php') '\' döndürür (platform ayraç normalizasyonu) —
        dirname KULLANMA; strrpos+substr ile saf dizgi hesapla. Mutlak base_url kullanılsaydı
@@ -136,6 +146,13 @@ $tk_kes = (int) strrpos($tk_script, '/');
 $tk_base = ($tk_kes > 0 ? rtrim(substr($tk_script, 0, $tk_kes), '/') : '') . '/'; ?>
 <script>window.tkBase = <?= json_encode($tk_base, JSON_UNESCAPED_SLASHES) ?>;</script>
 <script>window.tkCsrf = {name: <?= json_encode($this->security->get_csrf_token_name()) ?>, hash: <?= json_encode($this->security->get_csrf_hash()) ?>}};</script>
+<?php /* LVII: izleyici kimlikleri — Ayarlar'dan (ga_id/fb_pixel); doluysa geçir.
+       YÜKLEME yalnız çerez onayıyla (teksil.js izleyiciYukle) — onaysız piksel çağrılmaz. */
+$_ga = trim((string) ayar('ga_id', ''));
+$_fb = trim((string) ayar('fb_pixel', ''));
+if ($_ga !== '' || $_fb !== ''): ?>
+<script>window.tkIzleyici = <?= json_encode(array('ga' => $_ga, 'fb' => $_fb), JSON_UNESCAPED_SLASHES) ?>;</script>
+<?php endif; ?>
 <script src="<?= asset('magaza/js/teksil.js') ?>"></script>
 </body>
 </html>

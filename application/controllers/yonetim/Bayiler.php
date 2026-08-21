@@ -66,4 +66,17 @@ class Bayiler extends Admin_Controller
         $this->session->set_flashdata('bilgi', 'Bayi grubu güncellendi.');
         redirect('yonetim/bayiler/detay/' . $id);
     }
+
+    /** LVII: bayi şifresini rastgele üretip sıfırla — yeni şifre flash'ta BİR KEZ
+        gösterilir (kullanıcıya elle iletilir; self-service e-posta akışı SMTP/Faz A sonrası). */
+    public function sifre_sifirla($id)
+    {
+        $this->yetki_gerek('bayiler', 'duzenle');
+        if (! $this->bayi_model->mg_admin_getir($id)) { show_404(); }
+        $yeni = 'Nesem-' . bin2hex(random_bytes(4));
+        $this->bayi_model->sifre_guncelle($id, $yeni);
+        $this->auth_admin->audit('bayiler', 'sifre', '#' . $id, 'sifirlandi');
+        $this->session->set_flashdata('bilgi', 'Yeni bayi şifresi: <b>' . $yeni . '</b> — bayiye iletip ilk girişte değiştirtin (tek gösterim).');
+        redirect('yonetim/bayiler/detay/' . $id);
+    }
 }

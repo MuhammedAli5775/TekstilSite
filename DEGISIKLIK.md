@@ -19,6 +19,52 @@
 
 ---
 
+## 2026-08-21 (LVII) — Şifre kurtarma (bayi+B2C yönetim) + çerez onay bandı + onaylı GA/FB piksel — 304/304 PASS
+
+**Kullanıcı isteği:** üçüncü kontrol taramasının üç bulgusu ("onay veriyorum").
+
+**Yapılan (kod tarafı):**
+- **Bayi şifre sıfırlama:** `Bayiler::sifre_sifirla` — rastgele şifre üretir
+  (`Nesem-` + 8 hex), modelin mevcut `sifre_guncelle`'iyle yazar; yeni şifre
+  flash'ta **bir kez** gösterilir (bayiye elle iletilir). Detay sayfasına
+  onaylı buton. Self-service e-postalı akış SMTP/Faz A sonrası.
+- **Kullanıcılar (B2C) yönetim paneli (yeni):** `yonetim/Kullanicilar` —
+  liste (son 200) + e-posta/ad/kullanıcı-adı arama + aktif/pasif + şifre
+  sıfırlama. Erişim ve menü **bayiler iznine eşlendi** (müşteri hesapları
+  yönetimi — ebulten/para_birimi eşleme örneği izlendi). Sidebar'da Bayiler
+  altında. B2C kullanıcıları ilk kez yönetilebilir oluyor.
+- **Çerez onay bandı + onaylı izleyiciler:** footer'da 4 dilli bant
+  (`cerezBant` — politika linkli; Kabul / Yalnız Zorunlu). `teksil.js`
+  izleyicileri **yalnız Kabul kararında** yükler: GA gtag + FB Pixel
+  (kimlikler Ayarlar'dan `ga_id`/`fb_pixel` — ölü ayarlar canlandı; onaysız
+  piksel çağrılmaz, localStorage karar kalıcı). 3 yeni anahtar 4 dilde.
+- **DEPLOY.md §8:** robots.txt satırının ardına `arama_index=1` işaretleme
+  adımı eklendi (işaretlenmedikçe robots tüm siteyi `Disallow: /` ile
+  engellemeye devam eder — canlıda atlanırsa site Google'da görünmez).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **304/304 PASS** (+9: `cerez-bant-render`,
+`izleyici-kimlik-gecisi` [ga_id geçişte tkIzleyici+G-TEST görünür],
+`izleyici-bosken-gizli`, `cerez-js-mantik`, `admin-kullanicilar-200` [menü
+döngüsü], `admin-kullanicilar-liste/pasif/sifre-sifirla`,
+`admin-bayi-sifre-sifirla` [hash değişimi]). Canlı: bant TR+EN doğru.
+NOT: iki koşuk kırıldı — (1) testlerde `post()` üçüncü argümansız çağrı
+(düzeltildi), (2) önceki koşukların XML kalıntısı iz-yok testini düşürdü
+(artıklar süpürüldü, tekrar koşuda tam geçti). `php -l` + `node --check`
+temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `application/controllers/yonetim/Bayiler.php`,
+`application/controllers/yonetim/Kullanicilar.php` (yeni),
+`application/views/yonetim/kullanicilar/index.php` (yeni),
+`application/views/yonetim/bayiler/detay.php`,
+`application/core/MY_Controller.php`,
+`application/views/magaza/layout/footer.php`, `assets/magaza/js/teksil.js`,
+`assets/magaza/css/teksil.css`, 4× `application/language/*/teksil_lang.php`,
+`DEPLOY.md`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (LVI) — Kupon atıflaması entegrasyonu + Günlük Trend/Kupon raporları + markalı 404 — 295/295 PASS
 
 **Kullanıcı isteği:** ikinci eksik analizi sonucu kalan iki madde ("tamam").

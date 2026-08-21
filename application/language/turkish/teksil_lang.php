@@ -57,6 +57,10 @@ $lang = array(
     'flash_ebulten_ok'     => 'Abone olduğunuz için teşekkürler!',
     'flash_ebulten_zaten'  => 'Bu e-posta zaten abone listesinde.',
     'flash_ebulten_gecersiz' => 'Geçerli bir e-posta adresi girin.',
+    // ---- çerez onayı (LVII) ----
+    'cerez_bant_metin'    => 'Sitemizde deneyiminizi iyileştirmek için çerezler kullanılır; analiz çerezleri yalnız onayınızla çalışır.',
+    'cerez_kabul'         => 'Kabul Et',
+    'cerez_reddet'        => 'Yalnız Zorunlu',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'Üst Giyim',

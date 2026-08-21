@@ -114,6 +114,17 @@ check('anasayfa-og-meta', strpos($r, 'property="og:image"') !== FALSE && strpos(
 // LVI: markalı 404 — durum 404 + marka + TR mesaj (curl Accept-Language göndermez → tr)
 list($c, $r) = get('guest', '/boyle-bir-sayfa-yok-' . $T);
 check('sayfa-404-markali', $c === 404 && strpos($r, 'Nesem') !== FALSE && strpos($r, 'Anasayfaya') !== FALSE && strpos($r, 'robots') !== FALSE);
+// LVII: çerez onay bandı + ayar-gated izleyici kimlikleri (GA/FB yalnız onayla yüklenir)
+list($c, $r) = get('guest', '/');
+check('cerez-bant-render', $c === 200 && strpos($r, 'cerezBant') !== FALSE && strpos($r, 'cerezRed') !== FALSE && strpos($r, 'sayfa/cerez') !== FALSE);
+q("INSERT INTO ayarlar (anahtar, deger) VALUES ('ga_id','G-REGTEST') ON DUPLICATE KEY UPDATE deger=VALUES(deger)");
+list($c, $r) = get('guest', '/');
+check('izleyici-kimlik-gecisi', strpos($r, 'tkIzleyici') !== FALSE && strpos($r, 'G-REGTEST') !== FALSE);
+q("UPDATE ayarlar SET deger='' WHERE anahtar='ga_id'");
+list($c, $r) = get('guest', '/');
+check('izleyici-bosken-gizli', strpos($r, 'tkIzleyici') === FALSE);
+list($c, $r) = get('guest', '/assets/magaza/js/teksil.js');
+check('cerez-js-mantik', $c === 200 && strpos($r, 'cerezOnay') !== FALSE && strpos($r, 'googletagmanager') !== FALSE);
 list($c, $r) = get('guest', '/katalog');     check('katalog-200', $c === 200);
 check('katalog-urun-karti', strpos($r, 'urun/') !== FALSE);
 list($c, ) = get('guest', '/katalog?sira=fiyat_asc'); check('katalog-fiyat-siralama-200', $c === 200);
@@ -390,7 +401,7 @@ $sessOnce = $SES['admin']['teksil_sess'] ?? '';
 list($c, ) = post('admin', '/yonetim/giris/giris_yap', array('email' => 'admin@teksilsite.test', 'sifre' => 'Tekstil2026!'));
 check('admin-giris-redirect', is_redir($c));
 check('admin-giris-oturum-doner', ($SES['admin']['teksil_sess'] ?? '') !== $sessOnce);
-foreach (array('dashboard','urunler','kategoriler','markalar','siparisler','bayiler','stok',
+foreach (array('dashboard','urunler','kategoriler','markalar','siparisler','bayiler','kullanicilar','stok',
                'kuponlar','bannerlar','sayfalar','faturalar','raporlar','ebulten','feed','ayarlar','yetkiler','pazaryeri') as $m) {
     list($c, ) = get('admin', "/yonetim/$m");
     check("admin-$m-200", $c === 200);
@@ -833,6 +844,18 @@ list($c, $r) = get('admin', '/yonetim/raporlar/index/gunluk');
 check('admin-rapor-gunluk-200', $c === 200);
 list($c, $r) = get('admin', '/yonetim/raporlar/index/kupon');
 check('admin-rapor-kupon-kod', $c === 200 && strpos($r, "REGKUP2$T") !== FALSE);
+// LVII: Kullanıcılar (B2C) yönetimi — listede test kullanıcısı; durum + şifre sıfırlama
+list($c, $r) = get('admin', '/yonetim/kullanicilar');
+check('admin-kullanicilar-liste', $c === 200 && strpos($r, $EK) !== FALSE);
+$_kid = (int) q1("SELECT id FROM kullanicilar WHERE email='" . esc($EK) . "'");
+list($c, ) = post('admin', "/yonetim/kullanicilar/durum_guncelle/$_kid", array('durum' => '0'));
+check('admin-kullanicilar-pasif', is_redir($c) && (int) q1("SELECT durum FROM kullanicilar WHERE id=$_kid") === 0);
+list($c, ) = post('admin', "/yonetim/kullanicilar/sifre_sifirla/$_kid", array());
+check('admin-kullanicilar-sifre-sifirla', is_redir($c));
+// Bayi şifre sıfırlama — hash değişmeli (yeni şifre flash'ta bir kez gösterilir)
+$_bayiHashOnce = (string) q1("SELECT sifre FROM bayiler WHERE id=$bayiId");
+list($c, ) = post('admin', "/yonetim/bayiler/sifre_sifirla/$bayiId", array());
+check('admin-bayi-sifre-sifirla', is_redir($c) && q1("SELECT sifre FROM bayiler WHERE id=$bayiId") !== $_bayiHashOnce);
 // Bannerlar (gorsel_url ile; dil zorunlu)
 list($c, ) = post('admin', '/yonetim/bannerlar/kaydet', array('baslik' => "REG Banner $T", 'alt_baslik' => '', 'buton_yazi' => '', 'link' => '', 'gorsel_url' => 'https://example.com/x.jpg', 'yazi_konum' => 'sol', 'dil' => 'tr', 'sira' => '999', 'durum' => '1'));
 check('admin-banner-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM bannerlar WHERE baslik='REG Banner $T'") === 1);

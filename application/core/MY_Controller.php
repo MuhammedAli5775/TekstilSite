@@ -212,6 +212,7 @@ class Admin_Controller extends MY_Controller
             array('key' => 'markalar',    'baslik' => 'Markalar',    'url' => site_url('yonetim/markalar'),    'ikon' => '◇'),
             array('key' => 'stok',        'baslik' => 'Stok',        'url' => site_url('yonetim/stok'),        'ikon' => '◫'),
             array('key' => 'bayiler',     'baslik' => 'Bayiler',     'url' => site_url('yonetim/bayiler'),     'ikon' => '◐'),
+            array('key' => 'kullanicilar', 'baslik' => 'Kullanıcılar (B2C)', 'url' => site_url('yonetim/kullanicilar'), 'ikon' => '◍'),
             array('key' => 'faturalar',   'baslik' => 'Faturalar',   'url' => site_url('yonetim/faturalar'),   'ikon' => '▤'),
             array('key' => 'pazaryeri',   'baslik' => 'Pazaryeri',   'url' => site_url('yonetim/pazaryeri'),   'ikon' => '⇄'),
             array('key' => 'feed',        'baslik' => 'API / Feed',  'url' => site_url('yonetim/feed'),        'ikon' => '⌁'),
@@ -238,6 +239,7 @@ class Admin_Controller extends MY_Controller
                 if ($super)               { $filtre[] = $m; continue; }
                 $modul = ($key === 'para_birimi') ? 'ayarlar' : $key;                     // para_birimi -> ayarlar izni
                 $modul = ($key === 'ebulten') ? 'raporlar' : $modul;                     // LV: e-bülten -> raporlar izni
+                $modul = ($key === 'kullanicilar') ? 'bayiler' : $modul;                 // LVII: B2C kullanıcılar -> bayiler (müşteri yönetimi) izni
                 if ($this->auth_admin->yetki($modul, 'goruntule')) { $filtre[] = $m; }
             }
             $data['menu'] = $filtre;

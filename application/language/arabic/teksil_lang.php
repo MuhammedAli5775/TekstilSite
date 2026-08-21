@@ -60,6 +60,10 @@ $lang = array(
     'flash_ebulten_ok'     => 'شكراً لاشتراكك!',
     'flash_ebulten_zaten'  => 'هذا البريد مشترك بالفعل.',
     'flash_ebulten_gecersiz' => 'أدخل بريداً إلكترونياً صحيحاً.',
+    // ---- cookie consent (LVII) ----
+    'cerez_bant_metin'    => 'نستخدم ملفات تعريف الارتباط لتحسين تجربتك؛ وملفات التحليل تعمل فقط بموافقتك.',
+    'cerez_kabul'         => 'أوافق',
+    'cerez_reddet'        => 'الضرورية فقط',
 
     // ---- anasayfa (XXX) ----
     'anasayfa_kat_ust'    => 'ملابس علوية',

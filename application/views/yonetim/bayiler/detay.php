@@ -30,6 +30,10 @@ $durum_rozet = array('0' => 'rozet-turuncu', '1' => 'rozet-yesil', '2' => 'rozet
                 </div>
                 <button class="btn btn-secondary btn-sm">Grubu Güncelle</button>
             </form>
+            <form action="<?= site_url('yonetim/bayiler/sifre_sifirla/' . $b->id) ?>" method="post" style="margin-top:14px" onsubmit="return confirm('Yeni rastgele şifre üretilsin mi? (Bayiye iletilmelidir)')">
+                <?= csrf_field() ?>
+                <button class="btn btn-secondary btn-sm" style="color:var(--danger)">Şifreyi Sıfırla</button>
+            </form>
         </div>
 
         <div class="adm-card" style="margin-top:16px">
