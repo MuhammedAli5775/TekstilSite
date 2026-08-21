@@ -219,6 +219,9 @@ check('sepet-ekle-csrf-403-html', $c403 === 403 && strpos($t403, 'text/html') !=
 list($c, $r) = get('guest', '/');
 preg_match('/^Set-Cookie:\s*teksil_csrf_cookie=[^\r\n]*/mi', $r, $cm);
 check('csrf-cerez-samesite-lax', ! empty($cm) && stripos($cm[0], 'SameSite=Lax') !== FALSE && stripos($cm[0], 'SameSite=Strict') === FALSE);
+// L: periyodik oturum-ID döndürmesi KAPALI kalmalı — açılırsa oturum-anahtarlı
+// (bayi_id'siz) misafir/B2C sepetleri 5 dk sonra yetim kalır ("sepet boş").
+check('oturum-periyodik-donme-kapali', strpos(file_get_contents('application/config/config.php'), "sess_time_to_update'] = 0") !== FALSE);
 list($c, $r) = get('bayi', '/sepet'); check('sepet-200-urun', $c === 200 && strpos($r, 'prem') !== FALSE); // "Süprem" — ASCII güvenli parça
 
 // XLV+XLVI: sepet adet güncelleme ızgaraya FLOOR ile oturur (yukarı zıplama YOK —
@@ -297,7 +300,7 @@ list($c, $r) = post('guest', '/odeme/tamamla', array(
     'email' => "misafir$T@test.local", 'fatura_ayni' => '1', 'odeme_yontemi' => 'havale',
     'kargo_firma_id' => 1, 'sozlesme' => '1',
 ));
-check('misafir-odeme-tamamla-yonlendirme', is_redir($c) && strpos($r, 'kullanici/giris') !== FALSE);
+check('misafir-odeme-tamamla-yonlendirme', is_redir($c) && strpos($r, 'kullanici/giris') !== FALSE && strpos($r, 'donus=odeme') !== FALSE && strpos($r, '%2Ftamamla') === FALSE);   // L: tamamla → form hedefine iner
 check('misafir-siparis-olusmadi', (int) q1('SELECT COUNT(*) FROM siparisler') === $mOnce);
 list($c, $r) = get('guest', '/kullanici/giris');
 check('misafir-odeme-flash-mesaj', $c === 200 && strpos($r, 'giriş yapmalısınız') !== FALSE);

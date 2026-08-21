@@ -107,7 +107,12 @@ $config['sess_cookie_name'] = 'teksil_sess';
 $config['sess_expiration'] = 7200;
 $config['sess_save_path'] = 'C:/xampp/tmp';
 $config['sess_match_ip'] = FALSE;
-$config['sess_time_to_update'] = 300;
+/* L: periyodik oturum-ID döndürmesi KAPALI. CI3 5 dakikada bir session_id
+   yeniler (veri korunur, çerez değişir) — oturum-anahtarlı (bayi_id'siz) misafir
+   ve B2C sepetleri eski anahtarda yetim kalıp "sepet boş" görünüyordu (ödeme
+   formunu 5+ dk doldurup gönderince). Fixation savunması etkilenmiyor: giriş/
+   yetki değişiminde sess_regenerate AÇIK çağrılıyor (sepet devriyle birlikte). */
+$config['sess_time_to_update'] = 0;
 $config['sess_regenerate_destroy'] = FALSE;
 
 /*

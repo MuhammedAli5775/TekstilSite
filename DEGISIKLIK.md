@@ -19,6 +19,42 @@
 
 ---
 
+## 2026-08-21 (L) — Misafir/B2C sepetini boşaltan oturum-ID döndürmesi kapatıldı — 267/267 PASS
+
+**Kullanıcı isteği:** ödeme formunu doldurmak 5+ dakika süren misafir/B2C
+kullanıcının sepeti "boş" görünüp sepet sayfasına atılıyordu (validasyon
+kuralı XLIX ile çakışıyor sanılıyordu — asıl neden zamanlamaydı).
+
+**Kök neden:** CI3 çekirdeği (`Session.php`) `sess_time_to_update=300` ile her
+5 dakikada bir oturum-ID'sini sessizce döndürüyor — veri korunur ama yeni bir
+çerez-ID gelir. Bayi sepeti `bayi_id` ile bağlı olduğu için etkilenmiyor;
+**misafir ve B2C kullanıcının sepeti `oturum_id` (çerez anahtarı) ile bağlı**
+→ 5 dakikadan uzun süren her arada satırlar eski anahtarda yetim kalıyor →
+"sepet boş". Regresyon bayi hesabıyla ve hızlı akışlarla koştuğu için
+yakalanamıyordu.
+
+**Yapılan (kod tarafı):**
+- **`application/config/config.php`:** `sess_time_to_update = 0` (periyodik
+  döndürme KAPALI; nedeni satır üstünde açıklamalı). Fixation savunması
+  etkilenmiyor: giriş/yetki değişiminde `sess_regenerate` açıkça çağrılıyor
+  (sepet devriyle birlikte).
+- **`application/controllers/Odeme.php` (`_giris_zorunlu`):** POST-only eyleme
+  (`odeme/tamamla`) denk gelen misafir, giriş sonrası boş-POST `tamamla`'ya
+  değil doğrudan ödeme formuna insin — `donus` hedefi `odeme/tamamla` →
+  `odeme` olarak iniyor (`_guvenli_donus` zaten kabul ediyor).
+
+**DB değişikliği:** yok.
+
+**Doğrulama:** tam regresyon **267/267 PASS** (+1:
+`oturum-periyodik-donme-kapali` — config güvencesi, açılırsa yakalar;
+`misafir-odeme-tamamla-yonlendirme` güçlendirildi: `donus=odeme` GELİR ve
+`%2Ftamamla` ARTIK GELMEZ). `php -l` temiz; mojibake temiz.
+
+**[!] Canlıya taşı:** `application/config/config.php`,
+`application/controllers/Odeme.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-20 (XLIX) — Ödeme formu validasyon kuralları + yönetim paneli logosu — 266/266 PASS
 
 **Kullanıcı isteği:** "ödeme sayfasındaki forma validasyon kuralları ekle" +

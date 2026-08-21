@@ -20,8 +20,12 @@ class Odeme extends Magaza_Controller
     private function _giris_zorunlu()
     {
         if (! $this->bayi() && ! $this->kullanici()) {
+            // L: POST-only eyleme (tamamla) denk gelen misafir, giriş sonrası
+            // boş-POST tamamla'ya değil doğrudan ödeme formuna düşsün.
+            $uri  = ltrim($this->uri->uri_string(), '/');
+            $uri  = ($uri === 'odeme/tamamla') ? 'odeme' : $uri;
             $this->session->set_flashdata('hata', t('flash_odeme_giris_gerekli', 'Sipariş vermek için giriş yapmalısınız.'));
-            redirect('kullanici/giris?donus=' . urlencode(ltrim($this->uri->uri_string(), '/')));
+            redirect('kullanici/giris?donus=' . urlencode($uri));
         }
     }
 
