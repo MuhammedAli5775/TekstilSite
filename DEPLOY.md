@@ -238,7 +238,9 @@ yaşadığını gösterir). Bildirim e-postası: işletme adresi.
 - [ ] Hukuki sayfalar (Mesafeli Satış / İade / KVKK / Çerez) gözden geçirilmiş:
       `sql/seed_hukuki_sayfalar.sql` TASLAKTIR — [YER TUTUCU] kalmadığından ve
       [POLİTİKA:...] maddelerinin işletme kararıyla doldurulduğundan emin ol
-- [ ] `https://alanadin.com/system/...` ve `/application/...` → 403
+- [ ] `https://alanadin.com/system/...`, `/application/...`, `/sql/...`,
+      `/tests/...`, `/scripts/...`, `/.git/config`, `/CLAUDE.md`, `/DEPLOY.md`
+      → HEPSİ 403 (kök .htaccess engeli — LVIII genişletmesi)
 - [ ] `https://alanadin.com/uploads/` → dizin listesi kapalı (403/boş)
 
 ## 9. Rollback

@@ -19,6 +19,53 @@
 
 ---
 
+## 2026-08-21 (LVIII) — Güvenlik/bug denetimi: .git + scripts + belgeler web'e kapandı — 304/304 PASS (değişiklik .htaccess)
+
+**Kullanıcı isteği:** "son kez kontrol et, bu sefer eksiklik yerine bug ve
+güvenlik açıklarını ara."
+
+**Denetim kapsamı (tümü kodda tarandı/çağrıyla sınandı):** SQL enjeksiyonu
+(ham `query()` interpolasyonu YOK — hepsi Query Builder/bağlı parametre;
+Feed anahtarları SHA-256 hash üzerinden), XSS (mağaza görünümleri `e()` ile
+kaçışlanmış; `/arama?q=<script>` yansıması YOK; CMS HTML bilinçli-güvenilir),
+CSRF (genel açık, muaf yalnız hash-doğrulamalı `paytr/bildirim`; muafiyetsiz
+POST → 403 çağrıyla kanıt), yetkilendirme (yetkisiz admin → 307; sepet
+`_sahip_where` + hesabım sipariş sahiplik kapsamlı — IDOR yok; PayTR sonuç
+sayfaları sahiplikli), upload (banner: uzantı whitelist + getimagesize içerik
+denetimi + 4MB + rastgele ad + uploads/.htaccess PHP-guard + silmede realpath
+geçiş koruması), oturum (production override: `sess_save_path=application/
+sessions`, çerezler Secure+HttpOnly; SameSite=Lax), yarış koşulları (stok
+atomik `WHERE stok>=adet`, kupon limiti atomik artış, e-bülten ODKU), rate
+limit (Feed: IP bazlı yanlış-deneme kilidi), tehlikeli fonksiyonlar (eval/
+exec YOK), açık yönlendirme (`donus` + referer guard'ları), parolalar (bcrypt).
+
+**Bulunan ve kapatılan açıklar (hepsi Apache/prod tarafında — php -S dev'i
+etiklemez, router.php zaten .php dosyalarını servis etmiyor):**
+1. **`.git/` dizini web'e açıktı** — kök `.htaccess` engelliyordu ama `.git`
+   listede yoktu: Apache'de `/.git/config` → tüm kaynak kod + geçmiş sızar
+   (klasik açığa kapak).
+2. **`scripts/` dizini web'e açıktı** — `scripts/ikon_uret.php` gerçek dosya
+   olduğundan Apache onu ÇALIŞTIRIRDI (istek-başına GD üretimi = ucuz DoS).
+3. **Kök belge dosyaları plain-text servis ediliyordu** — `CLAUDE.md` dev DB
+   parolası içerir; `*.md|sql|log|lock` artık `FilesMatch` ile 403.
+
+**Bilinen-iyileştirme (şimdi düzeltilmedi, kayda alındı):** giriş brute-force
+kilidi oturum-bazlı (`kullanici_kilit`) — çerez silen saldırganı atlar;
+Feed'deki IP-bazlı yanlış-deneme sayacı deseni giriş uçlarına da taşınmalı
+(Faz A öncesi aday; hesap kilitlemesi DoS riski taşımamalı).
+
+**DB değişikliği:** yok. **Kod değişikliği:** yok (yalnız `.htaccess` +
+`DEPLOY.md` §8 doğrulama maddesi genişletildi).
+
+**Doğrulama:** .htaccess php -S altında okunmaz (davranış değişmez) — tam
+regresyon **304/304 PASS** değişmezliği teyit etti; asıl kanıt canlı Apache'de
+§8 checklist'inin genişletilmiş 403 probe'ları (`.git/config`, `/scripts/...`,
+`/CLAUDE.md`).
+
+**[!] Canlıya taşı:** `.htaccess`, `DEPLOY.md`.
+
+---
+
 ## 2026-08-21 (LVII) — Şifre kurtarma (bayi+B2C yönetim) + çerez onay bandı + onaylı GA/FB piksel — 304/304 PASS
 
 **Kullanıcı isteği:** üçüncü kontrol taramasının üç bulgusu ("onay veriyorum").
