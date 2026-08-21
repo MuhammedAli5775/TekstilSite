@@ -19,6 +19,52 @@
 
 ---
 
+## 2026-08-21 (LVI) — Kupon atıflaması entegrasyonu + Günlük Trend/Kupon raporları + markalı 404 — 295/295 PASS
+
+**Kullanıcı isteği:** ikinci eksik analizi sonucu kalan iki madde ("tamam").
+
+**Yapılan (kod tarafı):**
+- **`kupon-rapor-wip` (15a490a) main'e cherry-pick** (0ec6b94 — çakışmasız; dal
+  XXXVII tabanlıydı ama dokunduğu dosyalar main'de değişmemişti):
+  - `Siparis_model`: indirim > 0 ise kupon kodu **`siparisler.kupon_kod`'a
+    kalıcı yazılır** (atıflama — kupon ROI'si artık görünür; sipariş sonrası
+    oturum kuponu temizlenmeye devam eder).
+  - `Raporlar` + `Rapor_model`: 2 yeni rapor — **Günlük Trend** (gün bazında
+    sipariş/adet/ciro) + **Kupon Kullanımı** (kod bazında sipariş/indirim/ciro,
+    iptal/iade hariç; ciroya göre sıralı).
+  - `sql/migrate_kupon_kod.sql` (idempotent ALTER — mevcut DB'ler için) +
+    `sql/schema.sql`'e kolon (taze §3 kurulumu otomatik kapsar). Dev DB'de
+    kolon zaten vardı; canlıya migrate uygulanacak.
+- **Regresyon:** kuponlu uçtan uca akış — kupon oluştur (DB) → sepete ekle →
+  `odeme/kupon_uygula` → `tamamla` → **kupon_kod + indirim DB'de doğrulanır** →
+  oturum temizliği + sepet boşalır; admin raporları (`gunluk` 200, `kupon`
+  kodu listeler); temizliğe kuponlu siparişin satır/hareketleri eklendi.
+- **Markalı 404** (`errors/html/error_404.php`): stok CI görünümü yerine —
+  teal zemin + amblem renkleri + "Nesem Tesettür" yazı markası; **4 dil**
+  (Accept-Language'den tr/en/ru/ar, Arapça RTL), anasayfa butonu alt-dizin
+  kurulumunda da doğru köke gider (footer tkBase deseni). DB/oturum/harici
+  CSS'ye bağımsız — hata anında da açılır. Marka adı bilinçli hardcode
+  (favicon.svg ile aynı durum).
+
+**DB değişikliği:** `siparisler.kupon_kod VARCHAR(40) NULL` (dev'de mevcut;
+taze kurulumda schema.sql, mevcut canlı DB'ye `sql/migrate_kupon_kod.sql`).
+
+**Doğrulama:** tam regresyon **295/295 PASS** (285→295). Canlı: 404 TR
+(curl varsayılanı) + EN (Accept-Language başlığıyla) doğru; kupon raporu
+REGKUP2 kodunu listeler. `php -l` temiz; mojibake temiz. Bir tur daha
+bayat-sunucu tuzağı yaşandı (PID 10892 — atıflama/rapor testleri doğru
+sunucuyla geçti; temizlik FAIL'i kuponlu siparişin temizlik listesine
+eklenmesiyle çözüldü).
+
+**[!] Canlıya taşı:** `application/models/Siparis_model.php`,
+`application/controllers/yonetim/Raporlar.php`,
+`application/models/Rapor_model.php`,
+`application/views/yonetim/raporlar/index.php`, `sql/schema.sql`,
+`sql/migrate_kupon_kod.sql` (canlı DB'ye uygula),
+`application/views/errors/html/error_404.php`, `tests/regresyon.php`.
+
+---
+
 ## 2026-08-21 (LV) — E-bülten aboneliği: footer formu + kayıt akışı + yönetim listesi/CSV — 285/285 PASS
 
 **Kullanıcı isteği:** eksik analizi 5 numaralı (son) madde ("o sıralamayla

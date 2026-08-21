@@ -111,6 +111,9 @@ check('anasayfa-marka-nesem', strpos($r, 'Nesem Tesettür') !== FALSE && strpos(
 // LII: favicon seti + sosyal paylaşım kartı (OG/Twitter) — link önizlemesi görselli çıksın
 check('anasayfa-favicon', strpos($r, 'favicon.svg') !== FALSE && strpos($r, 'apple-touch-icon') !== FALSE);
 check('anasayfa-og-meta', strpos($r, 'property="og:image"') !== FALSE && strpos($r, 'og-default.png') !== FALSE && strpos($r, 'name="twitter:card"') !== FALSE && strpos($r, 'og:locale" content="tr_TR"') !== FALSE);
+// LVI: markalı 404 — durum 404 + marka + TR mesaj (curl Accept-Language göndermez → tr)
+list($c, $r) = get('guest', '/boyle-bir-sayfa-yok-' . $T);
+check('sayfa-404-markali', $c === 404 && strpos($r, 'Nesem') !== FALSE && strpos($r, 'Anasayfaya') !== FALSE && strpos($r, 'robots') !== FALSE);
 list($c, $r) = get('guest', '/katalog');     check('katalog-200', $c === 200);
 check('katalog-urun-karti', strpos($r, 'urun/') !== FALSE);
 list($c, ) = get('guest', '/katalog?sira=fiyat_asc'); check('katalog-fiyat-siralama-200', $c === 200);
@@ -362,6 +365,25 @@ check('paytr-callback-tutar-red', $r1 === 'tutar uyusmazligi' && q1("SELECT odem
 $r2 = paytr_cb($BASE . '/paytr/bildirim', $no, 'success', $kurus, 'TKEY123', 'TSALT123');
 check('paytr-callback-gecerli-ok', $r2 === 'OK');
 check('paytr-callback-odendi-db', q1("SELECT odeme_durumu FROM siparisler WHERE id=$siparisId") === 'odendi');
+
+// LVI: kupon atıflaması (XXXVIII entegrasyonu) — kuponlu sipariş kupon_kod'u kalıcı taşır,
+// indirim > 0 yazılır, sipariş sonrası kupon oturumu temizlenir (sonraki sipariş etkilenmez).
+q("INSERT INTO kuponlar (kod, tip, deger, min_sepet_tutar, max_indirim, kullanim_limiti, baslangic_zaman, bitis_zaman, aciklama, durum) VALUES ('REGKUP2$T', 'yuzde', 10, 0, 0, 0, NULL, NULL, 'regresyon', 1)");
+list($c, $r) = post('bayi', '/sepet/ekle', array('urun_id' => 1, 'varyant_id' => 1, 'adet' => 6));
+check('kuponlu-siparis-sepet-ekle', $c === 200 && strpos($r, '"ok":true') !== FALSE);
+list($c, $r) = post('bayi', '/odeme/kupon_uygula', array('kod' => "REGKUP2$T"));
+check('kupon-uygulama-redirect', is_redir($c));
+list($c, $r) = post('bayi', '/odeme/tamamla', array(
+    'teslimat_ad' => 'Regresyon Kupon', 'teslimat_adres' => 'Test mahalle cadde no 4',
+    'teslimat_il' => 'Istanbul', 'teslimat_ilce' => 'Merkez', 'teslimat_telefon' => '5551112299',
+    'email' => $E, 'fatura_ayni' => '1', 'odeme_yontemi' => 'havale', 'kargo_firma_id' => 1,
+    'sozlesme' => '1',
+));
+check('kuponlu-tamamla-redirect', is_redir($c));
+$kupSiparisId = (int) q1("SELECT id FROM siparisler WHERE email='" . esc($E) . "' ORDER BY id DESC LIMIT 1");
+check('kupon-atiflama-db', $kupSiparisId > $siparisId && q1("SELECT kupon_kod FROM siparisler WHERE id=$kupSiparisId") === "REGKUP2$T");
+check('kuponlu-indirim-db', (float) q1("SELECT indirim FROM siparisler WHERE id=$kupSiparisId") > 0);
+check('kupon-oturum-temizlendi', (int) q1("SELECT COUNT(*) FROM sepet WHERE bayi_id=$bayiId") === 0);
 
 /* ---- C) admin smoke + sipariş/fatura -------------------------------------- */
 $sessOnce = $SES['admin']['teksil_sess'] ?? '';
@@ -805,6 +827,12 @@ check('admin-kupon-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM kuponla
 $_ki = (int) q1("SELECT id FROM kuponlar WHERE kod='REGKUP$T' LIMIT 1");
 list($c, ) = get('admin', "/yonetim/kuponlar/sil/$_ki");
 check('admin-kupon-sil', is_redir($c) && (int) q1("SELECT COUNT(*) FROM kuponlar WHERE id=$_ki") === 0);
+// LVI: Günlük Trend + Kupon Kullanımı raporları (XXXVIII entegrasyonu) — kupon raporu
+// REGKUP2 siparişini göstermeli (atıflama zinciri uçtan uca).
+list($c, $r) = get('admin', '/yonetim/raporlar/index/gunluk');
+check('admin-rapor-gunluk-200', $c === 200);
+list($c, $r) = get('admin', '/yonetim/raporlar/index/kupon');
+check('admin-rapor-kupon-kod', $c === 200 && strpos($r, "REGKUP2$T") !== FALSE);
 // Bannerlar (gorsel_url ile; dil zorunlu)
 list($c, ) = post('admin', '/yonetim/bannerlar/kaydet', array('baslik' => "REG Banner $T", 'alt_baslik' => '', 'buton_yazi' => '', 'link' => '', 'gorsel_url' => 'https://example.com/x.jpg', 'yazi_konum' => 'sol', 'dil' => 'tr', 'sira' => '999', 'durum' => '1'));
 check('admin-banner-ekle', is_redir($c) && (int) q1("SELECT COUNT(*) FROM bannerlar WHERE baslik='REG Banner $T'") === 1);
@@ -928,6 +956,9 @@ q("DELETE FROM siparisler WHERE id=$siparisId");
 q("DELETE FROM faturalar WHERE siparis_id=" . (int) ($kSiparisId ?? 0));
 q("DELETE FROM siparis_detaylari WHERE siparis_id=" . (int) ($kSiparisId ?? 0));
 q("DELETE FROM siparisler WHERE id=" . (int) ($kSiparisId ?? 0));
+q("DELETE FROM faturalar WHERE siparis_id=" . (int) ($kupSiparisId ?? 0));   // LVI: kuponlu sipariş
+q("DELETE FROM siparis_detaylari WHERE siparis_id=" . (int) ($kupSiparisId ?? 0));
+q("DELETE FROM siparisler WHERE id=" . (int) ($kupSiparisId ?? 0));
 q("DELETE FROM sepet WHERE bayi_id=$bayiId");
 q("DELETE FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?? '') . "'");
 q("UPDATE ayarlar SET deger='' WHERE anahtar IN ('paytr_merchant_key','paytr_merchant_salt','paytr_merchant_id')"); // callback provası anahtarlarını geri al
@@ -944,7 +975,7 @@ q("DELETE FROM xml_kaynaklari WHERE ad='Regresyon XML'");   // xml_loglari CASCA
 q("DELETE FROM ebulten_aboneler WHERE eposta LIKE 'bulten%@test.local'");   // LV: e-bülten test aboneleri (geçersiz e-posta hiç yazılmaz)
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
-    q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ")");
+    q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ", " . (int) ($kupSiparisId ?? 0) . ")");
 }
 $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc($E) . "')
                  + (SELECT COUNT(*) FROM bayiler WHERE email='" . esc($E) . "')
