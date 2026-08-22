@@ -15,8 +15,9 @@
 > paneli) + çerez onay bandı + onaylı GA/FB piksel, LVIII Apache yüzey kapatma
 > (.git/scripts/belgeler 403), LIX giriş brute-force IP kilidi + şifremi-unuttum
 > self-service (token akışı SMTP'siz çalışır; e-posta SMTP gelince canlanır),
-> LX altıncı tur tam doğrulama + hesap-başına tek-aktif-token sertleştirmesi.
-> Regresyon **322/322 PASS**
+> LX altıncı tur tam doğrulama + hesap-başına tek-aktif-token sertleştirmesi,
+> LXI yönetim paneli derin view taraması (menü+rapor+imza+filtre, +47 test).
+> Regresyon **369/369 PASS**
 > (dev) + sıfır-DB kurulum provası (LIX, §3 22 dosya;
 > `ebulten_aboneler` + `siparisler.kupon_kod` + `giris_denemeleri` +
 > `sifre_sifirlama` şemaya girdi, provayla kanıtlandı; LX şema değiştirmedi).

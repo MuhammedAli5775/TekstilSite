@@ -864,7 +864,8 @@ foreach ($yeni as $l) { echo "  LOG: $l\n"; }
 $_gid = function($t){ return (int) q1("SELECT id FROM $t ORDER BY id ASC LIMIT 1"); };
 $_aGet = function($ad, $url){
     list($c, $r) = get('admin', $url);
-    check("admin-get-$ad", $c === 200 && ! preg_match('/(Fatal error|A PHP Error|Severity: error|Parse error|Call to a member function on)/i', $r));
+    // LXI: fatal + notice/warning/deprecated izleri — panel sayfası bunları basmamalı
+    check("admin-get-$ad", $c === 200 && ! preg_match('/(Fatal error|Parse error|A PHP Error was encountered|Severity: (error|warning|notice)|Call to a member function on|Undefined (property|array key|variable|index)|Deprecated:|Warning:|Notice:)/i', $r));
 };
 // GET taraması — her admin rotası yüklenmeli, fatal/PHP hatası olmamalı.
 $_aGet('dashboard', '/yonetim/dashboard');
@@ -1039,6 +1040,49 @@ q("DELETE FROM para_birimleri WHERE kod IN ('TST','UZU','UZUNKOD')");
 q("DELETE FROM siparis_durum_gecmisi WHERE notu='reg'");   // admin durum_guncelle test satırları
 q("UPDATE yetkiler SET goruntule=1 WHERE rol_id=2 AND modul='stok'");   // Yetkiler test çökerse rol-2 stok geri açılsın (seed=1)
 unset($_gid, $_aGet, $_i, $_mi, $_si, $_ki, $_bi, $_yi, $_usdKurOnce, $_fi, $_sv, $_svStok);
+
+/* ---- LXI) admin panel DERİN taraması: menü 21 hedef + rapor 8 sekme + imza + filtreler ---- */
+// G bölümü rotaları tek tek sayıyordu; burada panelin GERÇEK haritası (MY_Controller
+// render() menüsü + Raporlar::RAPORLAR sabiti) döngüyle taranır: 200 + adm-shell
+// (layout render) + </html> (tam sayfa) + imza (anlamlı içerik) + hata izi yok.
+$_LXIhata = '/(Fatal error|Parse error|A PHP Error was encountered|Severity: (error|warning|notice)|Call to a member function on|Undefined (property|array key|variable|index)|Deprecated:|Warning:|Notice:)/i';
+$_derin = function($ad, $yol, $imza = '') use ($_LXIhata) {
+    list($c, $r) = get('admin', $yol);
+    check("lxi-$ad", $c === 200
+        && strpos($r, 'adm-shell') !== FALSE
+        && strpos($r, '</html>') !== FALSE
+        && ($imza === '' || strpos($r, $imza) !== FALSE)
+        && ! preg_match($_LXIhata, $r));
+};
+// 21 menü hedefi (panelin gerçek haritası)
+foreach (array('dashboard','siparisler','urunler','kategoriler','markalar','stok','bayiler','kullanicilar','faturalar','pazaryeri','feed','xml_ice','raporlar','ebulten','bannerlar','yazilar','sayfalar','kuponlar','para_birimi','ayarlar','yetkiler') as $_lm) {
+    $_derin("menu-$_lm", "/yonetim/$_lm");
+}
+// 8 rapor sekmesi (disa-aktar düğmesi = rapor view'u gerçekten render) + 2 varyant
+foreach (array('satis','gunluk','urun','kategori','bayi','bolge','odeme','kupon') as $_lr) {
+    $_derin("rapor-$_lr", "/yonetim/raporlar/index/$_lr", 'adm-rapor-disa');
+}
+$_derin('rapor-bolge-ilce', '/yonetim/raporlar/index/bolge?alan=ilce');
+$_derin('rapor-tarih-aralik', '/yonetim/raporlar/index/satis?bas=2026-08-01&son=2026-08-22');
+// İçerik imzaları: liste sayfaları tablo, kart sayfaları kart, e-bülten grid basıyor
+$_derin('imza-siparisler-tbl', '/yonetim/siparisler', 'adm-tbl');
+$_derin('imza-urunler-tbl', '/yonetim/urunler', 'adm-tbl');
+$_derin('imza-stok-tbl', '/yonetim/stok', 'adm-tbl');
+$_derin('imza-dashboard-kart', '/yonetim/dashboard', 'adm-card');
+$_derin('imza-ayarlar-kart', '/yonetim/ayarlar', 'adm-card');
+$_derin('imza-yetkiler-card', '/yonetim/yetkiler', 'adm-card');
+$_derin('imza-feed-card', '/yonetim/feed', 'adm-card');
+$_derin('imza-ebulten-grid', '/yonetim/ebulten', 'adm-detay-grid');
+// Filtre varyantları (query parametreli URL'ler hiçbir modülde hata vermemeli)
+$_derin('filtre-siparis-durum', '/yonetim/siparisler?durum=2');
+$_derin('filtre-siparis-ara', '/yonetim/siparisler?q=REG');
+$_derin('filtre-urunler-ara', '/yonetim/urunler?q=a&durum=1');
+$_derin('filtre-bayi-ara', '/yonetim/bayiler?q=test&grup=&durum=');
+$_derin('filtre-kullanici-ara', '/yonetim/kullanicilar?q=test&durum=');
+$_derin('filtre-stok-dusuk', '/yonetim/stok?filtre=dusuk');
+$_derin('filtre-xml-durum', '/yonetim/xml_ice?durum=1');
+$_derin('filtre-ebulten-ara', '/yonetim/ebulten?q=test');
+unset($_derin, $_LXIhata, $_lm, $_lr);
 
 /* ---- temizlik ---------------------------------------------------------------- */
 q("DELETE FROM faturalar WHERE siparis_id=$siparisId");

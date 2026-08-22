@@ -19,6 +19,41 @@
 
 ---
 
+## 2026-08-22 (LXI) — Yönetim paneli DERİN view taraması: 47 yeni test — 369/369 PASS
+
+**Kullanıcı isteği:** "yönetim panelindeki bütün viewleri test et. her şeyin
+doğru çalıştığından emin ol."
+
+**Keşif (tek seferlik crawl, 50 URL):** panelin gerçek haritası çıkarıldı —
+MY_Controller `render()` menüsü (21 hedef) + Raporlar::RAPORLAR sabiti
+(8 sekme) + ID'li detay/form sayfaları (13) + query-parametreli filtre
+varyantları (8). Her URL: HTTP 200 + `adm-shell` (layout render edildi) +
+`</html>` (sayfa tamamlandı) + PHP hatası izi yok (fatal + notice/warning/
+deprecated). **50/50 temiz** — hiçbir panel view'u hata basmıyor. Ek doğrulama:
+38 yonetim view'ının tamamı bir kontrolcüden render ediliyor (ölü view 0);
+ebulten/xml-onizleme zaten regresyonda testliymiş (G bölümü sanılandan geniş).
+
+**Kalıcı hale getirildi (+47 test, `lxi-*`):** aynı derin denetim regresyona
+gömdüldü — menü 21 döngüyle (menüye modül eklendiğinde dizi güncellenirse
+otomatik uyum), rapor 8 sekme + bolge?alan=ilce + tarih-aralık varyantı,
+içerik imzaları (liste sayfaları `adm-tbl` tablo, kart sayfaları `adm-card`,
+e-bülten `adm-detay-grid`, raporlar `adm-rapor-disa` basıyor — sayfanın
+anlamlı içerik render ettiğinin kanıtı), filtre varyantları. Ayrıca G
+bölümünün `$_aGet` hata regex'i genişletildi (fatal → +notice/warning/
+deprecated): mevcut ~25 admin GET testi otomatik güçlendi, hiçbiri kırılmadı
+= panelde gizli notice de yok.
+
+**DB değişikliği:** yok. **Kod değişikliği:** yok (yalnız
+`tests/regresyon.php`).
+
+**Doğrulama:** tam regresyon **369/369 PASS** (322 + 47; önceki tüm
+kapsamlar değişmedi). Sunucu OneDrive kopyasından başlatıldı, dev.js log
+başlığı okunarak doğrulandı (LX dersi uygulandı).
+
+**[!] Canlıya taşı:** — (yalnız test dosyası; push yeterli).
+
+---
+
 ## 2026-08-22 (LX) — Altıncı tur: tam doğrulama + LIX token-iptal sertleştirmesi — 322/322 PASS
 
 **Kullanıcı isteği:** "projeyi iyice bir kontrol et, eksik bir şey olmadığına
