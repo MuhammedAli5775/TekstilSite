@@ -49,10 +49,10 @@ raporlar + markalı 404 (LVI), şifre kurtarma panelleri + çerez bandı + onayl
 GA/FB piksel (LVII), Apache yüzey kapatma (LVIII), giriş brute-force IP kilidi
 + şifremi-unuttum self-service (LIX), altıncı tur doğrulaması + token-iptal
 sertleştirmesi (LX), yönetim paneli derin view taraması (LXI), yönetici
-parola değiştirme ekranı (LXII). Regresyon
-**376/376** (dev) + sıfır-DB
-provası (LIX, 2026-08-22, §3 22 dosya — giris_denemeleri +
-sifre_sifirlama provayla kanıtlı; LX/LXI şema değiştirmedi).
+parola değiştirme ekranı (LXII), yönetici 2FA (TOTP+kurtarma kodları) +
+log temizliği + görsel QA (LXIII). Regresyon **390/390** (dev) + sıfır-DB
+provası **390/390** (2026-08-22, §3 22 dosya — giris_denemeleri +
+sifre_sifirlama + totp_secret + yonetici_kurtarma provayla kanıtlı).
 Çoklu dil + blog + SEO önceki fazlarda ✓. Kalan engelleyiciler dev dışı:
 **İş** Faz A kimlikleri (`FAZ_A_REHBERI.md` — SMTP gelince şifremi-unuttum
 e-postası + e-bülten gönderim + terk-sepet hatırlatma devreye alınacak; LIX

@@ -19,6 +19,61 @@
 
 ---
 
+## 2026-08-22 (LXIII) — Yönetici 2FA (TOTP + kurtarma kodları) + log temizliği + görsel QA — 390/390 PASS
+
+**Kullanıcı isteği:** "isteğe bağlı cila" üçlüsü — görsel QA, admin 2FA,
+log temizliği otomasyonu.
+
+**1) Görsel QA (programatik + ekran görüntüleri):** Chrome headless ile 15
+screenshot (mobil 390px + masaüstü; anasayfa/kategori/ürün/sepet/ödeme/
+giriş/unuttum/blog/404/yonetim + ar-RTL çiftleri — tasks_qa/ altında bırakıldı,
+repoya girmez). Oturumda görüntü incelemesi araçsal kesintiye uğradığı için iki
+kanıt hattı kuruldu: (a) CSS denetimi — 4 kırılımlı `@media` (1100/900/760/480),
+overflow-x guard, sabit-genişlik YOK (ilk alarm `max-width` içinden yanlış
+eşleşmeymiş); (b) GD içerik analizi — tüm sayfalar 390px'te gerçek içerikle
+çiziliyor (renk çeşitliliği + satır doluluk; boş/tekrenk render yok). BULGU
+(kayıtlı, bilinçle dokunulmadı): mağaza layout'unda `dir="ltr"` SABİT — ar
+dili çevrili metinle LTR kabukta; CSS'te `[dir]` kuralı olmadığından kör RTL
+çevirisi düzeni bozardı (404 sayfası hariç — o RTL destekli, tek başına).
+
+**2) Yönetici 2FA (TOTP — RFC 6238):** `Totp` kütüphanesi (bağımlılıksız:
+hash_hmac + base32; ±1 dilim saat toleransı). `Auth_admin` ikiye bölündü:
+`dogrula` (kimlik kontrolü — oturum AÇMAZ) + `oturum_ac` (sess_regenerate +
+audit burada) — TOTP'li hesapta parola doğru olsa da `yonetici_id` yazılmaz,
+kod adımı (`totp_bekliyor`) beklenir; ara durumda hesaba erişim yok. Girişte
+5 hatalı kod → bekleyen durum düşer → yeniden parola. Kurtarma kodları (10
+hane hex, SHA-256 hash'li, tek kullanım) kod adımında geçerli — telefon kaybı
+kilitlemez. Kurulum sağ üst **2FA** düğmesi: aday anahtar oturumda tutulur,
+DOĞRU kod doğrulanmadan DB'ye yazılmaz; etkinleşince 5 kurtarma kodu BİR KEZ
+gösterilir; kapatma parola + geçerli kodla; audit (totp_acik/totp_kapali).
++14 test (`lxi-totp-*`, geçici reg2 yöneticisi üzerinden; testteki RFC 6238
+uygulaması KÜTÜPHANEDEN BAĞIMSIZ — kodlar çapraz doğrulanır): guard, form,
+aday anahtar, yanlış kod yazmaz, doğru kod etkinleştirir + kodlar görünür,
+parola tek başına yetmez, yanlış/doğru adım, kurtarma girişi, kurtarma
+tek-kullanım, kapatma, kapatma sonrası direkt giriş.
+
+**3) Log temizliği + bug fix (`scripts/log_kontrol.sh`):** 45+ günlük
+`log-*.php` dosyaları otomatik siliniyor (özet akışından bağımsız — scriptin
+erken `exit`lerinden ÖNCE koşar). AYRICA önceden var olan bug kapatıldı:
+`grep -c … || echo 0`, eşleşme yokken `adet`'i "0\n0" yapıp aritmetiği
+patlatıyordu — bugünün dosyası VAR ve hatasız olduğunda (sağlıklı prod'un
+normali) script ölürdü. Üç senaryo yerelde kanıtlandı: 0 hata → OK, N hata →
+özet + eski silme, dosya yok → OK.
+
+**DB değişikliği:** `yoneticiler.totp_secret VARCHAR(64) NULL` +
+`yonetici_kurtarma` tablosu (kod_hash, tek-kullanım). schema.sql'e eklendi;
+mevcut DB'ler için `sql/migrate_admin_totp.sql` (idempotent) — dev +
+rehearsal'a uygulandı. §3 listesi değişmedi (22 — schema içerir).
+
+**Doğrulama:** tam regresyon **390/390 PASS** (376 + 14). php -l + mojibake
+temiz; regresyon temizliğine yonetici_kurtarma yetim-satır denetimi eklendi.
+
+**[!] Canlıya taşı:** kod (commit) + mevcut canlı DB'ye
+`sql/migrate_admin_totp.sql`. §8'e 2FA maddesi eklendi (ilk girişte açılması
+önerilir).
+
+---
+
 ## 2026-08-22 (LXII) — Yönetici KENDİ parolasını panelden değiştirme + soru-turunda kapanan eksik — 376/376 PASS
 
 **Kullanıcı sorusu:** "bu projede gerçekten yapılacak hiçbir şey kalmadı mı?"

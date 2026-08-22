@@ -18,11 +18,13 @@
 > LX altıncı tur tam doğrulama + hesap-başına tek-aktif-token sertleştirmesi,
 > LXI yönetim paneli derin view taraması (menü+rapor+imza+filtre, +47 test),
 > LXII yönetici parola değiştirme ekranı (§8 "ilk giriş değişim" maddesinin
-> panelden yolu yoktu — kapatıldı, +7 test).
-> Regresyon **376/376 PASS**
-> (dev) + sıfır-DB kurulum provası (LIX, §3 22 dosya;
+> panelden yolu yoktu — kapatıldı, +7 test), LXIII yönetici 2FA
+> (TOTP + kurtarma kodları) + log temizliği otomasyonu + görsel QA (+14 test).
+> Regresyon **390/390 PASS**
+> (dev) + sıfır-DB kurulum provası **390/390** (2026-08-22, §3 22 dosya;
 > `ebulten_aboneler` + `siparisler.kupon_kod` + `giris_denemeleri` +
-> `sifre_sifirlama` şemaya girdi, provayla kanıtlandı; LX şema değiştirmedi).
+> `sifre_sifirlama` + `totp_secret` + `yonetici_kurtarma` şemaya girdi,
+> provayla kanıtlandı).
 > Çoklu dil (XXIX–XXXIV) + blog (XXXV) + SEO (XXXVII) önceki fazlarda ✓. Kalan
 > gap'in tamamı **İş/Ops tarafında**: kimlikler (Faz A — SMTP gelince
 > şifremi-unuttum e-postası, e-bülten gönderim, terk-sepet hatırlatma

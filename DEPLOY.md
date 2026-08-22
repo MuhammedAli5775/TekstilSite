@@ -231,6 +231,9 @@ yaşadığını gösterir). Bildirim e-postası: işletme adresi.
 - [ ] **Admin şifresi İLK GİRİŞTE DEĞİŞTİRİLSİN** — GitHub tarihçesinde eski dev
       şifresi bulunuyor (bkz. DEGISIKLIK.md 2026-08-14 repo hijyeni notu).
       Yol: sağ üst **Parola** düğmesi (LXII) — mevcut şifre + yeni şifre
+- [ ] Yönetim panelinde **2FA (TOTP) AÇILSIN** (önerilir) — sağ üst **2FA**
+      düğmesi (LXIII): kimlik doğrulayıcıyla eşleştir + kurtarma kodlarını
+      güvenli yere kaydet (telefon kaybında giriş tek yolu bunlar)
 - [ ] Bayi kaydı → admin onayı → sepet → (PayTR canlı anahtar girildiyse) küçük tutarlı
       gerçek ödeme + e-posta düşmesi
 - [ ] `application/logs/` içinde `log-YYYY-AA-GG.php` birikmiyor (hata yok)

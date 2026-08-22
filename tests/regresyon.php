@@ -1112,6 +1112,75 @@ list($c, ) = get('guest', '/yonetim/giris/sifre');
 check('lxi-admin-parola-guard', is_redir($c));
 unset($_h);
 
+/* ---- LXIII) yönetici 2FA: TOTP + kurtarma kodları ---- */
+// RFC 6238'in BAĞIMSIZ uygulaması — Totp kütüphanesini farklı yoldan doğrular
+function totp_hesapla($b32, $ofset = 0) {
+    $b32 = strtoupper(preg_replace('/[^A-Za-z2-7]/', '', $b32));
+    $alf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $raw = ''; $tut = 0; $bit = 0;
+    for ($i = 0; $i < strlen($b32); $i++) {
+        $tut = ($tut << 5) | strpos($alf, $b32[$i]); $bit += 5;
+        if ($bit >= 8) { $bit -= 8; $raw .= chr(($tut >> $bit) & 255); }
+    }
+    $h = hash_hmac('sha1', pack('N*', 0, intdiv(time(), 30) + $ofset), $raw, TRUE);
+    $o = ord($h[19]) & 0x0F;
+    $v = ((ord($h[$o]) & 0x7F) << 24) | (ord($h[$o + 1]) << 16) | (ord($h[$o + 2]) << 8) | ord($h[$o + 3]);
+    return str_pad($v % 1000000, 6, '0', STR_PAD_LEFT);
+}
+list($c, ) = get('guest', '/yonetim/giris/totp_kurulum');
+check('lxi-totp-kurulum-guard', is_redir($c));
+post('adminT', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+list($c, $r) = get('adminT', '/yonetim/giris/totp_kurulum');
+check('lxi-totp-kurulum-form', $c === 200 && preg_match('/class="totp-secret">([A-Z2-7 ]+)</', $r, $_ts) === 1);
+$_b32 = preg_replace('/\s+/', '', $_ts[1] ?? '');
+check('lxi-totp-aday-anahtar', strlen($_b32) === 32);
+// yanlış kod → DB'ye hiç yazılmaz
+post('adminT', '/yonetim/giris/totp_kurulum', array('islem' => 'ac', 'kod' => '000000'));
+check('lxi-totp-yanlis-kod', (int) q1("SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local' AND totp_secret IS NOT NULL") === 0);
+// doğru kod → etkinleşir + 5 kurtarma kodu flash'ta bir kez gösterilir
+post('adminT', '/yonetim/giris/totp_kurulum', array('islem' => 'ac', 'kod' => totp_hesapla($_b32)));
+list($c, $r) = get('adminT', '/yonetim/giris/totp_kurulum');
+preg_match_all('/<code>([A-F0-9]{10})<\/code>/', $r, $_kc);
+check('lxi-totp-etkin', (int) q1("SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local' AND totp_secret IS NOT NULL") === 1
+    && (int) q1("SELECT COUNT(*) FROM yonetici_kurtarma k JOIN yoneticiler y ON y.id=k.yonetici_id WHERE y.email='reg2$T@test.local'") === 5);
+check('lxi-totp-kurtarma-gorunur', count($_kc[1]) === 5);
+// çık → parola tek başına yetmez; kod adımı zorunlu
+get('adminT', '/yonetim/giris/cikis');
+post('adminU', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+list($c, ) = get('adminU', '/yonetim/dashboard');
+check('lxi-totp-parola-yetmez', is_redir($c));
+list($c, ) = get('adminU', '/yonetim/giris/totp');
+check('lxi-totp-adim-formu', $c === 200);
+// yanlış kod adımda reddedilir
+post('adminU', '/yonetim/giris/totp', array('kod' => '111111'));
+list($c, ) = get('adminU', '/yonetim/dashboard');
+check('lxi-totp-yanlis-adim', is_redir($c));
+// doğru kod → dashboard açılır
+post('adminU', '/yonetim/giris/totp', array('kod' => totp_hesapla($_b32)));
+list($c, ) = get('adminU', '/yonetim/dashboard');
+check('lxi-totp-dogru-adim', $c === 200);
+// kurtarma kodu kod adımında geçerli — tek kullanım
+get('adminU', '/yonetim/giris/cikis');
+post('adminV', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+post('adminV', '/yonetim/giris/totp', array('kod' => $_kc[1][0]));
+list($c, ) = get('adminV', '/yonetim/dashboard');
+check('lxi-totp-kurtarma-giris', $c === 200);
+// aynı kurtarma kodu ikinci kez GEÇMEZ
+get('adminV', '/yonetim/giris/cikis');
+post('adminW', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+post('adminW', '/yonetim/giris/totp', array('kod' => $_kc[1][0]));
+list($c, ) = get('adminW', '/yonetim/dashboard');
+check('lxi-totp-kurtarma-tek-kullanim', is_redir($c));
+// kapatma: parola + geçerli kod → sonraki giriş direkt geçer
+post('adminW', '/yonetim/giris/totp', array('kod' => totp_hesapla($_b32)));
+post('adminW', '/yonetim/giris/totp_kurulum', array('islem' => 'kapat', 'sifre' => 'Reg2026z', 'kod' => totp_hesapla($_b32)));
+check('lxi-totp-kapali', (int) q1("SELECT COUNT(*) FROM yoneticiler WHERE email='reg2$T@test.local' AND totp_secret IS NOT NULL") === 0);
+get('adminW', '/yonetim/giris/cikis');
+post('adminX', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+list($c, ) = get('adminX', '/yonetim/dashboard');
+check('lxi-totp-kapali-sonrasi-direkt', $c === 200);
+unset($_ts, $_b32, $_kc);
+
 /* ---- temizlik ---------------------------------------------------------------- */
 q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
 q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");
@@ -1127,6 +1196,7 @@ q("DELETE FROM sepet WHERE oturum_id='" . esc($SES['kullanici']['teksil_sess'] ?
 q("UPDATE ayarlar SET deger='' WHERE anahtar IN ('paytr_merchant_key','paytr_merchant_salt','paytr_merchant_id')"); // callback provası anahtarlarını geri al
 q("DELETE FROM bayiler WHERE id=$bayiId");
 q("DELETE FROM yoneticiler WHERE email='reg2$T@test.local'");
+q("DELETE FROM yonetici_kurtarma WHERE yonetici_id NOT IN (SELECT id FROM yoneticiler)");   // LXIII: silinen test yöneticisinin kurtarma kodları
 q("DELETE FROM kullanicilar WHERE email='" . esc($EK) . "'");
 q("DELETE FROM api_anahtarlari WHERE id=$anahtarId");
 q("DELETE FROM feed_denemeler");
@@ -1151,7 +1221,8 @@ $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc(
                  + (SELECT COUNT(*) FROM xml_kaynaklari WHERE ad='Regresyon XML')
                  + (SELECT COUNT(*) FROM urunler WHERE stok_kodu LIKE 'REG-XML-%')
                  + (SELECT COUNT(*) FROM giris_denemeleri)
-                 + (SELECT COUNT(*) FROM sifre_sifirlama)");
+                 + (SELECT COUNT(*) FROM sifre_sifirlama)
+                 + (SELECT COUNT(*) FROM yonetici_kurtarma)");
 check('temizlik-tamam', $kalan === 0);
 check('stok-geri-yuklendi', (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1") === $vStokOnce);
 

@@ -14,12 +14,25 @@ class Auth_admin
         $this->CI =& get_instance();
     }
 
-    /** Giriş denemesi. */
+    /** Giriş denemesi (dogrula + oturum aç — TOTP'siz hesaplar için kısayol). */
     public function giris_yap($email, $sifre)
+    {
+        $res = $this->dogrula($email, $sifre);
+        if (! $res['ok']) { return $res; }
+        $this->oturum_ac($res['yonetici']);
+        return array('ok' => TRUE, 'yonetici' => $res['yonetici']);
+    }
+
+    /**
+     * Kimlik doğrula — oturum AÇMAZ (LXIII).
+     * TOTP'li hesaplarda paroladan sonra kod adımı gelir; yonetici_id yalnız
+     * o adımın sonunda (oturum_ac) yazılır — ara durumda hesaba erişim yok.
+     */
+    public function dogrula($email, $sifre)
     {
         // brute-force kilidi
         $kilit = (int) $this->CI->session->userdata('adm_kilit');
-        if ($kilit && time() < $kilit) {
+        if ($kilit && time() < $kilt) {
             $kalan = max(1, (int) ceil(($kilit - time()) / 60));
             return array('ok' => FALSE, 'mesaj' => 'Çok fazla başarısız deneme. Lütfen ' . $kalan . ' dk sonra tekrar deneyin.');
         }
@@ -37,19 +50,23 @@ class Auth_admin
         if ((int) $y->durum !== 1) {
             return array('ok' => FALSE, 'mesaj' => 'Hesabınız pasif. Yöneticinize başvurun.');
         }
+        return array('ok' => TRUE, 'yonetici' => $y);
+    }
 
+    /** Doğrulanmış yönetici için oturumu aç (dogrula veya TOTP adımı sonrası). */
+    public function oturum_ac($y)
+    {
         $this->CI->session->sess_regenerate(); // oturum sabitleme koruması: yetki değişince ID döner
         $this->CI->session->set_userdata(array('yonetici_id' => (int) $y->id, 'rol_id' => (int) $y->rol_id));
-        $this->CI->session->unset_userdata(array('adm_deneme', 'adm_kilit'));
+        $this->CI->session->unset_userdata(array('adm_deneme', 'adm_kilit', 'totp_bekliyor', 'totp_deneme', 'totp_donus', 'totp_aday'));
         $this->CI->yonetici_model->son_giris($y->id);
         $this->audit('auth', 'giris', '', $y->email . ' giriş yaptı');
-        return array('ok' => TRUE, 'yonetici' => $y);
     }
 
     public function cikis()
     {
         $this->audit('auth', 'cikis');
-        $this->CI->session->unset_userdata(array('yonetici_id', 'rol_id'));
+        $this->CI->session->unset_userdata(array('yonetici_id', 'rol_id', 'totp_bekliyor', 'totp_deneme', 'totp_donus', 'totp_aday'));
         $this->CI->session->sess_regenerate();
     }
 

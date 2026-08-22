@@ -21,11 +21,23 @@ if [ ! -d "$LOG_DIR" ]; then
     exit 1
 fi
 
+# LXIII: 45 gunden eski log dosyalarini temizle (birikim otomasyonu).
+# Ozet akisindan bagimsiz: hata sifir olsa da temizlik kosar (asagidaki
+# erken cikislardan_ONCE calisir).
+ESKI=$(find "$LOG_DIR" -name 'log-*.php' -mtime +45 2>/dev/null | wc -l | tr -d ' ')
+if [ "$ESKI" -gt 0 ]; then
+    find "$LOG_DIR" -name 'log-*.php' -mtime +45 -delete 2>/dev/null
+    echo "$(date '+%F %T') log_kontrol: $ESKI adet 45+ gunluk log dosyasi silindi"
+fi
+
 # Bugunun dosyasi (yoksa: henuz hata loglanmamis = iyi)
+# Not: grep -c essizlesme yokken "0" basar VE exit 1 doner — "|| echo 0"
+# yazmak adet'i "0\n0" yapip aritmetigi patlatiyordu (LXIII bug fix).
 toplam=0
 for f in "$LOG_DIR/log-$BUGUN.php"; do
     [ -f "$f" ] || continue
-    adet=$(grep -c 'ERROR -' "$f" 2>/dev/null || echo 0)
+    adet=$(grep -c 'ERROR -' "$f" 2>/dev/null)
+    [ -n "$adet" ] || adet=0
     toplam=$((toplam + adet))
 done
 

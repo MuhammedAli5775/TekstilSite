@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS yoneticiler (
   ad_soyad      VARCHAR(120) NOT NULL,
   email         VARCHAR(150) NOT NULL,
   sifre         VARCHAR(255) NOT NULL,
+  totp_secret   VARCHAR(64)   NULL,
   durum         TINYINT NOT NULL DEFAULT 1,
   son_giris     DATETIME,
   olusturma     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -496,4 +497,14 @@ CREATE TABLE IF NOT EXISTS sifre_sifirlama (
   PRIMARY KEY (id),
   UNIQUE KEY uq_sifre_token (token),
   KEY idx_sifre_eposta (tip, eposta)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS yonetici_kurtarma (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  yonetici_id INT UNSIGNED NOT NULL,
+  kod_hash    CHAR(64) NOT NULL,
+  kullanildi  TINYINT NOT NULL DEFAULT 0,
+  uretildi    DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_yk (yonetici_id, kullanildi)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
