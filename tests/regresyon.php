@@ -750,8 +750,13 @@ $sToken2 = (string) q1("SELECT token FROM sifre_sifirlama WHERE eposta='" . esc(
 check('sifre-token-2-uretildi', strlen($sToken2) === 64 && $sToken2 !== $sToken);
 // PHP-TZ (php.ini) ile MySQL yerel saati farklı olabilir — uretildi'yi PHP
 // saatiyle yaz (Sifre::unuttum date() kullanır, strtotime da PHP-TZ okur).
-q("UPDATE sifre_sifirlama SET uretildi='" . date('Y-m-d H:i:s', time() - 1860) . "' WHERE token='" . esc($sToken2) . "'");
+// yeni istek onceki AKTIF tokeni iptal eder (hesap-basina tek link - LX)
+post('kullanici', '/sifremi-unuttum/kullanici', array('eposta' => $EK));
+$sToken3 = (string) q1("SELECT token FROM sifre_sifirlama WHERE eposta='" . esc($EK) . "' AND tip='kullanici' AND kullanildi=0 ORDER BY id DESC LIMIT 1");
 list($c, ) = get('kullanici', "/sifre-yenile/kullanici/$sToken2");
+check('sifre-onceki-token-iptal', strlen($sToken3) === 64 && $sToken3 !== $sToken2 && is_redir($c));
+q("UPDATE sifre_sifirlama SET uretildi='" . date('Y-m-d H:i:s', time() - 1860) . "' WHERE token='" . esc($sToken3) . "'");
+list($c, ) = get('kullanici', "/sifre-yenile/kullanici/$sToken3");
 check('sifre-token-sure-dolu', is_redir($c));
 // yeni şifreyle gerçek giriş (uçtan uca)
 post('yenilen', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026z'));

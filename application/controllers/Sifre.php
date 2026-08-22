@@ -37,6 +37,9 @@ class Sifre extends Magaza_Controller
         $hesap = $this->db->select('id')->where('email', $eposta)->limit(1)->get($tablo)->row();
         if ($hesap) {
             $token = bin2hex(random_bytes(32));
+            // Yeni istek önceki tokenları iptal eder: hesap-başına tek aktif link
+            // (spam'le tablo şişmez + eski linkler anında ölür — LX tur bulgusu).
+            $this->db->where(array('tip' => $tip, 'eposta' => $eposta))->delete('sifre_sifirlama');
             $this->db->insert('sifre_sifirlama', array(
                 'tip' => $tip, 'eposta' => $eposta, 'token' => $token,
                 'uretildi' => date('Y-m-d H:i:s'), 'kullanildi' => 0,

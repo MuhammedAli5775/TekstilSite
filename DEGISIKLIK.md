@@ -19,6 +19,48 @@
 
 ---
 
+## 2026-08-22 (LX) — Altıncı tur: tam doğrulama + LIX token-iptal sertleştirmesi — 322/322 PASS
+
+**Kullanıcı isteği:** "projeyi iyice bir kontrol et, eksik bir şey olmadığına
+emin ol."
+
+**Tur kapsamı ve bulguları (temiz çıktı):** iki kopya da git-clean ve
+senkron (9178856); 177 PHP dosya lint temiz; mojibake 0; **dil denetimi**
+(kodda çağrılan tüm `t()` anahtarları ↔ 4 dil dosyası çapraz): tanımsız
+anahtar 0 — yalnız dört bilinçli dinamik önek (`ulke_`, `durum_`, `renk_`,
+`odurum_`), 4 dil kümesi 449=449=449=449; şema ↔ migrate tanımları birebir;
+sitemap/robots sifre sayfalarını içermiyor (noindex + dışarıda); LIX
+kancaları üç uçta doğru yerde (yanlış parolada sayma, başarıda sıfırlama,
+onaysız-hesap yanı saymama — model yorumuyla uyumlu); FAZ_A_REHBERI A1'e
+LIX notu eklendi (şifre akışı SMTP beklemeden çalışır — Faz A'ya ek iş yok).
+Ölü tanım: `syf_blog_yakinda` (zararsız, dokunulmadı).
+
+**Kapatılan boşluk (turun tek kod bulgusu):** `Sifre::unottum` her istekte
+yeni token INSERT ediyordu — önceki aktif linkler yaşamaya devam ederdi ve
+sıfırlama isteği spam'lendiğinde `sifre_sifirlama` tablosu hesap-başına
+sınırsız büyürdü (CSRF cookie herkese açık). Düzeltme: INSERT öncesi aynı
+tip+eposta satırları DELETE → **hesap-başına tek aktif link**; yeni istek
+eskisini anında iptal eder (standart pratik). +1 regresyon testi
+(`sifre-onceki-token-iptal`).
+
+**Operasyonel ders (tekrar):** turun ilk koşusu FAIL verdi — `npm run dev`
+"port dolu" guard'ıyla düştü, 200 yanıtı htdocs kopyasındaki bayat sunucudan
+geldi (htdocs 9178856'daydı: LIX var, LX DELETE yok → tabloda 2 satır).
+`tasks_dev*.log` başlığı OKUNMADAN 200 yanıtı sunucu-doğrulaması saymaz;
+netstat PID + log birlikte bakılmalı.
+
+**DB değişikliği:** yok (yalnız `application/controllers/Sifre.php` +
+`tests/regresyon.php` + `FAZ_A_REHBERI.md`).
+
+**Doğrulama:** tam regresyon **322/322 PASS** (doğru sunucuda; manuel
+curl'le DELETE-INSERT + tek-aktif-token davranışı ayrıca kanıtlandı). Şema
+değişmedi → §3 sıfır-DB provası LIX'ten güncel (321/321; ek test yalnız
+kod/DB-akışı farkı, şema aynı).
+
+**[!] Canlıya taşı:** kod (commit).
+
+---
+
 ## 2026-08-22 (LIX) — Giriş brute-force IP kilidi + şifremi-unuttum self-service — 321/321 PASS
 
 **Bağlam:** LVIII'in bilinen-iyileştirme maddesi (oturum-bazlı giriş kilidi

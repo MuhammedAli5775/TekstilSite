@@ -14,11 +14,12 @@
 > yarısının kupon/trend kısmı ✓), LVII şifre kurtarma (bayi + Kullanıcılar B2C
 > paneli) + çerez onay bandı + onaylı GA/FB piksel, LVIII Apache yüzey kapatma
 > (.git/scripts/belgeler 403), LIX giriş brute-force IP kilidi + şifremi-unuttum
-> self-service (token akışı SMTP'siz çalışır; e-posta SMTP gelince canlanır).
-> Regresyon **321/321 PASS**
-> (dev) + sıfır-DB kurulum provası **321/321** (2026-08-22 — §3 22 dosya;
+> self-service (token akışı SMTP'siz çalışır; e-posta SMTP gelince canlanır),
+> LX altıncı tur tam doğrulama + hesap-başına tek-aktif-token sertleştirmesi.
+> Regresyon **322/322 PASS**
+> (dev) + sıfır-DB kurulum provası (LIX, §3 22 dosya;
 > `ebulten_aboneler` + `siparisler.kupon_kod` + `giris_denemeleri` +
-> `sifre_sifirlama` şemaya girdi, provayla kanıtlandı).
+> `sifre_sifirlama` şemaya girdi, provayla kanıtlandı; LX şema değiştirmedi).
 > Çoklu dil (XXIX–XXXIV) + blog (XXXV) + SEO (XXXVII) önceki fazlarda ✓. Kalan
 > gap'in tamamı **İş/Ops tarafında**: kimlikler (Faz A — SMTP gelince
 > şifremi-unuttum e-postası, e-bülten gönderim, terk-sepet hatırlatma

@@ -16,7 +16,13 @@
 
 ## A1 — E-posta (SMTP)
 
-**Neyi sağlar:** sipariş onayı, sipariş durum bildirimi, bayi kayıt bildirimi.
+**Neyi sağlar:** sipariş onayı, sipariş durum bildirimi, bayi kayıt bildirimi,
+şifre sıfırlama e-postası (LIX).
+
+**Not (LIX):** şifremi-unuttum akışı SMTP beklemeden çalışır — SMTP boşken
+yalnız e-posta adımı atlanır (log'a düşer; token akışı, yeni şifre belirleme
+hepsi çalışır). SMTP dolunca sıfırlama e-postası da otomatik canlanır; Faz A
+tarafından ek yapılacak iş YOKTUR.
 
 **Başvuru/temin (iki yol):**
 1. *Hosting'in SMTP'si* (en basit): canlı hosting kurulumu sonrası kontrol panelinden
