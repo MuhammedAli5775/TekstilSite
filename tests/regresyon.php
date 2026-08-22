@@ -1084,6 +1084,34 @@ $_derin('filtre-xml-durum', '/yonetim/xml_ice?durum=1');
 $_derin('filtre-ebulten-ara', '/yonetim/ebulten?q=test');
 unset($_derin, $_LXIhata, $_lm, $_lr);
 
+/* ---- LXII) yönetici KENDİ parolasını değiştirme (LXII: seed parola canlıda kapanır) ---- */
+// Geçici yönetici reg2 üzerinden — seed admin'e DOKUNMA (sonraki koşular girişine muhtaç).
+post('adminP', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026x'));
+list($c, ) = get('adminP', '/yonetim/dashboard');
+check('lxi-admin-parola-hazirlik-giris', $c === 200);
+list($c, $r) = get('adminP', '/yonetim/giris/sifre');
+check('lxi-admin-parola-form', $c === 200 && strpos($r, 'Parolayı Güncelle') !== FALSE);
+// yanlış mevcut parola → hash değişmez
+list($c, ) = post('adminP', '/yonetim/giris/sifre_kaydet', array('eski' => 'yanlis', 'yeni' => 'Reg2026z', 'yeni2' => 'Reg2026z'));
+$_h = (string) q1("SELECT sifre FROM yoneticiler WHERE email='reg2$T@test.local'");
+check('lxi-admin-parola-yanlis-eski', is_redir($c) && password_verify('Reg2026x', $_h) && ! password_verify('Reg2026z', $_h));
+// doğru mevcut parola → hash döner + audit kaydı
+list($c, ) = post('adminP', '/yonetim/giris/sifre_kaydet', array('eski' => 'Reg2026x', 'yeni' => 'Reg2026z', 'yeni2' => 'Reg2026z'));
+$_h = (string) q1("SELECT sifre FROM yoneticiler WHERE email='reg2$T@test.local'");
+check('lxi-admin-parola-ok', is_redir($c) && password_verify('Reg2026z', $_h) && ! password_verify('Reg2026x', $_h)
+    && (int) q1("SELECT COUNT(*) FROM yonetici_loglari WHERE islem='parola_degistir'") >= 1);
+// eski parola artık giriş yapamaz; yeni parola çalışır
+post('adminQ', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026x'));
+list($c, ) = get('adminQ', '/yonetim/dashboard');
+check('lxi-admin-parola-eski-red', is_redir($c));
+post('adminR', '/yonetim/giris/giris_yap', array('email' => "reg2$T@test.local", 'sifre' => 'Reg2026z'));
+list($c, ) = get('adminR', '/yonetim/dashboard');
+check('lxi-admin-parola-yeni-giris', $c === 200);
+// guards: oturumsuz sifre ekranı login'e düşer (auth bypass yok)
+list($c, ) = get('guest', '/yonetim/giris/sifre');
+check('lxi-admin-parola-guard', is_redir($c));
+unset($_h);
+
 /* ---- temizlik ---------------------------------------------------------------- */
 q("DELETE FROM faturalar WHERE siparis_id=$siparisId");
 q("DELETE FROM siparis_detaylari WHERE siparis_id=$siparisId");

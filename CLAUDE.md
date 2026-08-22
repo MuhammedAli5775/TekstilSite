@@ -48,8 +48,9 @@ döndürme düzeltmesi (L), footer zenginleştirme (LI), favicon+OG/Twitter kart
 raporlar + markalı 404 (LVI), şifre kurtarma panelleri + çerez bandı + onaylı
 GA/FB piksel (LVII), Apache yüzey kapatma (LVIII), giriş brute-force IP kilidi
 + şifremi-unuttum self-service (LIX), altıncı tur doğrulaması + token-iptal
-sertleştirmesi (LX), yönetim paneli derin view taraması (LXI). Regresyon
-**369/369** (dev) + sıfır-DB
+sertleştirmesi (LX), yönetim paneli derin view taraması (LXI), yönetici
+parola değiştirme ekranı (LXII). Regresyon
+**376/376** (dev) + sıfır-DB
 provası (LIX, 2026-08-22, §3 22 dosya — giris_denemeleri +
 sifre_sifirlama provayla kanıtlı; LX/LXI şema değiştirmedi).
 Çoklu dil + blog + SEO önceki fazlarda ✓. Kalan engelleyiciler dev dışı:

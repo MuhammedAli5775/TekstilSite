@@ -53,4 +53,41 @@ class Giris extends Admin_Controller
         $this->session->set_flashdata('bilgi', 'Çıkış yapıldı.');
         redirect('yonetim/giris');
     }
+
+    /**
+     * Yönetici kendi parolasını değiştirir (LXII).
+     * Seed admin parolası repoda bilinir — canlıda ilk iş bu ekrandan değiştirilir.
+     * Not: Admin_Controller guard'ı Giris'te $this->admin doldurmaz — auth_admin'den alınır.
+     */
+    public function sifre()
+    {
+        if (! ($this->admin = $this->auth_admin->yonetici())) { redirect('yonetim/giris'); }
+        $data['sayfa_basligi'] = 'Yönetici Parolası';
+        $data['menu_aktif']    = '';
+        $this->render('yonetim/giris/sifre', $data);
+    }
+
+    public function sifre_kaydet()
+    {
+        if (! ($this->admin = $this->auth_admin->yonetici())) { redirect('yonetim/giris'); }
+        $this->form_validation->set_rules('eski', 'Mevcut Parola', 'trim|required');
+        $this->form_validation->set_rules('yeni', 'Yeni Parola', 'trim|required|min_length[6]');
+        $this->form_validation->set_rules('yeni2', 'Yeni Parola (tekrar)', 'trim|required|matches[yeni]');
+        if ($this->form_validation->run() === FALSE) {
+            $this->session->set_flashdata('hata', 'Yeni parola en az 6 karakter olmalı ve iki alan aynı olmalı.');
+            redirect('yonetim/giris/sifre');
+        }
+        $y = $this->yonetici_model->by_email($this->admin->email);
+        if (! $y || ! password_verify($this->input->post('eski'), $y->sifre)) {
+            $this->session->set_flashdata('hata', 'Mevcut parola hatalı.');
+            redirect('yonetim/giris/sifre');
+        }
+        $this->yonetici_model->sifre_guncelle($y->id, $this->input->post('yeni'));
+        $this->yonetici_model->audit_log(array(
+            'yonetici_id' => (int) $y->id, 'modul' => 'giris', 'islem' => 'parola_degistir',
+            'hedef' => 'self', 'aciklama' => 'Yönetici kendi parolasını değiştirdi', 'ip' => $this->input->ip_address(),
+        ));
+        $this->session->set_flashdata('bilgi', 'Parolanız güncellendi.');
+        redirect('yonetim/giris/sifre');
+    }
 }

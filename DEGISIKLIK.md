@@ -19,6 +19,43 @@
 
 ---
 
+## 2026-08-22 (LXII) — Yönetici KENDİ parolasını panelden değiştirme + soru-turunda kapanan eksik — 376/376 PASS
+
+**Kullanıcı sorusu:** "bu projede gerçekten yapılacak hiçbir şey kalmadı mı?"
+— soruyu kodda doğrularken GERÇEK bir eksik çıktı: §8'de "admin şifresi İLK
+GİRİŞTE DEĞİŞTİRİLSİN" maddesi eskiden beri VARMIŞ (2026-08-14 hijyen notu)
+ama **değiştirecek panel yolu YOKTU** — LVII'de bayi+B2C şifre panelleri
+eklenmişti, yönetici kendisi için DB'den manuel UPDATE kalıyordu. Seed admin
+parolası repoda bilindiğinden canlıda kritik öneme sahip.
+
+**Değişiklik:** `yonetim/Giris::{sifre,sifre_kaydet}` (LXII) — mevcut parola
+doğrulaması + yeni parola (≥6, eşleşme) + bcrypt + audit log
+(`parola_degistir`); sağ üst bara **Parola** düğmesi;
+`Yonetici_model::sifre_guncelle` (yeni). Guard: oturumsuz erişim login'e
+düşer (regresyonla kanıtlı). DEPLOY §8 maddesi yeni ekranla netlendi.
+
+**Tuzak (düzeltildi):** `Admin_Controller` guard'ı Giris controller'ında
+`$this->admin` DOLDURMAZ (yalnız Giris-dışı controller'larda) — ilk koşta
+`by_email(NULL)` sessizce "mevcut parola hatalı" üretiyordu; `auth_admin->
+yonetici()` ile alındı.
+
+**Keşif sırasında doğrulanan (varmış, eksiik değil):** ürün görselleri
+panelden ÇOKLU yüklenebiliyor (Urunler `_gorseller_yukle`; ilk grep head ile
+kesmişti), log İZLEME cron'u var (`scripts/log_kontrol.sh`, §8'de birikim
+maddesiyle), cron tanımı DEPLOY §6'da, `log_threshold=1` (error-only, prod
+güvenli).
+
+**DB değişikliği:** yok. **Doğrulama:** +7 test (`lxi-admin-parola-*`:
+hazırlık-giriş / form render / yanlış-eski reddi+hash sabit / ok+hash döner
++audit / eski-parola giriş red / yeni-parola giriş / oturumsuz guard) →
+tam regresyon **376/376 PASS**. Test geçici reg2 yöneticisi üzerinden —
+seed admin'e dokunulmaz (sonraki koşular girişine muhtaç).
+
+**[!] Canlıya taşı:** kod (commit) — §8 maddesi artık "sağ üst Parola
+düğmesi"ne işaret ediyor.
+
+---
+
 ## 2026-08-22 (LXI) — Yönetim paneli DERİN view taraması: 47 yeni test — 369/369 PASS
 
 **Kullanıcı isteği:** "yönetim panelindeki bütün viewleri test et. her şeyin

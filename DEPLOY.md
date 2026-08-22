@@ -229,7 +229,8 @@ yaşadığını gösterir). Bildirim e-postası: işletme adresi.
 - [ ] `https://alanadin.com/sitemap.xml` XML listesi geliyor
 - [ ] `https://alanadin.com/yonetim` → yönetim girişi (admin giriş sonrası dashboard)
 - [ ] **Admin şifresi İLK GİRİŞTE DEĞİŞTİRİLSİN** — GitHub tarihçesinde eski dev
-      şifresi bulunuyor (bkz. DEGISIKLIK.md 2026-08-14 repo hijyeni notu)
+      şifresi bulunuyor (bkz. DEGISIKLIK.md 2026-08-14 repo hijyeni notu).
+      Yol: sağ üst **Parola** düğmesi (LXII) — mevcut şifre + yeni şifre
 - [ ] Bayi kaydı → admin onayı → sepet → (PayTR canlı anahtar girildiyse) küçük tutarlı
       gerçek ödeme + e-posta düşmesi
 - [ ] `application/logs/` içinde `log-YYYY-AA-GG.php` birikmiyor (hata yok)

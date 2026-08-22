@@ -21,6 +21,12 @@ class Yonetici_model extends CI_Model
         $this->db->where('id', (int) $id)->update('yoneticiler', array('son_giris' => date('Y-m-d H:i:s')));
     }
 
+    /** Yönetici parolasını güncelle (LXII — kendi parolasını panelden değiştirir). */
+    public function sifre_guncelle($id, $yeni)
+    {
+        $this->db->where('id', (int) $id)->update('yoneticiler', array('sifre' => password_hash($yeni, PASSWORD_BCRYPT)));
+    }
+
     /** Audit log yaz. */
     public function audit_log($d)
     {
