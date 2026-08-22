@@ -477,3 +477,23 @@ CREATE TABLE IF NOT EXISTS ebulten_aboneler (
   PRIMARY KEY (id),
   UNIQUE KEY uq_ebulten_eposta (eposta)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS giris_denemeleri (
+  tip        VARCHAR(12)    NOT NULL,
+  ip         VARCHAR(45)    NOT NULL,
+  basarisiz  INT UNSIGNED   NOT NULL DEFAULT 0,
+  son_deneme DATETIME       NOT NULL,
+  PRIMARY KEY (tip, ip)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS sifre_sifirlama (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  tip        ENUM('kullanici','bayi') NOT NULL,
+  eposta     VARCHAR(150) NOT NULL,
+  token      CHAR(64) NOT NULL,
+  uretildi   DATETIME NOT NULL,
+  kullanildi TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_sifre_token (token),
+  KEY idx_sifre_eposta (tip, eposta)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

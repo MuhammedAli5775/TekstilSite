@@ -15,6 +15,15 @@ class Giris extends Admin_Controller
 
     public function giris_yap()
     {
+        // LIX: IP bazlı brute-force kilidi — yönetim ucu daha önce hiç korunmuyordu
+        // (en değerli hedef). Feed'in IP-sayaç deseni; oturum-bazlı kilit yoktu.
+        $this->load->model('giris_koruma_model');
+        $ip = (string) $this->input->ip_address();
+        if ($this->giris_koruma_model->bloklu_mu('yonetim', $ip)) {
+            $this->session->set_flashdata('hata', 'Çok fazla başarısız deneme. Lütfen ' . $this->giris_koruma_model->kalan_dakika('yonetim', $ip) . ' dk sonra tekrar deneyin.');
+            redirect('yonetim/giris');
+        }
+
         $this->load->library('form_validation');
         $this->form_validation->set_rules('email', 'E-posta', 'trim|required|valid_email');
         $this->form_validation->set_rules('sifre', 'Şifre', 'trim|required');
@@ -24,9 +33,11 @@ class Giris extends Admin_Controller
         }
         $res = $this->auth_admin->giris_yap($this->input->post('email'), $this->input->post('sifre'));
         if (! $res['ok']) {
+            $this->giris_koruma_model->deneme_kaydet('yonetim', $ip);   // LIX: IP sayacı
             $this->session->set_flashdata('hata', $res['mesaj']);
             redirect('yonetim/giris');
         }
+        $this->giris_koruma_model->deneme_temizle('yonetim', $ip);   // LIX: başarılı giriş → IP sıfır
         $donus = $this->input->post('donus');
         // Yalnız güvenli göreli yol — 'https:/evil.com' tek-slash baypası kapanır (XXVIII):
         // karakter beyaz listesi (':' yok) + '//' yasak.

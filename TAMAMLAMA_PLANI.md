@@ -5,19 +5,23 @@
 > farkı somut görevlere yayar. Görevler **Sahip** (Dev / İş / Ops) ve **Efor** (S/M/L) ile
 > etiketlidir. Öncelik-kritik-yol bölümü sıralamayı verir.
 >
-> **Durum (2026-08-21):** Zorunlu dev işi **TAMAM** (D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓)
-> + 2026-08-20/21 cila paketleri tamamlandı: XLIX ödeme validasyonu, L misafir/B2C
+> **Durum (2026-08-22):** Zorunlu dev işi **TAMAM** (D0 ✓, C1–C5 ✓, C7 ✓, E1–E4 ✓)
+> + 2026-08-20/21/22 cila paketleri tamamlandı: XLIX ödeme validasyonu, L misafir/B2C
 > sepeti oturum-döndürme düzeltmesi, LI footer zenginleştirme (5 kolon + DB güven
 > şeridi), LII favicon + OG/Twitter paylaşım kartı, LIII yönetici yeni-sipariş
 > bildirimi (SMTP-gated), LIV misafir/B2C sepet testleri, LV e-bülten aboneliği,
 > LVI kupon atıflaması + Günlük Trend/Kupon raporları + markalı 404 (D2'nin rapor
 > yarısının kupon/trend kısmı ✓), LVII şifre kurtarma (bayi + Kullanıcılar B2C
-> paneli) + çerez onay bandı + onaylı GA/FB piksel. Regresyon **304/304 PASS**
-> (dev) + sıfır-DB kurulum provası **304/304** (2026-08-21 — §3 22 dosya;
-> `ebulten_aboneler` + `siparisler.kupon_kod` şemaya girdi, provayla kanıtlandı).
+> paneli) + çerez onay bandı + onaylı GA/FB piksel, LVIII Apache yüzey kapatma
+> (.git/scripts/belgeler 403), LIX giriş brute-force IP kilidi + şifremi-unuttum
+> self-service (token akışı SMTP'siz çalışır; e-posta SMTP gelince canlanır).
+> Regresyon **321/321 PASS**
+> (dev) + sıfır-DB kurulum provası **321/321** (2026-08-22 — §3 22 dosya;
+> `ebulten_aboneler` + `siparisler.kupon_kod` + `giris_denemeleri` +
+> `sifre_sifirlama` şemaya girdi, provayla kanıtlandı).
 > Çoklu dil (XXIX–XXXIV) + blog (XXXV) + SEO (XXXVII) önceki fazlarda ✓. Kalan
 > gap'in tamamı **İş/Ops tarafında**: kimlikler (Faz A — SMTP gelince
-> şifremi-unuttum self-service, e-bülten gönderim, terk-sepet hatırlatma
+> şifremi-unuttum e-postası, e-bülten gönderim, terk-sepet hatırlatma
 > devreye alınacak), hosting+deploy (Faz B — §8 checklist'ine arama_index adımı
 > eklendi LVII), hukuki metin kararı — artı bilinçli ertelenmişler (C6 canlı
 > pazaryeri, D1 ek adapter'lar).

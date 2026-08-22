@@ -498,4 +498,20 @@ $lang = array(
     'yazi_yok'       => 'No blog posts yet.',
     'yazi_yayin'     => 'Published: %s',
     'yazi_bloga_don' => '← Back to Blog',
+
+    // ---- password reset (LIX) ----
+    'sifre_unuttum_baslik'   => 'Password Reset',
+    'sifre_unuttum_alt'      => 'Enter the e-mail registered to your account; a reset link will be sent.',
+    'sifre_unuttum_btn'      => 'Send Reset Link',
+    'sifre_yenile_baslik'    => 'Set a New Password',
+    'sifre_yenile_alt'       => 'Enter your new password; you can sign in right after setting it.',
+    'sifre_yeni'             => 'New Password',
+    'sifre_yeni2'            => 'New Password (again)',
+    'sifre_yenile_btn'       => 'Update Password',
+    'sifre_girise_don'       => '← Back to sign in',
+    'sifre_unuttum_link'     => 'Forgot your password?',
+    'flash_sifre_gonderildi' => 'If the address exists, a password reset link has been sent to its e-mail. The link is valid for 30 minutes.',
+    'flash_sifre_token_gecersiz' => 'This link is invalid or has expired. Please request a new one.',
+    'flash_sifre_uyusmaz'    => 'Password must be at least 6 characters and both fields must match.',
+    'flash_sifre_ok'         => 'Your password has been updated; you can now sign in.',
 );

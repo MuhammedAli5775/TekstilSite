@@ -39,18 +39,21 @@ Gerçek rehberler:
 - Her değişiklik DEGISIKLIK.md'e kaydolur (dosya + DB + doğrulama); commit
   mesajı kısa Türkçe + test sayısı (örn. "… — 112/112")
 
-## Durum özeti (2026-08-21)
+## Durum özeti (2026-08-22)
 
-Zorunlu dev işi **TAMAM** (D0/C1–C5/C7/E1–E4) + 2026-08-20/21 cila paketleri
+Zorunlu dev işi **TAMAM** (D0/C1–C5/C7/E1–E4) + 2026-08-20/21/22 cila paketleri
 tamam: marka "Nesem Tesettür" (XLVIII), ödeme validasyonu (XLIX), oturum
 döndürme düzeltmesi (L), footer zenginleştirme (LI), favicon+OG/Twitter kartı
 (LII), yönetici sipariş bildirimi (LIII), e-bülten (LV), kupon atıflaması +
 raporlar + markalı 404 (LVI), şifre kurtarma panelleri + çerez bandı + onaylı
-GA/FB piksel (LVII). Regresyon **304/304** (dev) + sıfır-DB provası
-**304/304** (2026-08-21, §3 22 dosya — yeni tablo/kolon provayla kanıtlı).
+GA/FB piksel (LVII), Apache yüzey kapatma (LVIII), giriş brute-force IP kilidi
++ şifremi-unuttum self-service (LIX). Regresyon **321/321** (dev) + sıfır-DB
+provası **321/321** (2026-08-22, §3 22 dosya — giris_denemeleri +
+sifre_sifirlama provayla kanıtlı).
 Çoklu dil + blog + SEO önceki fazlarda ✓. Kalan engelleyiciler dev dışı:
 **İş** Faz A kimlikleri (`FAZ_A_REHBERI.md` — SMTP gelince şifremi-unuttum
-self-service, e-bülten gönderim, terk-sepet hatırlatma devreye alınacak),
+e-postası + e-bülten gönderim + terk-sepet hatırlatma devreye alınacak; LIX
+akışı SMTP'siz de çalışır, yalnız e-posta atlanır),
 **Ops** Faz B hosting (`DEPLOY.md`), hukuki metin kararı (E4). Bilinçli
 ertelenmişler: D1 pazaryeri adapter'ları, C6 canlı Trendyol testi.
 Güncel ayrıntı: TAMAMLAMA_PLANI.md.

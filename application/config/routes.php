@@ -86,6 +86,11 @@ $route['hesabim/adresler']           = 'hesap/adresler';
 $route['hesabim/adresler/kaydet']    = 'hesap/adres_kaydet';
 $route['hesabim/adresler/sil/(:num)'] = 'hesap/adres_sil/$1';
 
+// Şifre sıfırlama (LIX) — sifremi-unuttum/{tip}, sifre-yenile/{tip}/{token}
+$route['sifremi-unuttum']            = 'sifre/unuttum';
+$route['sifremi-unuttum/(:any)']     = 'sifre/unuttum/$1';
+$route['sifre-yenile/(:any)/(:any)'] = 'sifre/yenile/$1/$2';
+
 // Yönetim paneli (/yonetim → giriş)
 $route['yonetim']                    = 'yonetim/giris';
 

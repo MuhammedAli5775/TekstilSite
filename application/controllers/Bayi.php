@@ -62,6 +62,14 @@ class Bayi extends Magaza_Controller
 
     public function giris_yap()
     {
+        // LIX: IP bazlı brute-force kilidi — oturum-kilit katmanına ek; uç-bazlı.
+        $this->load->model('giris_koruma_model');
+        $ip = (string) $this->input->ip_address();
+        if ($this->giris_koruma_model->bloklu_mu('bayi', $ip)) {
+            $this->session->set_flashdata('hata', t('flash_limit', 'Çok fazla başarısız deneme. Lütfen %s dk sonra tekrar deneyin.', $this->giris_koruma_model->kalan_dakika('bayi', $ip)));
+            redirect('bayi/giris');
+        }
+
         $this->load->library('form_validation');
         $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email');
         $this->form_validation->set_rules('sifre', t('auth_sifre', 'Şifre'), 'trim|required');
@@ -79,6 +87,7 @@ class Bayi extends Magaza_Controller
         $this->load->model('bayi_model');
         $b = $this->bayi_model->giris_kontrol($this->input->post('email'), $this->input->post('sifre'));
         if (! $b) {
+            $this->giris_koruma_model->deneme_kaydet('bayi', $ip);   // LIX: IP sayacı
             $deneme = (int) $this->session->userdata('bayi_deneme') + 1;
             $this->session->set_userdata('bayi_deneme', $deneme);
             if ($deneme >= 5) {
@@ -93,6 +102,7 @@ class Bayi extends Magaza_Controller
             redirect('bayi/giris');
         }
 
+        $this->giris_koruma_model->deneme_temizle('bayi', $ip);   // LIX: başarılı giriş → IP sıfır
         $this->session->unset_userdata(array('bayi_deneme', 'bayi_kilit'));
         $this->bayi_giris_yap($b);   // oturum döner + misafir sepeti transferi içeride
         $this->bayi_model->son_giris_isaretle($b->id);

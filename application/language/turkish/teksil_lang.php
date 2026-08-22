@@ -499,4 +499,20 @@ $lang = array(
     'yazi_yok'       => 'Henüz blog yazısı yok.',
     'yazi_yayin'     => 'Yayın: %s',
     'yazi_bloga_don' => '← Blog\'a Dön',
+
+    // ---- şifre sıfırlama (LIX) ----
+    'sifre_unuttum_baslik'   => 'Şifre Sıfırlama',
+    'sifre_unuttum_alt'      => 'Hesabınıza kayıtlı e-postayı girin; sıfırlama bağlantısı gönderilsin.',
+    'sifre_unuttum_btn'      => 'Sıfırlama Bağlantısı Gönder',
+    'sifre_yenile_baslik'    => 'Yeni Şifre Belirle',
+    'sifre_yenile_alt'       => 'Yeni şifrenizi girin; belirledikten sonra giriş yapabilirsiniz.',
+    'sifre_yeni'             => 'Yeni Şifre',
+    'sifre_yeni2'            => 'Yeni Şifre (tekrar)',
+    'sifre_yenile_btn'       => 'Şifreyi Güncelle',
+    'sifre_girise_don'       => '← Girişe dön',
+    'sifre_unuttum_link'     => 'Şifremi unuttum?',
+    'flash_sifre_gonderildi' => 'Şifre sıfırlama bağlantısı hesabınızın e-postasına gönderildi (varsa). Bağlantı 30 dakika geçerlidir.',
+    'flash_sifre_token_gecersiz' => 'Bağlantı geçersiz veya süresi dolmuş. Yeniden isteyin.',
+    'flash_sifre_uyusmaz'    => 'Şifre en az 6 karakter olmalı ve iki alan aynı olmalı.',
+    'flash_sifre_ok'         => 'Şifreniz güncellendi; yeni şifrenizle giriş yapabilirsiniz.',
 );

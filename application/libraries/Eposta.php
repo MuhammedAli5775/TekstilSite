@@ -100,6 +100,39 @@ class Eposta
         return TRUE;
     }
 
+    /**
+     * Şifre sıfırlama bağlantısı (graceful — LIX).
+     * SMTP yoksa atlanır (log'a düşer) — hesap sahibi LVII yönetici paneliyle
+     * şifre sıfırlatabilir; akış asla hata vermez.
+     */
+    public function sifre_sifirlama($eposta, $link)
+    {
+        $eposta = trim((string) $eposta);
+        if (! filter_var($eposta, FILTER_VALIDATE_EMAIL)) { return FALSE; }
+        if (! $this->hazir()) { log_message('error', 'Eposta: SMTP yok — şifre sıfırlama e-postası atlandı (graceful).'); return FALSE; }
+
+        $site = htmlspecialchars(ayar('site_adi', 'Nesem Tesettür'));
+        $konu = ayar('site_adi', 'Nesem Tesettür') . ' — Şifre Sıfırlama';
+        $govde = '<div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:auto;color:#001e2b">'
+            . '<div style="background:#001e2b;color:#00ed64;padding:16px 20px;font-size:18px;font-weight:600">' . $site . '</div>'
+            . '<div style="padding:20px"><h1 style="font-size:20px;margin:0 0 8px">Şifre sıfırlama isteği</h1>'
+            . '<p style="color:#5c6c7a;margin:0 0 16px">Hesabınız için yeni şifre belirlemek için aşağıdaki düğmeyi kullanın. Bağlantı 30 dakika geçerlidir ve tek kullanımlıktır.</p>'
+            . '<p style="margin:0 0 16px"><a href="' . htmlspecialchars($link) . '" style="background:#001e2b;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Yeni şifre belirle</a></p>'
+            . '<p style="color:#5c6c7a;font-size:13px">Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz; şifreniz değişmez.</p>'
+            . '</div></div>';
+
+        $this->CI->email->initialize($this->_smtp_ayarlari());
+        $this->CI->email->from(ayar('gonderen_eposta', ayar('smtp_kullanici')), ayar('site_adi', 'Nesem Tesettür'));
+        $this->CI->email->to($eposta);
+        $this->CI->email->subject($konu);
+        $this->CI->email->message($govde);
+        if (! $this->CI->email->send(FALSE)) {
+            log_message('error', 'Eposta şifre sıfırlama gönderilemedi.');
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     public function durum_bildirim($siparis_id, $durum_etiket, $notu = '')
     {
         $this->CI->load->model('siparis_model');

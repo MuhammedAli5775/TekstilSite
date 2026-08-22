@@ -101,6 +101,8 @@ $logFile = 'application/logs/log-' . date('Y-m-d') . '.php';
 $logOnce = is_file($logFile) ? (int) substr_count(file_get_contents($logFile), "\n") : 0;
 $vStokOnce = (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1");
 q("DELETE FROM feed_denemeler");
+q("DELETE FROM giris_denemeleri");   // LIX: yarım kalmış koşu IP kilidi bırakmışsa giriş testleri düşmesin
+q("DELETE FROM sifre_sifirlama");
 echo "hedef: $BASE | test e-posta: $E\n---\n";
 
 /* ---- A) yayın sayfaları (guest) ------------------------------------------- */
@@ -695,6 +697,67 @@ q("DELETE FROM feed_denemeler");
 list($c, ) = get('guest', "/feed/urunler?key=" . urlencode($anahtar));
 check('feed-blok-sonrasi-temiz-200', $c === 200);
 
+/* ---- E1b) giriş brute-force IP kilidi (LIX) --------------------------------- */
+// 5 yanlış parola → IP sayacı dolar; çerez silip taze oturumla (oturum-kilidi
+// atlatma saldırısı) DOĞRU parola gelse bile IP kilidi yakalar.
+for ($i = 1; $i <= 5; $i++) {
+    post('kilit', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'yanlis_' . $i));
+}
+check('giris-ip-sayac', (int) q1("SELECT basarisiz FROM giris_denemeleri WHERE tip='kullanici'") === 5);
+list($c, ) = post('kilit2', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026y'));
+check('giris-ip-blok-dogru-parola', is_redir($c));
+list($c, ) = get('kilit2', '/hesabim');
+check('giris-ip-blok-giris-yok', is_redir($c));   // oturum açılamadı → guard'a düştü
+q("DELETE FROM giris_denemeleri");                // pencere bitti senaryosu
+post('kilit2', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026y'));
+list($c, ) = get('kilit2', '/hesabim');
+check('giris-ip-temizlik-sonrasi-giris', $c === 200);
+
+/* ---- E1c) şifremi unuttum akışı (LIX) --------------------------------------- */
+// form + giriş sayfasındaki link
+list($c, $r) = get('guest', '/sifremi-unuttum/kullanici');
+check('sifre-unuttum-form-200', $c === 200 && strpos($r, 'name="eposta"') !== FALSE);
+list($c, $r) = get('guest', '/kullanici/giris');
+check('sifre-giris-link', $c === 200 && strpos($r, 'sifremi-unuttum/kullanici') !== FALSE);
+// token isteği (hesap VAR) → PRG + DB'ye tek kullanımlık token
+list($c, ) = post('kullanici', '/sifremi-unuttum/kullanici', array('eposta' => $EK));
+check('sifre-unuttum-prg', is_redir($c));
+$sToken = (string) q1("SELECT token FROM sifre_sifirlama WHERE eposta='" . esc($EK) . "' AND tip='kullanici' AND kullanildi=0");
+check('sifre-unuttum-token', strlen($sToken) === 64);
+// anti-enumeration: hesap YOK → aynı PRG, token YOK, toplam sayı değişmedi
+list($c, ) = post('kullanici', '/sifremi-unuttum/kullanici', array('eposta' => "yok$T@test.local"));
+check('sifre-unuttum-anti-enum', is_redir($c) && (int) q1("SELECT COUNT(*) FROM sifre_sifirlama") === 1);
+// bayi ucu da aynı akış (tip yönlendirmesi + bayiler tablosu)
+list($c, ) = post('kullanici', '/sifremi-unuttum/bayi', array('eposta' => $E));
+check('sifre-unuttum-bayi-token', is_redir($c) && (int) q1("SELECT COUNT(*) FROM sifre_sifirlama WHERE tip='bayi' AND kullanildi=0") === 1);
+// yenile formu → uymayan şifre kabul edilmez (token harcanmaz)
+list($c, $r) = get('kullanici', "/sifre-yenile/kullanici/$sToken");
+check('sifre-yenile-form-200', $c === 200 && strpos($r, 'name="sifre"') !== FALSE);
+list($c, ) = post('kullanici', "/sifre-yenile/kullanici/$sToken", array('sifre' => 'Kul2026a', 'sifre2' => 'Kul2026b'));
+check('sifre-yenile-uyusmaz', is_redir($c) && (int) q1("SELECT kullanildi FROM sifre_sifirlama WHERE token='" . esc($sToken) . "'") === 0);
+// yeni şifre → token harcanır + hash döner (eski parola geçersiz)
+list($c, ) = post('kullanici', "/sifre-yenile/kullanici/$sToken", array('sifre' => 'Kul2026z', 'sifre2' => 'Kul2026z'));
+$yHash = (string) q1("SELECT sifre FROM kullanicilar WHERE email='" . esc($EK) . "'");
+check('sifre-yenile-ok', is_redir($c)
+    && (int) q1("SELECT kullanildi FROM sifre_sifirlama WHERE token='" . esc($sToken) . "'") === 1
+    && password_verify('Kul2026z', $yHash) && ! password_verify('Kul2026y', $yHash));
+// tek kullanımlık: harcanan token bir daha açılmaz
+list($c, ) = get('kullanici', "/sifre-yenile/kullanici/$sToken");
+check('sifre-yenile-tek-kullanim', is_redir($c));
+// süre dolmuş token geçersiz (31 dk önce üretilmiş)
+post('kullanici', '/sifremi-unuttum/kullanici', array('eposta' => $EK));
+$sToken2 = (string) q1("SELECT token FROM sifre_sifirlama WHERE eposta='" . esc($EK) . "' AND tip='kullanici' AND kullanildi=0 ORDER BY id DESC LIMIT 1");
+check('sifre-token-2-uretildi', strlen($sToken2) === 64 && $sToken2 !== $sToken);
+// PHP-TZ (php.ini) ile MySQL yerel saati farklı olabilir — uretildi'yi PHP
+// saatiyle yaz (Sifre::unuttum date() kullanır, strtotime da PHP-TZ okur).
+q("UPDATE sifre_sifirlama SET uretildi='" . date('Y-m-d H:i:s', time() - 1860) . "' WHERE token='" . esc($sToken2) . "'");
+list($c, ) = get('kullanici', "/sifre-yenile/kullanici/$sToken2");
+check('sifre-token-sure-dolu', is_redir($c));
+// yeni şifreyle gerçek giriş (uçtan uca)
+post('yenilen', '/kullanici/giris_yap', array('email' => $EK, 'sifre' => 'Kul2026z'));
+list($c, ) = get('yenilen', '/hesabim');
+check('sifre-yeni-sifre-giris', $c === 200);
+
 /* ---- E2) XML içe aktarım (Faz 5) -------------------------------------------- */
 // Not: sunucu-içi URL çekmesi Windows php -S'de (tek iş parçacığı) KENDİNE
 // curl kilitlenmesi yaratır — URL yolu yalnız hızlı-hata durumunda sınanır;
@@ -996,6 +1059,8 @@ q("DELETE FROM urunler WHERE stok_kodu LIKE 'REG-XML-%'");
 q("UPDATE urunler SET fiyat=$gFiyatOnce WHERE id=1");
 q("DELETE FROM xml_kaynaklari WHERE ad='Regresyon XML'");   // xml_loglari CASCADE (ad'yla — crash artığına dayanıklı, $kalan da ad'la sayar)
 q("DELETE FROM ebulten_aboneler WHERE eposta LIKE 'bulten%@test.local'");   // LV: e-bülten test aboneleri (geçersiz e-posta hiç yazılmaz)
+q("DELETE FROM giris_denemeleri");   // LIX: IP kilit sayacı
+q("DELETE FROM sifre_sifirlama");    // LIX: test token'ları
 if ($db->query("SHOW TABLES LIKE 'stok_hareketleri'")->num_rows
     && $db->query("SHOW COLUMNS FROM stok_hareketleri LIKE 'siparis_id'")->num_rows) {
     q("DELETE FROM stok_hareketleri WHERE siparis_id IN ($siparisId, " . (int) ($kSiparisId ?? 0) . ", " . (int) ($kupSiparisId ?? 0) . ")");
@@ -1007,7 +1072,9 @@ $kalan = (int) q1("SELECT (SELECT COUNT(*) FROM siparisler WHERE email='" . esc(
                  + (SELECT COUNT(*) FROM api_anahtarlari WHERE id=$anahtarId)
                  + (SELECT COUNT(*) FROM feed_denemeler)
                  + (SELECT COUNT(*) FROM xml_kaynaklari WHERE ad='Regresyon XML')
-                 + (SELECT COUNT(*) FROM urunler WHERE stok_kodu LIKE 'REG-XML-%')");
+                 + (SELECT COUNT(*) FROM urunler WHERE stok_kodu LIKE 'REG-XML-%')
+                 + (SELECT COUNT(*) FROM giris_denemeleri)
+                 + (SELECT COUNT(*) FROM sifre_sifirlama)");
 check('temizlik-tamam', $kalan === 0);
 check('stok-geri-yuklendi', (int) q1("SELECT stok FROM urun_varyantlari WHERE id=1") === $vStokOnce);
 

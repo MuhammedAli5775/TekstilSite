@@ -20,6 +20,7 @@ $donus = isset($donus) ? $donus : '';
             <div class="odeme-alan"><label><?= t('auth_sifre', 'Şifre') ?></label><input type="password" name="sifre" required></div>
             <button type="submit" class="btn btn-primary btn--lg" style="width:100%;margin-top:8px"><?= t('auth_giris_btn', 'Giriş Yap') ?></button>
         </form>
+        <p class="auth-link"><small><a href="<?= site_url('sifremi-unuttum/kullanici') ?>"><?= t('sifre_unuttum_link', 'Şifremi unuttum?') ?></a></small></p>
         <p class="auth-link"><?= t('auth_hesap_yok', 'Hesabın yok mu?') ?> <a href="<?= site_url('kullanici/kayit') ?>"><?= t('kul_kayit_ol', 'Kayıt ol →') ?></a></p>
         <p class="auth-link"><small><?= t('kul_bayi_misiniz', 'Bayi misiniz?') ?> <a href="<?= site_url('bayi/giris') ?>"><?= t('kul_bayi_girisi', 'Bayi girişi') ?></a></small></p>
     </div>

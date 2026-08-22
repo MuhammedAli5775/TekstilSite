@@ -59,6 +59,15 @@ class Kullanici extends Magaza_Controller
 
     public function giris_yap()
     {
+        // LIX: IP bazlı brute-force kilidi — oturum-kilit katmanına ek; çerez
+        // silen saldırganı atlatamaz. Uç-bazlı sayaç: bayi/yonetim ayrı işler.
+        $this->load->model('giris_koruma_model');
+        $ip = (string) $this->input->ip_address();
+        if ($this->giris_koruma_model->bloklu_mu('kullanici', $ip)) {
+            $this->session->set_flashdata('hata', t('flash_limit', 'Çok fazla başarısız deneme. Lütfen %s dk sonra tekrar deneyin.', $this->giris_koruma_model->kalan_dakika('kullanici', $ip)));
+            redirect('kullanici/giris');
+        }
+
         $this->load->library('form_validation');
         $this->form_validation->set_rules('email', t('odeme_eposta', 'E-posta'), 'trim|required|valid_email');
         $this->form_validation->set_rules('sifre', t('auth_sifre', 'Şifre'), 'trim|required');
@@ -76,6 +85,7 @@ class Kullanici extends Magaza_Controller
         $this->load->model('kullanici_model');
         $k = $this->kullanici_model->giris_kontrol($this->input->post('email'), $this->input->post('sifre'));
         if (! $k) {
+            $this->giris_koruma_model->deneme_kaydet('kullanici', $ip);   // LIX: IP sayacı
             $deneme = (int) $this->session->userdata('kullanici_deneme') + 1;
             $this->session->set_userdata('kullanici_deneme', $deneme);
             if ($deneme >= 5) {
@@ -90,6 +100,7 @@ class Kullanici extends Magaza_Controller
             redirect('kullanici/giris');
         }
 
+        $this->giris_koruma_model->deneme_temizle('kullanici', $ip);   // LIX: başarılı giriş → IP sıfır
         $this->session->unset_userdata(array('kullanici_deneme', 'kullanici_kilit'));
         $this->kullanici_giris_yap($k);
         $this->kullanici_model->son_giris_isaretle($k->id);

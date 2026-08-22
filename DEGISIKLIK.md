@@ -19,6 +19,60 @@
 
 ---
 
+## 2026-08-22 (LIX) — Giriş brute-force IP kilidi + şifremi-unuttum self-service — 321/321 PASS
+
+**Bağlam:** LVIII'in bilinen-iyileştirme maddesi (oturum-bazlı giriş kilidi
+çerez silen saldırganı atlıyordu) + FAZ_A_REHBERI'nde SMTP sonrasına
+planlanan şifre kurtarma self-service'inin SMTP'den bağımsız iskeleti.
+(2026-08-21 oturumu API 429 ile bu işin ortasında kesildi; bugün tamamlandı.)
+
+**1) IP bazlı giriş kilidi (`Giris_koruma_model` + üç giriş ucu):** Feed'in
+IP-sayaç deseni giriş uçlarına taşındı — uç (tip) bazlı sayaç: müşteri /
+bayi / yönetim girişleri ayrı kilitlenir (admin'e saldıran müşteri girişini
+boğmaz). 15 dk pencerede 5 yanlış PAROLA → IP blok; pencere dolunca sayaç
+yeniden başlar; başarılı giriş IP'yi sıfırlar. Oturum-bazlı kilit ikinci
+katman olarak durur; çerez silen saldırgan artık atlayamaz (regresyonda
+kanıtlandı: 5 yanlış → taze oturumla DOĞRU parola bile reddedilir).
+- `application/models/Giris_koruma_model.php` (yeni; bloklu_mu / kalan_dakika /
+  deneme_kaydet / deneme_temizle)
+- `application/controllers/Kullanici.php`, `Bayi.php`, `yonetim/Giris.php`
+  (giris_yap uçlarına kanca — blok kontrolü form-validasyondan ÖNCE)
+
+**2) Şifremi unuttum self-service (`Sifre` kontrolcüsü, iki uç):**
+`sifremi-unuttum/{kullanici|bayi}` → 64 hex tek-kullanımlık token (30 dk);
+`sifre-yenile/{tip}/{token}` → yeni şifre (bcrypt, model'deki mevcut
+`sifre_guncelle`). Anti-enumeration: hesap var/yok AYNI mesaj + PRG (sayfa
+yenileme ile de sızmaz). E-posta `Eposta::sifre_sifirlama` (yeni; site
+temalı, SMTP yoksa graceful atlanır — LVII admin panelleri yedek kalır).
+Giriş sayfalarına "Şifremi unuttum?" linki; rota `sifremi-unuttum` +
+`sifre-yenile/{tip}/{token}`; 14 dil anahtarı 4 dilde (parite 449=449).
+- `application/controllers/Sifre.php`, `application/libraries/Eposta.php`,
+  `application/views/magaza/sifre/{unuttum,yenile}.php` (yeni),
+  `application/views/magaza/{kullanici,bayi}/giris.php`,
+  `application/config/routes.php`, `application/language/{tr,en,ru,ar}/teksil_lang.php`
+
+**DB değişikliği:** iki yeni tablo — `giris_denemeleri` (PK tip+ip; uç-bazlı
+sayaç) ve `sifre_sifirlama` (token UNIQUE, tip+eposta indeksli). Taze kurulum
+`sql/schema.sql`'e eklendi; mevcut DB'ler için `sql/migrate_giris_deneme.sql`
++ `sql/migrate_sifre_sifirlama.sql` (ikisi de `IF NOT EXISTS`, idempotent;
+dev + rehearsal'a uygulandı). §3 dosya listesi DEĞİŞMEDİ (22 — schema.sql
+içeriyor, LV/LVI migrate_ebulten/migrate_kupon_kod düzeniyle aynı).
+
+**Doğrulama:** +17 regresyon testi (IP sayacı / blokta doğru-parola reddi /
+pencere sonrası kurtarma; form+link render / PRG / token / anti-enumeration /
+bayi ucu / uymayan şifre / hash dönüşü / tek-kullanım / süre-dolu / uçtan uca
+yeni şifreyle giriş) → **321/321 PASS** dev DB. **Sıfır-DB provası**: scratch
+DB'ye §3 22 dosya taze kuruldu, her iki yeni tablo oluştu, tekrar **321/321
+PASS**. php -l dokunulan 16 dosya temiz; mojibake 0; dil paritesi
+449=449=449=449. (Prova bulgusu: php.ini TZ Europe/Berlin ile MySQL yerel
+saati farklı olabilir — DATETIME yazan/okuyan kodun tamamı PHP tarafında
+`tutarlı` olduğundan sorun yok; yalnız test verisi PHP saatiyle yazılmalı.)
+
+**[!] Canlıya taşı:** kod (commit) + mevcut canlı DB'ye
+`sql/migrate_giris_deneme.sql` + `sql/migrate_sifre_sifirlama.sql`.
+
+---
+
 ## 2026-08-21 (LVIII) — Güvenlik/bug denetimi: .git + scripts + belgeler web'e kapandı — 304/304 PASS (değişiklik .htaccess)
 
 **Kullanıcı isteği:** "son kez kontrol et, bu sefer eksiklik yerine bug ve
